@@ -1,0 +1,7 @@
+{
+    "python_version": true,
+    "installed_packages": false,
+    "pythonpath": true,
+    "backend_port": true,
+    "frontend_port": true
+}

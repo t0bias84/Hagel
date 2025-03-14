@@ -1,0 +1,623 @@
+2024-12-18 11:09:36,934 - backend - INFO - Starting backend server...
+2024-12-18 12:15:06,669 - backend - INFO - Starting backend server...
+2024-12-18 12:15:06,834 - backend - ERROR - INFO:     Will watch for changes in these directories: ['C:\\Users\\tjans\\Documents\\Hagel\\hagelskott-analys\\backend']
+NoneType: None
+2024-12-18 12:15:06,836 - backend - ERROR - INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+NoneType: None
+2024-12-18 12:15:06,836 - backend - ERROR - INFO:     Started reloader process [44876] using StatReload
+NoneType: None
+2024-12-18 12:15:07,767 - backend - ERROR - Process SpawnProcess-1:
+NoneType: None
+2024-12-18 12:15:07,774 - backend - ERROR - Traceback (most recent call last):
+NoneType: None
+2024-12-18 12:15:07,774 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\multiprocessing\process.py", line 314, in _bootstrap
+NoneType: None
+2024-12-18 12:15:07,774 - backend - ERROR - self.run()
+NoneType: None
+2024-12-18 12:15:07,774 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\multiprocessing\process.py", line 108, in run
+NoneType: None
+2024-12-18 12:15:07,774 - backend - ERROR - self._target(*self._args, **self._kwargs)
+NoneType: None
+2024-12-18 12:15:07,774 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\_subprocess.py", line 78, in subprocess_started
+NoneType: None
+2024-12-18 12:15:07,774 - backend - ERROR - target(sockets=sockets)
+NoneType: None
+2024-12-18 12:15:07,774 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\server.py", line 62, in run
+NoneType: None
+2024-12-18 12:15:07,775 - backend - ERROR - return asyncio.run(self.serve(sockets=sockets))
+NoneType: None
+2024-12-18 12:15:07,775 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:15:07,775 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py", line 194, in run
+NoneType: None
+2024-12-18 12:15:07,775 - backend - ERROR - return runner.run(main)
+NoneType: None
+2024-12-18 12:15:07,775 - backend - ERROR - ^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:15:07,775 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py", line 118, in run
+NoneType: None
+2024-12-18 12:15:07,775 - backend - ERROR - return self._loop.run_until_complete(task)
+NoneType: None
+2024-12-18 12:15:07,775 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:15:07,775 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+NoneType: None
+2024-12-18 12:15:07,775 - backend - ERROR - return future.result()
+NoneType: None
+2024-12-18 12:15:07,775 - backend - ERROR - ^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:15:07,775 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\server.py", line 69, in serve
+NoneType: None
+2024-12-18 12:15:07,775 - backend - ERROR - config.load()
+NoneType: None
+2024-12-18 12:15:07,775 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\config.py", line 458, in load
+NoneType: None
+2024-12-18 12:15:07,776 - backend - ERROR - self.loaded_app = import_from_string(self.app)
+NoneType: None
+2024-12-18 12:15:07,776 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:15:07,776 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\importer.py", line 21, in import_from_string
+NoneType: None
+2024-12-18 12:15:07,776 - backend - ERROR - module = importlib.import_module(module_str)
+NoneType: None
+2024-12-18 12:15:07,776 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:15:07,776 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py", line 90, in import_module
+NoneType: None
+2024-12-18 12:15:07,776 - backend - ERROR - return _bootstrap._gcd_import(name[level:], package, level)
+NoneType: None
+2024-12-18 12:15:07,776 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:15:07,776 - backend - ERROR - File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+NoneType: None
+2024-12-18 12:15:07,776 - backend - ERROR - File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+NoneType: None
+2024-12-18 12:15:07,776 - backend - ERROR - File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+NoneType: None
+2024-12-18 12:15:07,776 - backend - ERROR - File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+NoneType: None
+2024-12-18 12:15:07,776 - backend - ERROR - File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+NoneType: None
+2024-12-18 12:15:07,777 - backend - ERROR - File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+NoneType: None
+2024-12-18 12:15:07,777 - backend - ERROR - File "C:\Users\tjans\Documents\Hagel\hagelskott-analys\backend\main.py", line 17, in <module>
+NoneType: None
+2024-12-18 12:15:07,777 - backend - ERROR - from app.db.mongodb import db
+NoneType: None
+2024-12-18 12:15:07,777 - backend - ERROR - File "C:\Users\tjans\Documents\Hagel\hagelskott-analys\backend\app\db\mongodb.py", line 1, in <module>
+NoneType: None
+2024-12-18 12:15:07,777 - backend - ERROR - from motor.motor_asyncio import AsyncIOMotorClient
+NoneType: None
+2024-12-18 12:15:07,777 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\motor\motor_asyncio.py", line 16, in <module>
+NoneType: None
+2024-12-18 12:15:07,777 - backend - ERROR - from . import core, motor_gridfs
+NoneType: None
+2024-12-18 12:15:07,777 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\motor\core.py", line 30, in <module>
+NoneType: None
+2024-12-18 12:15:07,777 - backend - ERROR - from pymongo.cursor import _QUERY_OPTIONS, Cursor, RawBatchCursor
+NoneType: None
+2024-12-18 12:15:07,777 - backend - ERROR - ImportError: cannot import name '_QUERY_OPTIONS' from 'pymongo.cursor' (C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\pymongo\cursor.py)
+NoneType: None
+2024-12-18 12:15:08,679 - backend - INFO - Backend started successfully
+2024-12-18 12:15:38,854 - backend - ERROR - Backend failed to respond within 30 seconds
+NoneType: None
+2024-12-18 12:15:38,854 - backend - ERROR - Backend failed to start properly
+NoneType: None
+2024-12-18 12:21:23,996 - backend - INFO - Starting backend server...
+2024-12-18 12:21:24,147 - backend - ERROR - INFO:     Will watch for changes in these directories: ['C:\\Users\\tjans\\Documents\\Hagel\\hagelskott-analys\\backend']
+NoneType: None
+2024-12-18 12:21:24,148 - backend - ERROR - INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+NoneType: None
+2024-12-18 12:21:24,148 - backend - ERROR - INFO:     Started reloader process [44456] using StatReload
+NoneType: None
+2024-12-18 12:21:24,891 - backend - ERROR - Process SpawnProcess-1:
+NoneType: None
+2024-12-18 12:21:24,894 - backend - ERROR - Traceback (most recent call last):
+NoneType: None
+2024-12-18 12:21:24,895 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\multiprocessing\process.py", line 314, in _bootstrap
+NoneType: None
+2024-12-18 12:21:24,895 - backend - ERROR - self.run()
+NoneType: None
+2024-12-18 12:21:24,895 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\multiprocessing\process.py", line 108, in run
+NoneType: None
+2024-12-18 12:21:24,895 - backend - ERROR - self._target(*self._args, **self._kwargs)
+NoneType: None
+2024-12-18 12:21:24,896 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\_subprocess.py", line 78, in subprocess_started
+NoneType: None
+2024-12-18 12:21:24,896 - backend - ERROR - target(sockets=sockets)
+NoneType: None
+2024-12-18 12:21:24,896 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\server.py", line 62, in run
+NoneType: None
+2024-12-18 12:21:24,896 - backend - ERROR - return asyncio.run(self.serve(sockets=sockets))
+NoneType: None
+2024-12-18 12:21:24,896 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:21:24,896 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py", line 194, in run
+NoneType: None
+2024-12-18 12:21:24,896 - backend - ERROR - return runner.run(main)
+NoneType: None
+2024-12-18 12:21:24,896 - backend - ERROR - ^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:21:24,896 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py", line 118, in run
+NoneType: None
+2024-12-18 12:21:24,896 - backend - ERROR - return self._loop.run_until_complete(task)
+NoneType: None
+2024-12-18 12:21:24,896 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - return future.result()
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - ^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\server.py", line 69, in serve
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - config.load()
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\config.py", line 458, in load
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - self.loaded_app = import_from_string(self.app)
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\importer.py", line 21, in import_from_string
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - module = importlib.import_module(module_str)
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py", line 90, in import_module
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - return _bootstrap._gcd_import(name[level:], package, level)
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+NoneType: None
+2024-12-18 12:21:24,897 - backend - ERROR - File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+NoneType: None
+2024-12-18 12:21:24,898 - backend - ERROR - File "C:\Users\tjans\Documents\Hagel\hagelskott-analys\backend\main.py", line 17, in <module>
+NoneType: None
+2024-12-18 12:21:24,898 - backend - ERROR - from app.db.mongodb import db
+NoneType: None
+2024-12-18 12:21:24,898 - backend - ERROR - File "C:\Users\tjans\Documents\Hagel\hagelskott-analys\backend\app\db\mongodb.py", line 1, in <module>
+NoneType: None
+2024-12-18 12:21:24,898 - backend - ERROR - from motor.motor_asyncio import AsyncIOMotorClient
+NoneType: None
+2024-12-18 12:21:24,898 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\motor\motor_asyncio.py", line 16, in <module>
+NoneType: None
+2024-12-18 12:21:24,898 - backend - ERROR - from . import core, motor_gridfs
+NoneType: None
+2024-12-18 12:21:24,898 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\motor\core.py", line 30, in <module>
+NoneType: None
+2024-12-18 12:21:24,898 - backend - ERROR - from pymongo.cursor import _QUERY_OPTIONS, Cursor, RawBatchCursor
+NoneType: None
+2024-12-18 12:21:24,898 - backend - ERROR - ImportError: cannot import name '_QUERY_OPTIONS' from 'pymongo.cursor' (C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\pymongo\cursor.py)
+NoneType: None
+2024-12-18 12:21:26,005 - backend - INFO - Backend started successfully
+2024-12-18 12:21:56,241 - backend - ERROR - Backend failed to respond within 30 seconds
+NoneType: None
+2024-12-18 12:21:56,241 - backend - ERROR - Backend failed to start properly
+NoneType: None
+2024-12-18 12:24:30,096 - backend - INFO - Starting backend server...
+2024-12-18 12:24:30,247 - backend - ERROR - INFO:     Will watch for changes in these directories: ['C:\\Users\\tjans\\Documents\\Hagel\\hagelskott-analys\\backend']
+NoneType: None
+2024-12-18 12:24:30,247 - backend - ERROR - INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+NoneType: None
+2024-12-18 12:24:30,247 - backend - ERROR - INFO:     Started reloader process [41468] using StatReload
+NoneType: None
+2024-12-18 12:24:32,098 - backend - INFO - Backend started successfully
+2024-12-18 12:24:32,531 - backend - ERROR - C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\pydantic\_internal\_config.py:321: UserWarning: Valid config keys have changed in V2:
+NoneType: None
+2024-12-18 12:24:32,531 - backend - ERROR - * 'allow_population_by_field_name' has been renamed to 'populate_by_name'
+NoneType: None
+2024-12-18 12:24:32,531 - backend - ERROR - warnings.warn(message, UserWarning)
+NoneType: None
+2024-12-18 12:24:32,656 - backend - ERROR - INFO:     Started server process [14452]
+NoneType: None
+2024-12-18 12:24:32,656 - backend - ERROR - INFO:     Waiting for application startup.
+NoneType: None
+2024-12-18 12:24:32,703 - backend - ERROR - INFO:app.db.mongodb:MongoDB indexes created successfully
+NoneType: None
+2024-12-18 12:24:32,703 - backend - ERROR - INFO:app.db.mongodb:Successfully connected to MongoDB
+NoneType: None
+2024-12-18 12:24:32,703 - backend - ERROR - INFO:main:Database connection established
+NoneType: None
+2024-12-18 12:24:32,704 - backend - ERROR - INFO:main:Upload directories created
+NoneType: None
+2024-12-18 12:24:32,704 - backend - ERROR - INFO:     Application startup complete.
+NoneType: None
+2024-12-18 12:25:02,356 - backend - ERROR - Backend failed to respond within 30 seconds
+NoneType: None
+2024-12-18 12:25:02,356 - backend - ERROR - Backend failed to start properly
+NoneType: None
+2024-12-18 12:30:34,815 - backend - INFO - Starting backend server...
+2024-12-18 12:30:34,974 - backend - ERROR - INFO:     Will watch for changes in these directories: ['C:\\Users\\tjans\\Documents\\Hagel\\hagelskott-analys\\backend']
+NoneType: None
+2024-12-18 12:30:34,974 - backend - ERROR - INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+NoneType: None
+2024-12-18 12:30:34,974 - backend - ERROR - INFO:     Started reloader process [43648] using StatReload
+NoneType: None
+2024-12-18 12:30:36,427 - backend - ERROR - C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\pydantic\_internal\_config.py:321: UserWarning: Valid config keys have changed in V2:
+NoneType: None
+2024-12-18 12:30:36,427 - backend - ERROR - * 'allow_population_by_field_name' has been renamed to 'populate_by_name'
+NoneType: None
+2024-12-18 12:30:36,427 - backend - ERROR - warnings.warn(message, UserWarning)
+NoneType: None
+2024-12-18 12:30:36,533 - backend - ERROR - INFO:     Started server process [43632]
+NoneType: None
+2024-12-18 12:30:36,534 - backend - ERROR - INFO:     Waiting for application startup.
+NoneType: None
+2024-12-18 12:30:36,552 - backend - ERROR - INFO:app.db.mongodb:MongoDB indexes created successfully
+NoneType: None
+2024-12-18 12:30:36,552 - backend - ERROR - INFO:app.db.mongodb:Successfully connected to MongoDB
+NoneType: None
+2024-12-18 12:30:36,552 - backend - ERROR - INFO:main:Database connection established
+NoneType: None
+2024-12-18 12:30:36,552 - backend - ERROR - INFO:main:Upload directories created
+NoneType: None
+2024-12-18 12:30:36,552 - backend - ERROR - INFO:     Application startup complete.
+NoneType: None
+2024-12-18 12:30:36,820 - backend - INFO - Backend started successfully
+2024-12-18 12:31:07,113 - backend - ERROR - Backend failed to respond within 30 seconds
+NoneType: None
+2024-12-18 12:31:07,113 - backend - ERROR - Backend failed to start properly
+NoneType: None
+2024-12-18 12:37:15,489 - backend - INFO - Starting backend server...
+2024-12-18 12:37:15,645 - backend - ERROR - INFO:     Will watch for changes in these directories: ['C:\\Users\\tjans\\Documents\\Hagel\\hagelskott-analys\\backend']
+NoneType: None
+2024-12-18 12:37:15,645 - backend - ERROR - INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+NoneType: None
+2024-12-18 12:37:15,645 - backend - ERROR - INFO:     Started reloader process [43380] using StatReload
+NoneType: None
+2024-12-18 12:37:16,272 - backend - ERROR - Process SpawnProcess-1:
+NoneType: None
+2024-12-18 12:37:16,274 - backend - ERROR - Traceback (most recent call last):
+NoneType: None
+2024-12-18 12:37:16,274 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\multiprocessing\process.py", line 314, in _bootstrap
+NoneType: None
+2024-12-18 12:37:16,274 - backend - ERROR - self.run()
+NoneType: None
+2024-12-18 12:37:16,274 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\multiprocessing\process.py", line 108, in run
+NoneType: None
+2024-12-18 12:37:16,274 - backend - ERROR - self._target(*self._args, **self._kwargs)
+NoneType: None
+2024-12-18 12:37:16,274 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\_subprocess.py", line 78, in subprocess_started
+NoneType: None
+2024-12-18 12:37:16,274 - backend - ERROR - target(sockets=sockets)
+NoneType: None
+2024-12-18 12:37:16,274 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\server.py", line 62, in run
+NoneType: None
+2024-12-18 12:37:16,274 - backend - ERROR - return asyncio.run(self.serve(sockets=sockets))
+NoneType: None
+2024-12-18 12:37:16,274 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:37:16,274 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py", line 194, in run
+NoneType: None
+2024-12-18 12:37:16,274 - backend - ERROR - return runner.run(main)
+NoneType: None
+2024-12-18 12:37:16,276 - backend - ERROR - ^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:37:16,276 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py", line 118, in run
+NoneType: None
+2024-12-18 12:37:16,276 - backend - ERROR - return self._loop.run_until_complete(task)
+NoneType: None
+2024-12-18 12:37:16,276 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:37:16,276 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+NoneType: None
+2024-12-18 12:37:16,276 - backend - ERROR - return future.result()
+NoneType: None
+2024-12-18 12:37:16,276 - backend - ERROR - ^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:37:16,276 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\server.py", line 69, in serve
+NoneType: None
+2024-12-18 12:37:16,276 - backend - ERROR - config.load()
+NoneType: None
+2024-12-18 12:37:16,276 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\config.py", line 458, in load
+NoneType: None
+2024-12-18 12:37:16,276 - backend - ERROR - self.loaded_app = import_from_string(self.app)
+NoneType: None
+2024-12-18 12:37:16,276 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:37:16,276 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\importer.py", line 21, in import_from_string
+NoneType: None
+2024-12-18 12:37:16,276 - backend - ERROR - module = importlib.import_module(module_str)
+NoneType: None
+2024-12-18 12:37:16,277 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:37:16,277 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py", line 90, in import_module
+NoneType: None
+2024-12-18 12:37:16,277 - backend - ERROR - return _bootstrap._gcd_import(name[level:], package, level)
+NoneType: None
+2024-12-18 12:37:16,277 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:37:16,277 - backend - ERROR - File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+NoneType: None
+2024-12-18 12:37:16,277 - backend - ERROR - File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+NoneType: None
+2024-12-18 12:37:16,277 - backend - ERROR - File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+NoneType: None
+2024-12-18 12:37:16,277 - backend - ERROR - File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+NoneType: None
+2024-12-18 12:37:16,277 - backend - ERROR - File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+NoneType: None
+2024-12-18 12:37:16,277 - backend - ERROR - File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+NoneType: None
+2024-12-18 12:37:16,277 - backend - ERROR - File "C:\Users\tjans\Documents\Hagel\hagelskott-analys\backend\main.py", line 17, in <module>
+NoneType: None
+2024-12-18 12:37:16,277 - backend - ERROR - from app.db.mongodb import db
+NoneType: None
+2024-12-18 12:37:16,277 - backend - ERROR - ImportError: cannot import name 'db' from 'app.db.mongodb' (C:\Users\tjans\Documents\Hagel\hagelskott-analys\backend\app\db\mongodb.py)
+NoneType: None
+2024-12-18 12:37:17,495 - backend - INFO - Backend started successfully
+2024-12-18 12:37:47,805 - backend - ERROR - Backend failed to respond within 30 seconds
+NoneType: None
+2024-12-18 12:37:47,805 - backend - ERROR - Backend failed to start properly
+NoneType: None
+2024-12-18 12:38:28,055 - backend - INFO - Starting backend server...
+2024-12-18 12:38:28,232 - backend - ERROR - INFO:     Will watch for changes in these directories: ['C:\\Users\\tjans\\Documents\\Hagel\\hagelskott-analys\\backend']
+NoneType: None
+2024-12-18 12:38:28,232 - backend - ERROR - INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+NoneType: None
+2024-12-18 12:38:28,233 - backend - ERROR - INFO:     Started reloader process [26228] using StatReload
+NoneType: None
+2024-12-18 12:38:28,932 - backend - ERROR - Process SpawnProcess-1:
+NoneType: None
+2024-12-18 12:38:28,936 - backend - ERROR - Traceback (most recent call last):
+NoneType: None
+2024-12-18 12:38:28,937 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\multiprocessing\process.py", line 314, in _bootstrap
+NoneType: None
+2024-12-18 12:38:28,937 - backend - ERROR - self.run()
+NoneType: None
+2024-12-18 12:38:28,937 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\multiprocessing\process.py", line 108, in run
+NoneType: None
+2024-12-18 12:38:28,937 - backend - ERROR - self._target(*self._args, **self._kwargs)
+NoneType: None
+2024-12-18 12:38:28,937 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\_subprocess.py", line 78, in subprocess_started
+NoneType: None
+2024-12-18 12:38:28,937 - backend - ERROR - target(sockets=sockets)
+NoneType: None
+2024-12-18 12:38:28,937 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\server.py", line 62, in run
+NoneType: None
+2024-12-18 12:38:28,937 - backend - ERROR - return asyncio.run(self.serve(sockets=sockets))
+NoneType: None
+2024-12-18 12:38:28,937 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:38:28,937 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py", line 194, in run
+NoneType: None
+2024-12-18 12:38:28,937 - backend - ERROR - return runner.run(main)
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - ^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py", line 118, in run
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - return self._loop.run_until_complete(task)
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - return future.result()
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - ^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\server.py", line 69, in serve
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - config.load()
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\config.py", line 458, in load
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - self.loaded_app = import_from_string(self.app)
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\importer.py", line 21, in import_from_string
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - module = importlib.import_module(module_str)
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py", line 90, in import_module
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - return _bootstrap._gcd_import(name[level:], package, level)
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:38:28,938 - backend - ERROR - File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+NoneType: None
+2024-12-18 12:38:28,939 - backend - ERROR - File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+NoneType: None
+2024-12-18 12:38:28,939 - backend - ERROR - File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+NoneType: None
+2024-12-18 12:38:28,939 - backend - ERROR - File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+NoneType: None
+2024-12-18 12:38:28,939 - backend - ERROR - File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+NoneType: None
+2024-12-18 12:38:28,939 - backend - ERROR - File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+NoneType: None
+2024-12-18 12:38:28,939 - backend - ERROR - File "C:\Users\tjans\Documents\Hagel\hagelskott-analys\backend\main.py", line 17, in <module>
+NoneType: None
+2024-12-18 12:38:28,940 - backend - ERROR - from app.db.mongodb import db
+NoneType: None
+2024-12-18 12:38:28,940 - backend - ERROR - ImportError: cannot import name 'db' from 'app.db.mongodb' (C:\Users\tjans\Documents\Hagel\hagelskott-analys\backend\app\db\mongodb.py)
+NoneType: None
+2024-12-18 12:38:30,067 - backend - INFO - Backend started successfully
+2024-12-18 12:39:00,266 - backend - ERROR - Backend failed to respond within 30 seconds
+NoneType: None
+2024-12-18 12:39:00,266 - backend - ERROR - Backend failed to start properly
+NoneType: None
+2024-12-18 12:43:09,258 - backend - INFO - Starting backend server...
+2024-12-18 12:43:09,448 - backend - ERROR - INFO:     Will watch for changes in these directories: ['C:\\Users\\tjans\\Documents\\Hagel\\hagelskott-analys\\backend']
+NoneType: None
+2024-12-18 12:43:09,448 - backend - ERROR - INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+NoneType: None
+2024-12-18 12:43:09,449 - backend - ERROR - INFO:     Started reloader process [44104] using StatReload
+NoneType: None
+2024-12-18 12:43:10,134 - backend - ERROR - Process SpawnProcess-1:
+NoneType: None
+2024-12-18 12:43:10,137 - backend - ERROR - Traceback (most recent call last):
+NoneType: None
+2024-12-18 12:43:10,137 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\multiprocessing\process.py", line 314, in _bootstrap
+NoneType: None
+2024-12-18 12:43:10,137 - backend - ERROR - self.run()
+NoneType: None
+2024-12-18 12:43:10,137 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\multiprocessing\process.py", line 108, in run
+NoneType: None
+2024-12-18 12:43:10,138 - backend - ERROR - self._target(*self._args, **self._kwargs)
+NoneType: None
+2024-12-18 12:43:10,138 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\_subprocess.py", line 78, in subprocess_started
+NoneType: None
+2024-12-18 12:43:10,138 - backend - ERROR - target(sockets=sockets)
+NoneType: None
+2024-12-18 12:43:10,138 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\server.py", line 62, in run
+NoneType: None
+2024-12-18 12:43:10,138 - backend - ERROR - return asyncio.run(self.serve(sockets=sockets))
+NoneType: None
+2024-12-18 12:43:10,138 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:43:10,138 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py", line 194, in run
+NoneType: None
+2024-12-18 12:43:10,138 - backend - ERROR - return runner.run(main)
+NoneType: None
+2024-12-18 12:43:10,138 - backend - ERROR - ^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:43:10,138 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py", line 118, in run
+NoneType: None
+2024-12-18 12:43:10,138 - backend - ERROR - return self._loop.run_until_complete(task)
+NoneType: None
+2024-12-18 12:43:10,138 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:43:10,138 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+NoneType: None
+2024-12-18 12:43:10,138 - backend - ERROR - return future.result()
+NoneType: None
+2024-12-18 12:43:10,138 - backend - ERROR - ^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:43:10,138 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\server.py", line 69, in serve
+NoneType: None
+2024-12-18 12:43:10,138 - backend - ERROR - config.load()
+NoneType: None
+2024-12-18 12:43:10,138 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\config.py", line 458, in load
+NoneType: None
+2024-12-18 12:43:10,139 - backend - ERROR - self.loaded_app = import_from_string(self.app)
+NoneType: None
+2024-12-18 12:43:10,139 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:43:10,139 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\uvicorn\importer.py", line 21, in import_from_string
+NoneType: None
+2024-12-18 12:43:10,139 - backend - ERROR - module = importlib.import_module(module_str)
+NoneType: None
+2024-12-18 12:43:10,139 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:43:10,139 - backend - ERROR - File "C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py", line 90, in import_module
+NoneType: None
+2024-12-18 12:43:10,139 - backend - ERROR - return _bootstrap._gcd_import(name[level:], package, level)
+NoneType: None
+2024-12-18 12:43:10,139 - backend - ERROR - ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NoneType: None
+2024-12-18 12:43:10,139 - backend - ERROR - File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+NoneType: None
+2024-12-18 12:43:10,139 - backend - ERROR - File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+NoneType: None
+2024-12-18 12:43:10,139 - backend - ERROR - File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+NoneType: None
+2024-12-18 12:43:10,139 - backend - ERROR - File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+NoneType: None
+2024-12-18 12:43:10,139 - backend - ERROR - File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+NoneType: None
+2024-12-18 12:43:10,140 - backend - ERROR - File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+NoneType: None
+2024-12-18 12:43:10,140 - backend - ERROR - File "C:\Users\tjans\Documents\Hagel\hagelskott-analys\backend\main.py", line 17, in <module>
+NoneType: None
+2024-12-18 12:43:10,140 - backend - ERROR - from app.db.mongodb import db
+NoneType: None
+2024-12-18 12:43:10,140 - backend - ERROR - ImportError: cannot import name 'db' from 'app.db.mongodb' (C:\Users\tjans\Documents\Hagel\hagelskott-analys\backend\app\db\mongodb.py)
+NoneType: None
+2024-12-18 12:43:11,266 - backend - INFO - Backend started successfully
+2024-12-18 12:43:41,443 - backend - ERROR - Backend failed to respond within 30 seconds
+NoneType: None
+2024-12-18 12:43:41,443 - backend - ERROR - Backend failed to start properly
+NoneType: None
+2024-12-18 12:46:01,274 - backend - INFO - Starting backend server...
+2024-12-18 12:46:01,452 - backend - ERROR - INFO:     Will watch for changes in these directories: ['C:\\Users\\tjans\\Documents\\Hagel\\hagelskott-analys\\backend']
+NoneType: None
+2024-12-18 12:46:01,453 - backend - ERROR - INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+NoneType: None
+2024-12-18 12:46:01,453 - backend - ERROR - INFO:     Started reloader process [44224] using StatReload
+NoneType: None
+2024-12-18 12:46:03,292 - backend - INFO - Backend started successfully
+2024-12-18 12:46:03,354 - backend - ERROR - C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\pydantic\_internal\_config.py:321: UserWarning: Valid config keys have changed in V2:
+NoneType: None
+2024-12-18 12:46:03,354 - backend - ERROR - * 'allow_population_by_field_name' has been renamed to 'populate_by_name'
+NoneType: None
+2024-12-18 12:46:03,354 - backend - ERROR - warnings.warn(message, UserWarning)
+NoneType: None
+2024-12-18 12:46:03,493 - backend - ERROR - INFO:     Started server process [38740]
+NoneType: None
+2024-12-18 12:46:03,493 - backend - ERROR - INFO:     Waiting for application startup.
+NoneType: None
+2024-12-18 12:46:03,534 - backend - ERROR - INFO:app.db.mongodb:MongoDB indexes created successfully
+NoneType: None
+2024-12-18 12:46:03,535 - backend - ERROR - INFO:app.db.mongodb:Successfully connected to MongoDB
+NoneType: None
+2024-12-18 12:46:03,535 - backend - ERROR - INFO:main:Database connection established
+NoneType: None
+2024-12-18 12:46:03,535 - backend - ERROR - INFO:main:Upload directories created
+NoneType: None
+2024-12-18 12:46:03,535 - backend - ERROR - INFO:     Application startup complete.
+NoneType: None
+2024-12-18 12:46:33,611 - backend - ERROR - Backend failed to respond within 30 seconds
+NoneType: None
+2024-12-18 12:46:33,611 - backend - ERROR - Backend failed to start properly
+NoneType: None
+2024-12-18 12:53:07,444 - backend - INFO - Starting backend server...
+2024-12-18 12:53:07,601 - backend - ERROR - INFO:     Will watch for changes in these directories: ['C:\\Users\\tjans\\Documents\\Hagel\\hagelskott-analys\\backend']
+NoneType: None
+2024-12-18 12:53:07,601 - backend - ERROR - INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+NoneType: None
+2024-12-18 12:53:07,601 - backend - ERROR - INFO:     Started reloader process [37580] using StatReload
+NoneType: None
+2024-12-18 12:53:09,147 - backend - ERROR - C:\Users\tjans\AppData\Local\Programs\Python\Python312\Lib\site-packages\pydantic\_internal\_config.py:321: UserWarning: Valid config keys have changed in V2:
+NoneType: None
+2024-12-18 12:53:09,148 - backend - ERROR - * 'allow_population_by_field_name' has been renamed to 'populate_by_name'
+NoneType: None
+2024-12-18 12:53:09,148 - backend - ERROR - warnings.warn(message, UserWarning)
+NoneType: None
+2024-12-18 12:53:09,255 - backend - ERROR - INFO:     Started server process [10416]
+NoneType: None
+2024-12-18 12:53:09,255 - backend - ERROR - INFO:     Waiting for application startup.
+NoneType: None
+2024-12-18 12:53:09,273 - backend - ERROR - INFO:app.db.mongodb:MongoDB indexes created successfully
+NoneType: None
+2024-12-18 12:53:09,273 - backend - ERROR - INFO:app.db.mongodb:Successfully connected to MongoDB
+NoneType: None
+2024-12-18 12:53:09,273 - backend - ERROR - INFO:main:Database connection established
+NoneType: None
+2024-12-18 12:53:09,274 - backend - ERROR - INFO:main:Upload directories created
+NoneType: None
+2024-12-18 12:53:09,275 - backend - ERROR - INFO:     Application startup complete.
+NoneType: None
+2024-12-18 12:53:09,460 - backend - INFO - Backend started successfully
+2024-12-18 12:53:39,743 - backend - ERROR - Backend failed to respond within 30 seconds
+NoneType: None
+2024-12-18 12:53:39,743 - backend - ERROR - Backend failed to start properly
+NoneType: None
+2024-12-18 12:59:53,211 - backend - INFO - Kontrollerar port 8000 och stänger aktiva processer...
+2024-12-18 13:01:41,297 - backend - INFO - Kontrollerar port 8000 och stänger aktiva processer...
+2024-12-18 13:15:14,091 - backend - INFO - Kontrollerar port 8000 och stänger aktiva processer...
+2024-12-18 13:24:29,880 - backend - INFO - Kontrollerar port 8000 och stänger aktiva processer...
+2024-12-18 13:28:55,322 - backend - INFO - Kontrollerar port 8000 och stänger aktiva processer...
+2024-12-18 13:28:55,342 - backend - INFO - Starting backend server...
+2024-12-18 13:28:55,345 - backend - INFO - Väntar på att backend ska starta...
+2024-12-18 13:29:10,349 - backend - INFO - Backend server är aktiv.
+2024-12-18 13:29:10,350 - backend - INFO - Stopping backend...
+2024-12-18 13:29:10,352 - backend - INFO - backend stopped

@@ -1,0 +1,2408 @@
+[
+
+    {
+      "questionText": "[Prepping 1] Vilken utmaning kan uppstå om du förlitar dig enbart på batteridrivna ljuskällor vid ett långvarigt strömavbrott?",
+      "answers": [
+        {
+          "text": "Batterier kan förlora spänning i förpackningen trots god förvaring",
+          "isCorrect": false
+        },
+        {
+          "text": "Oanvända batterier är olagliga att lagra mer än en vecka",
+          "isCorrect": false
+        },
+        {
+          "text": "Man kan sakna möjlighet att ladda och tvingas sitta i mörker när de tar slut",
+          "isCorrect": true
+        },
+        {
+          "text": "Ljuskällorna förstörs om de utsätts för minusgrader",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 2] Varför är det inte alltid optimalt att enbart lagra en stor mängd torr pasta som reservföda?",
+      "answers": [
+        {
+          "text": "Pasta kräver mycket vatten och värme för tillagning, vilket kan vara begränsat i en kris",
+          "isCorrect": true
+        },
+        {
+          "text": "Pasta innehåller inga kolhydrater och ger därför liten energi",
+          "isCorrect": false
+        },
+        {
+          "text": "Pasta ruttnar snabbare än färskt kött",
+          "isCorrect": false
+        },
+        {
+          "text": "Pasta innehåller farligt höga halter av natrium",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 3] Vilken fördel ger det att ha en enkel fotpump eller cykelpump i sin krisberedskap?",
+      "answers": [
+        {
+          "text": "Du kan pumpa upp vattentrycket i ledningarna under strömavbrott",
+          "isCorrect": false
+        },
+        {
+          "text": "Den kan användas för att pumpa luft i madrasser, båtar eller för att underlätta brandbekämpning",
+          "isCorrect": true
+        },
+        {
+          "text": "Du ersätter behovet av brandsläckare helt",
+          "isCorrect": false
+        },
+        {
+          "text": "Pumpen kyler ned konserverade livsmedel",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 4] Hur kan en 'bug-out bag' skilja sig från en 'get-home bag' i innehåll?",
+      "answers": [
+        {
+          "text": "En bug-out bag innehåller alltid dubbla vapenlicenser och mer ammunitionslager",
+          "isCorrect": false
+        },
+        {
+          "text": "En bug-out bag är tänkt för längre tids bortavaro och har därför mer omfattande utrustning",
+          "isCorrect": true
+        },
+        {
+          "text": "En get-home bag är alltid vattentät och saknar mat",
+          "isCorrect": false
+        },
+        {
+          "text": "Det finns ingen praktisk skillnad; namnen är utbytbara",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 5] Vad är en vanlig missuppfattning om ljusstavar (kemiska lysstavar) i en krissituation?",
+      "answers": [
+        {
+          "text": "Att de skapar mer värme än ett stearinljus",
+          "isCorrect": false
+        },
+        {
+          "text": "Att de kan tändas och släckas upprepade gånger",
+          "isCorrect": true
+        },
+        {
+          "text": "Att de är olagliga att förvara hemma",
+          "isCorrect": false
+        },
+        {
+          "text": "Att de exploderar i minusgrader",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 6] Varför kan en konservöppnare av enkel, robust typ vara ovärderlig i en nödsituation?",
+      "answers": [
+        {
+          "text": "Elektriska konservöppnare är alltid förbjudna i krislägen",
+          "isCorrect": false
+        },
+        {
+          "text": "Vassa burkkanter ger nödvändigt stål för gnistbildning",
+          "isCorrect": false
+        },
+        {
+          "text": "Man vill undvika att skada burkarna med kniv eller andra verktyg som kan gå sönder eller orsaka olyckor",
+          "isCorrect": true
+        },
+        {
+          "text": "En konservöppnare renar vattnet från bakterier",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 7] Vilken svaghet kan uppstå om du enbart förlitar dig på mobiltelefonen i en kris?",
+      "answers": [
+        {
+          "text": "Den kan inte ta emot SMS om batterinivån är över 80 %",
+          "isCorrect": false
+        },
+        {
+          "text": "Mobilnät och internet kan ligga nere, vilket gör telefonen nästan värdelös",
+          "isCorrect": true
+        },
+        {
+          "text": "Man får alltid för hög signalstyrka i stadsmiljö",
+          "isCorrect": false
+        },
+        {
+          "text": "Mobiltelefoner kräver saltvatten för att ladda",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 8] Vad är en utmaning med att förvara stora mängder färskvatten i PET-flaskor lång tid?",
+      "answers": [
+        {
+          "text": "Plasten kan släppa ifrån sig kemikalier och vattnet kan bli dåligt efter flera månader",
+          "isCorrect": true
+        },
+        {
+          "text": "Vattnet blir automatiskt kolsyrat, vilket skapar övertryck",
+          "isCorrect": false
+        },
+        {
+          "text": "Vattnet kan spontant frysa till minus 30°C i rumstemperatur",
+          "isCorrect": false
+        },
+        {
+          "text": "PET-materialet avger radioaktiv strålning efter 90 dagar",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 9] Varför är det smart att ha en pott- eller campingtoalettlösning vid längre avbrott?",
+      "answers": [
+        {
+          "text": "För att man kan distillera vattnet från avfallet",
+          "isCorrect": false
+        },
+        {
+          "text": "För att den ordinarie toaletten kanske inte kan spolas vid vattenavbrott",
+          "isCorrect": true
+        },
+        {
+          "text": "För att omgivningen kräver militär latrinföring",
+          "isCorrect": false
+        },
+        {
+          "text": "För att avföring i plastpåsar neutraliseras magiskt",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 10] Vilken fördel har en vedspis eller kamin i hemmet under ett längre strömavbrott?",
+      "answers": [
+        {
+          "text": "De ger både värme och möjliggör enklare matlagning utan el",
+          "isCorrect": true
+        },
+        {
+          "text": "De producerar friskt dricksvatten via förbränning",
+          "isCorrect": false
+        },
+        {
+          "text": "De tar bort all koldioxid ur luften",
+          "isCorrect": false
+        },
+        {
+          "text": "De är lagstadgad kravutrustning i varje flerfamiljshus",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 11] Varför är variation i lagrad mat viktig för mental och fysisk hälsa under kriser?",
+      "answers": [
+        {
+          "text": "Monoton kost kan leda till näringsbrister och kraftigt sänkt motivation",
+          "isCorrect": true
+        },
+        {
+          "text": "Om man äter samma mat varje dag stiger luftfuktigheten i skafferiet",
+          "isCorrect": false
+        },
+        {
+          "text": "Myndigheterna förbjuder upprepade måltider med samma innehåll",
+          "isCorrect": false
+        },
+        {
+          "text": "Variation krävs för att konserver ska hålla sig bakteriefria",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 12] Vilken oväntad effekt kan uppstå om du har ett stort dieselaggregat i ett tätbebyggt område?",
+      "answers": [
+        {
+          "text": "Grannarna kan reagera på buller och avgaser, vilket kan skapa konflikter",
+          "isCorrect": true
+        },
+        {
+          "text": "Aggregatets ström måste delas med hela kvarteret enligt lag",
+          "isCorrect": false
+        },
+        {
+          "text": "Dieselaggregat förbrukar syre i hela bostadsområdet",
+          "isCorrect": false
+        },
+        {
+          "text": "Diesel producerar radioaktiva isotoper vid förbränning",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 13] Varför kan stormlyktor (fotogenlyktor) vara en bra nödlösning för både ljus och lite värme?",
+      "answers": [
+        {
+          "text": "De är helt explosionssäkra oavsett bränsle",
+          "isCorrect": false
+        },
+        {
+          "text": "De kan ge stabil belysning samt en viss mängd värme i ett litet utrymme",
+          "isCorrect": true
+        },
+        {
+          "text": "De förbrukar ingen syre i rummet",
+          "isCorrect": false
+        },
+        {
+          "text": "Man behöver aldrig fylla på fotogen om man vevar dem i 30 sekunder",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 14] Vilken praktisk fördel kan en hink med lock fylld med ris ge, utöver matreserven?",
+      "answers": [
+        {
+          "text": "Ris kan användas för att filtrera avloppsvatten direkt",
+          "isCorrect": false
+        },
+        {
+          "text": "Hinken kan dubbla som pall, förvaring eller vattentransport",
+          "isCorrect": true
+        },
+        {
+          "text": "Ris absorberar radon från källare",
+          "isCorrect": false
+        },
+        {
+          "text": "Ris avdunstar och bildar syre i förrådsutrymmen",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 15] Varför kan en enkel batteritester vara användbar i en krissituation?",
+      "answers": [
+        {
+          "text": "Den visar exakta slutdatum på all mat",
+          "isCorrect": false
+        },
+        {
+          "text": "Man kan avgöra vilka batterier som fortfarande är starka nog för ficklampor eller radio",
+          "isCorrect": true
+        },
+        {
+          "text": "Den ger stötar som kan skrämma bort gnagare",
+          "isCorrect": false
+        },
+        {
+          "text": "Den är obligatorisk enligt ellagen vid förvaring av alkaliska celler",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 16] Hur kan en liten vikbar spade komma till nytta under krisförhållanden?",
+      "answers": [
+        {
+          "text": "Den kan användas för att i all hast bygga en värmekamin av jord",
+          "isCorrect": false
+        },
+        {
+          "text": "Den är praktisk för att gräva latringropar, snöröjning eller enklare markarbeten",
+          "isCorrect": true
+        },
+        {
+          "text": "Den ersätter alltid en yxa eller såg",
+          "isCorrect": false
+        },
+        {
+          "text": "Vikbara spadar är godkända som betalmedel",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 17] Varför kan en enkel manuell brunnspump vara viktig i en krissituation?",
+      "answers": [
+        {
+          "text": "Den höjer vattentemperaturen till 30°C utan el",
+          "isCorrect": false
+        },
+        {
+          "text": "Den möjliggör vattenförsörjning även om strömmen är borta och elektriska pumpar inte fungerar",
+          "isCorrect": true
+        },
+        {
+          "text": "Den omvandlar saltvatten till drickbart vatten automatiskt",
+          "isCorrect": false
+        },
+        {
+          "text": "Man behöver inget filter eftersom trähandtaget renar vattnet",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 18] Vilken är en anledning att ha kontanter i små valörer i en krisberedskap?",
+      "answers": [
+        {
+          "text": "Man kan behöva växla och ingen vill ge tillbaka på större sedlar",
+          "isCorrect": true
+        },
+        {
+          "text": "Stora valörer är olagliga i krisläge",
+          "isCorrect": false
+        },
+        {
+          "text": "Banker tar ut 50 % avgift vid varje betalning",
+          "isCorrect": false
+        },
+        {
+          "text": "Mynt rostar alltid inom en vecka",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 19] Varför är städ- och hygienartiklar (t ex tvål, diskmedel, handsprit) viktiga i krisförrådet?",
+      "answers": [
+        {
+          "text": "Smutsiga förhållanden kan leda till sjukdomsutbrott och försvåra matlagning och vattenhantering",
+          "isCorrect": true
+        },
+        {
+          "text": "Man behöver dem för att göra vattnet kolsyrat och drickbart",
+          "isCorrect": false
+        },
+        {
+          "text": "De renar luften från avgaser",
+          "isCorrect": false
+        },
+        {
+          "text": "Hygienartiklar fungerar som bränsle i vedspisar",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+    {
+      "questionText": "[Prepping 20] Vilken lösning kan vara smart för att hålla kylvaror kalla kortare tid vid strömavbrott?",
+      "answers": [
+        {
+          "text": "Placera kylvaror i en badbalja med kokande vatten",
+          "isCorrect": false
+        },
+        {
+          "text": "Ställa kylvaror i en wellpapplåda med stearinljus runtom",
+          "isCorrect": false
+        },
+        {
+          "text": "Förvara dem i en välisolerad kylväska eller i en balkong/låda utomhus om det är kallt ute",
+          "isCorrect": true
+        },
+        {
+          "text": "Hälla salt i kylen så temperaturen sänks av saltets kylande effekt",
+          "isCorrect": false
+        }
+      ],
+      "category": "prepping",
+      "difficulty": "normal",
+      "prompt": "A typical prepping kit photo, realistic style."
+    },
+  
+    {
+      "questionText": "[Bushcraft 21] Varför är det viktigt att identifiera rätt trädslag när man gör kol för svartkrut eller tände?",
+      "answers": [
+        {
+          "text": "För att fel träslag kan avge giftig gas som gör elden grön",
+          "isCorrect": false
+        },
+        {
+          "text": "Olika träslag ger kol med olika densitet och brinnvärde, vilket är avgörande för kvaliteten",
+          "isCorrect": true
+        },
+        {
+          "text": "Bara barrträd kan bli kol, lövträd förblir aska",
+          "isCorrect": false
+        },
+        {
+          "text": "Trädslag påverkar endast röken, inte själva kolet",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 22] Vad är en kritisk fördel med att använda harts (pitch) vid bushcraft?",
+      "answers": [
+        {
+          "text": "Harts fungerar alltid som ätbar energikälla",
+          "isCorrect": false
+        },
+        {
+          "text": "Harts kan användas som ett starkt, vattenresistent lim för reparationer",
+          "isCorrect": true
+        },
+        {
+          "text": "Harts avger syre när det brinner",
+          "isCorrect": false
+        },
+        {
+          "text": "Harts tar bort lukt från kläder och utrustning",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 23] Varför bör man vara uppmärksam på alkaliska jordar vid växtfödosök i skogen?",
+      "answers": [
+        {
+          "text": "För att alkaliska jordar kan husera växter med höga halter av giftiga alkaloider",
+          "isCorrect": true
+        },
+        {
+          "text": "För att alkaliska jordar är sterila och inga ätliga växter trivs där",
+          "isCorrect": false
+        },
+        {
+          "text": "För att alkaliska jordar saknar helt vattenåtkomst",
+          "isCorrect": false
+        },
+        {
+          "text": "För att syrerika jordar är farligare för bushcraft",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 24] Vilken säkerhetsåtgärd är viktig innan man börjar fällhugga träd med yxa i vildmarken?",
+      "answers": [
+        {
+          "text": "Att kolla väderprognosen för att se om yxan rostar",
+          "isCorrect": false
+        },
+        {
+          "text": "Att se till att man har fri zon runtom så man inte skadar andra eller skadas av fallriktningen",
+          "isCorrect": true
+        },
+        {
+          "text": "Att ropande varna djuren i skogen",
+          "isCorrect": false
+        },
+        {
+          "text": "Att först doppa yxan i vatten för att hårdna eggen",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 25] Varför bör man undvika att bara dricka kallt flodvatten på vintern under längre vandringar?",
+      "answers": [
+        {
+          "text": "Flodvatten är alltid radioaktivt under vintertid",
+          "isCorrect": false
+        },
+        {
+          "text": "Kallt vatten kan kyla ner kroppen inifrån och öka risken för hypotermi",
+          "isCorrect": true
+        },
+        {
+          "text": "Flodvatten innehåller mest bakterier när det är minusgrader",
+          "isCorrect": false
+        },
+        {
+          "text": "Vattnet löser upp tandfyllningar snabbare i kyla",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 26] Varför är det klokt att undvika att samla ved direkt från marken i regnig skog?",
+      "answers": [
+        {
+          "text": "Den ved som ligger direkt på marken är ofta fuktig och kan ha börjat ruttna",
+          "isCorrect": true
+        },
+        {
+          "text": "För att marken generellt är radioaktiv i vått tillstånd",
+          "isCorrect": false
+        },
+        {
+          "text": "Markved innehåller extra mycket kåda som aldrig brinner",
+          "isCorrect": false
+        },
+        {
+          "text": "Man måste ha licens för att samla markved",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 27] Vad är en fördel med en naturlig vindskärm av granris när du gör upp eld?",
+      "answers": [
+        {
+          "text": "Granriset producerar syrerik rök som släcker elden",
+          "isCorrect": false
+        },
+        {
+          "text": "Det skyddar elden från vindbyar och kan hjälpa värmen att koncentreras",
+          "isCorrect": true
+        },
+        {
+          "text": "Det absorberar all rök, vilket gör elden osynlig",
+          "isCorrect": false
+        },
+        {
+          "text": "Granris förbättrar automatiskt draget i elden",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 28] Varför är det bra att göra en s.k. 'test-stick' när du täljer i färskt trä för en sked eller slev?",
+      "answers": [
+        {
+          "text": "Du kan kontrollera fiberriktningen och undvika att skeden spricker",
+          "isCorrect": true
+        },
+        {
+          "text": "Du mäter träets konduktivitet för att se om det är ätbart",
+          "isCorrect": false
+        },
+        {
+          "text": "Du vill se om barken innehåller mjölksyra",
+          "isCorrect": false
+        },
+        {
+          "text": "En test-stick gör att träet hårdnar under natten",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 29] Vad är den huvudsakliga orsaken till att björknäver är populärt tände vid eldstart?",
+      "answers": [
+        {
+          "text": "Den avger ingen rök men mycket ljus",
+          "isCorrect": false
+        },
+        {
+          "text": "Den innehåller oljor och kåda som hjälper den att antändas lätt även om den är lite fuktig",
+          "isCorrect": true
+        },
+        {
+          "text": "Björknäver fungerar bara i minusgrader",
+          "isCorrect": false
+        },
+        {
+          "text": "Björknäver producerar syre när den antänds",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 30] Varför kan gamla barr från gran eller tall vara användbara i en nödsituation?",
+      "answers": [
+        {
+          "text": "Barr kan kokas till en C-vitaminrik dryck och ge viss energi",
+          "isCorrect": true
+        },
+        {
+          "text": "Barr ersätter alltid animaliskt protein",
+          "isCorrect": false
+        },
+        {
+          "text": "Barr omvandlas till mjöl om man mal dem",
+          "isCorrect": false
+        },
+        {
+          "text": "Barr ger alltid 5000 kcal per 100 g",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 31] Hur kan man minska risken för att en vindskydds-konstruktion blåser sönder under natten?",
+      "answers": [
+        {
+          "text": "Man bör gräva ned hela konstruktionen under marknivå",
+          "isCorrect": false
+        },
+        {
+          "text": "Man förankrar stadigt i marken med rejäla pinnar eller rep och välj en plats med naturligt vindskydd",
+          "isCorrect": true
+        },
+        {
+          "text": "Man placerar stora stenar på taket för att skapa maximal tyngd",
+          "isCorrect": false
+        },
+        {
+          "text": "Man använder enbart björkris som takmaterial",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 32] Varför är det ofta effektivt att använda en ståltrådsgaller eller galler av grenar vid matlagning över öppen eld?",
+      "answers": [
+        {
+          "text": "Det skapar en extra stor rökutveckling som steriliserar maten",
+          "isCorrect": false
+        },
+        {
+          "text": "Man kan fördela värmen bättre och undvika att maten ligger direkt mot glöden",
+          "isCorrect": true
+        },
+        {
+          "text": "Glöden kyler gallret, vilket förhindrar brännskador",
+          "isCorrect": false
+        },
+        {
+          "text": "Gallret omvandlar kolmonoxid till syre",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 33] Vad kan hända om du enbart använder hartsrik ved som tall och gran för ditt lägereldskök?",
+      "answers": [
+        {
+          "text": "Maten får ofta en lite skarp eller bitter bismak av hartsen",
+          "isCorrect": true
+        },
+        {
+          "text": "Veden brinner alldeles för kallt för att koka vatten",
+          "isCorrect": false
+        },
+        {
+          "text": "Elden blir helt rökfri och man förlorar värmen",
+          "isCorrect": false
+        },
+        {
+          "text": "Det ger mer kolavlagring på maten, men ingen smakskillnad",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 34] Varför kan ett naturligt 'reflektorskydd' bakom elden vara fördelaktigt vid övernattning utomhus?",
+      "answers": [
+        {
+          "text": "Reflektorskyddet suger upp rökgaserna så de inte sprids",
+          "isCorrect": false
+        },
+        {
+          "text": "Det kan reflektera värmen mot sovplatsen och minska värmeförlusten",
+          "isCorrect": true
+        },
+        {
+          "text": "Det skapar ett vinddrag som blåser elden kraftigt",
+          "isCorrect": false
+        },
+        {
+          "text": "Elden brinner automatiskt utan vedpåfyllning",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 35] Hur kan man enklast skydda en nygjord träsked från att spricka under torkning?",
+      "answers": [
+        {
+          "text": "Hänga den direkt ovanför elden så den rostas jämnt",
+          "isCorrect": false
+        },
+        {
+          "text": "Torka den långsamt och jämnt, t ex i skugga eller genom att olja in ytan lätt",
+          "isCorrect": true
+        },
+        {
+          "text": "Lägga den i saltvatten i en vecka",
+          "isCorrect": false
+        },
+        {
+          "text": "Förvara den i plastpåse med stenar",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 36] Varför är det en god idé att lära sig göra upp eld med bågdrill, trots att tändstål finns?",
+      "answers": [
+        {
+          "text": "Bågdrill är det enda tillåtna sättet i naturreservat",
+          "isCorrect": false
+        },
+        {
+          "text": "Kunskapen ger en redundans om du tappar eller förlorar modernt tänddon",
+          "isCorrect": true
+        },
+        {
+          "text": "Bågdrill ger högre temperatur på elden än tändstål",
+          "isCorrect": false
+        },
+        {
+          "text": "Med bågdrill behöver du aldrig ved",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 37] Vad kan vara en svårighet med att dricka direkt ur bäckar i skogsområden, trots att vattnet ser klart ut?",
+      "answers": [
+        {
+          "text": "Vattnet kan ha naturligt kaffeinnehåll som stör sömnen",
+          "isCorrect": false
+        },
+        {
+          "text": "Parasiter och bakterier kan finnas även i klart vatten",
+          "isCorrect": true
+        },
+        {
+          "text": "Rent vatten smakar saltare",
+          "isCorrect": false
+        },
+        {
+          "text": "Bäckar innehåller ofta höga halter av kvicksilver",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 38] Vilken fördel har en slagruta (divining rod) i traditionell bushcraft?",
+      "answers": [
+        {
+          "text": "Den visar exakta mått på näringsinnehåll i bär",
+          "isCorrect": false
+        },
+        {
+          "text": "I vissa fall kan den hjälpa att lokalisera grundvatten eller fukt i marken",
+          "isCorrect": true
+        },
+        {
+          "text": "Den garanterar 100 % att man hittar källvatten",
+          "isCorrect": false
+        },
+        {
+          "text": "Den är lagkrav vid proffsessionell bushcraft",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 39] Vad innebär metoden 'prep and freeze' i bushcraftsammanhang när man pratar om råvaror från naturen?",
+      "answers": [
+        {
+          "text": "Man flår djuret i minusgrader utan att avbloda",
+          "isCorrect": false
+        },
+        {
+          "text": "Man kan förvara insamlade växter/kött i snö eller is för att förhindra förskämning",
+          "isCorrect": true
+        },
+        {
+          "text": "Man bränner råvarorna tills de är kol och äter dem sedan",
+          "isCorrect": false
+        },
+        {
+          "text": "Man fryser dem först och kokar dem sedan i en termisk borr",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+    {
+      "questionText": "[Bushcraft 40] Varför är selektiv fällfångst med primitiv snara riskfyllt i bushcraft?",
+      "answers": [
+        {
+          "text": "Snaran kan fånga fel djur eller skada djur som man inte avser att jaga",
+          "isCorrect": true
+        },
+        {
+          "text": "Snaran är alltid helt synlig och djuren undviker den",
+          "isCorrect": false
+        },
+        {
+          "text": "Snaran skrämmer bort bär och svampar",
+          "isCorrect": false
+        },
+        {
+          "text": "Ingen risk, snaror är säkraste fångstmetoden",
+          "isCorrect": false
+        }
+      ],
+      "category": "bushcraft",
+      "difficulty": "normal",
+      "prompt": "A typical bushcraft scenario, realistic style."
+    },
+  
+    {
+      "questionText": "[Friluftsliv 41] Vad är en potentiell nackdel med att enbart förlita sig på GPS vid fjällvandring?",
+      "answers": [
+        {
+          "text": "GPS visar bara höjden över havet, ej väderstreck",
+          "isCorrect": false
+        },
+        {
+          "text": "Batteriet kan ta slut, och man kan bli utan navigationshjälp om man inte har reservsystem",
+          "isCorrect": true
+        },
+        {
+          "text": "GPS är olagligt i naturreservat",
+          "isCorrect": false
+        },
+        {
+          "text": "GPS-data saknar alltid höjdangivelse i Sverige",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical outdoor trekking photo, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 42] Varför är det viktigt att packa kläder i vattentäta påsar eller säckar under en längre kanottur?",
+      "answers": [
+        {
+          "text": "För att kläderna syrsätts bättre om de är i plast",
+          "isCorrect": false
+        },
+        {
+          "text": "Kläder som blir våta kan leda till nedkylning och obehag, samt tar lång tid att torka",
+          "isCorrect": true
+        },
+        {
+          "text": "Man vill undvika att kläderna blandas med matvaror",
+          "isCorrect": false
+        },
+        {
+          "text": "Fuktiga kläder får högre densitet och kan sjunka båten",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical outdoor trekking photo, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 43] Vad innebär det att göra en 'repsnara' (prusik) i klättringssammanhang?",
+      "answers": [
+        {
+          "text": "Ett sätt att låsa repet i en viss position på ett annat rep, användbart som säkerhetsknut",
+          "isCorrect": true
+        },
+        {
+          "text": "Att man skapar en suga-upp-fjäder i selen",
+          "isCorrect": false
+        },
+        {
+          "text": "Att repet blir elastiskt",
+          "isCorrect": false
+        },
+        {
+          "text": "Att repet delas i två och fördubblar bärigheten",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical mountain or climbing photo, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 44] Vilken huvudsaklig orsak finns till att värma upp kroppen innan vinterbad eller isvaksträning?",
+      "answers": [
+        {
+          "text": "Man slipper fysiska säkerhetsåtgärder om man är uppvärmd",
+          "isCorrect": false
+        },
+        {
+          "text": "Plötsligt kallchock kan förhindras och man kan behålla kontroll över andningen",
+          "isCorrect": true
+        },
+        {
+          "text": "Man undviker att vattnet blir varmare",
+          "isCorrect": false
+        },
+        {
+          "text": "Man kan hoppa över handduk och torra kläder",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical winter outdoor trekking photo, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 45] Varför kan en 'dubbelbottnad' sovsäck (eller två sovsäckar i en) vara praktiskt i mycket kallt klimat?",
+      "answers": [
+        {
+          "text": "Den yttre säcken fungerar som regnskydd och den inre blir sovsäck",
+          "isCorrect": false
+        },
+        {
+          "text": "Man får ett extra isolerande luftlager mellan säckarna som hjälper till att hålla värmen",
+          "isCorrect": true
+        },
+        {
+          "text": "Den ger extra bra syrgasflöde runt huvudet",
+          "isCorrect": false
+        },
+        {
+          "text": "Den kan spännas ihop så man kan gå runt i den",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical outdoor trekking photo, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 46] Hur kan man minimera risken för vatten i stövlarna under vandring i våt terräng?",
+      "answers": [
+        {
+          "text": "Alltid gå barfota i våt terräng",
+          "isCorrect": false
+        },
+        {
+          "text": "Använda damasker eller byxor med integrerad damask som tätar mellan stövel och ben",
+          "isCorrect": true
+        },
+        {
+          "text": "Sätta plastpåsar utanför stövlarna",
+          "isCorrect": false
+        },
+        {
+          "text": "Bara vada baklänges",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical outdoor trekking photo, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 47] Varför bör man vara försiktig med att blanda ull- och bomullskläder i samma klädlagersystem?",
+      "answers": [
+        {
+          "text": "Bomull kan absorbera och hålla kvar fukt, vilket kan motverka ullens isolerande egenskaper",
+          "isCorrect": true
+        },
+        {
+          "text": "Ull får kemisk reaktion med bomull och krymper snabbare",
+          "isCorrect": false
+        },
+        {
+          "text": "Bomull överför statisk elektricitet till ull",
+          "isCorrect": false
+        },
+        {
+          "text": "Ull är allergiframkallande endast om den vidrör bomull",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical outdoor trekking photo, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 48] Vilken är en vanlig orsak till att man kan uppleva 'hot spots' (början till skavsår) på fötterna vid lång vandring?",
+      "answers": [
+        {
+          "text": "Skor som är för stora och skapar friktion, eller fuktiga strumpor",
+          "isCorrect": true
+        },
+        {
+          "text": "För tjocka hälar i kängan som kyler fötterna",
+          "isCorrect": false
+        },
+        {
+          "text": "Att man dricker för mycket vatten",
+          "isCorrect": false
+        },
+        {
+          "text": "Grusvägar orsakar magnetisk friktion",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical outdoor trekking photo, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 49] Varför är det klokt att packa en liten 'första förband'-påse även vid kortare dagsturer?",
+      "answers": [
+        {
+          "text": "Korta turer kräver mer förband än långa turer",
+          "isCorrect": false
+        },
+        {
+          "text": "Små skador kan hända och man vill kunna hantera skavsår, sår eller små blödningar snabbt",
+          "isCorrect": true
+        },
+        {
+          "text": "Det är lagkrav i många kommuner",
+          "isCorrect": false
+        },
+        {
+          "text": "Förbandspåsen filtrerar även vatten",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical outdoor trekking photo, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 50] Vilket förhållningssätt är bäst om du under fjällturen möter vilda djur som renar eller älg?",
+      "answers": [
+        {
+          "text": "Gå närmare för att mata dem och göra dem tama",
+          "isCorrect": false
+        },
+        {
+          "text": "Håll avstånd och rör dig lugnt för att inte stressa eller hota djuren",
+          "isCorrect": true
+        },
+        {
+          "text": "Jaga bort dem med ljud så de inte följer efter",
+          "isCorrect": false
+        },
+        {
+          "text": "Spring, så du inte hindrar deras naturliga beteende",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical outdoor trekking photo, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 51] Varför är det bra att bära en lätt dunjacka även på sommaren i fjällmiljö?",
+      "answers": [
+        {
+          "text": "Dunjackan skyddar mot mygg och knotts värstingstick",
+          "isCorrect": false
+        },
+        {
+          "text": "Vädret kan slå om snabbt till kyla och vind, en dunjacka ger då snabb isolering",
+          "isCorrect": true
+        },
+        {
+          "text": "Dun absorberar fukt och håller dig sval",
+          "isCorrect": false
+        },
+        {
+          "text": "Sommardunjackor är lagkrav ovanför 1000 m höjd",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical outdoor trekking photo, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 52] Vilken metod kan du använda för att puréa snö och få dricksvatten utan att riskera nedkylning?",
+      "answers": [
+        {
+          "text": "Lägga lite flytande vatten i kastrullen först och sedan successivt tillsätta snö",
+          "isCorrect": true
+        },
+        {
+          "text": "Hälla salt direkt på snön och vänta tills den smälter kemiskt",
+          "isCorrect": false
+        },
+        {
+          "text": "Gnugga snön mot en varm sten under 10 sekunder",
+          "isCorrect": false
+        },
+        {
+          "text": "Fyll hela kastrullen med snö och koka utan lock",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical winter trekking scenario, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 53] Varför kan en tarp (enkel pressening) vara fördelaktig jämfört med ett tält vid kortare övernattningar?",
+      "answers": [
+        {
+          "text": "Den erbjuder mindre valmöjlighet gällande uppsättning",
+          "isCorrect": false
+        },
+        {
+          "text": "Tarpen är lättare och enklare att bära och man kan ha fler variationsmöjligheter för vindskydd",
+          "isCorrect": true
+        },
+        {
+          "text": "Tarpen lagrar värme bättre än något tält",
+          "isCorrect": false
+        },
+        {
+          "text": "Med tarp är man skyddad från insekter utan myggnät",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical outdoor trekking photo, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 54] Vilken risk ökar när du vandrar ensam i oländig terräng utan att ha informerat någon om din rutt?",
+      "answers": [
+        {
+          "text": "Du kan bli bötfälld av Länsstyrelsen",
+          "isCorrect": false
+        },
+        {
+          "text": "Om en olycka sker vet ingen var du är, vilket försvårar räddning",
+          "isCorrect": true
+        },
+        {
+          "text": "Det uppstår automatisk stängning av lederna",
+          "isCorrect": false
+        },
+        {
+          "text": "Vattenkällor torkar ut snabbare",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical outdoor trekking photo, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 55] Varför är topografiska kartor (1:50 000) populära vid vandring i Sverige?",
+      "answers": [
+        {
+          "text": "De ger en bra avvägning mellan detaljnivå och överblick i kuperad terräng",
+          "isCorrect": true
+        },
+        {
+          "text": "De är lagstadgade att bära vid all tältning",
+          "isCorrect": false
+        },
+        {
+          "text": "De visar exakta rovdjursrevir i realtid",
+          "isCorrect": false
+        },
+        {
+          "text": "De är billigare än andra karttyper",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical map and navigation scenario, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 56] Vilken anledning kan det finnas att sätta upp ett liten reflex eller lampa vid vindskydd/campingplats i mörker?",
+      "answers": [
+        {
+          "text": "För att locka vilda djur till lägret",
+          "isCorrect": false
+        },
+        {
+          "text": "Man kan lättare återfinna sin lägerplats om man vandrar en bit bort",
+          "isCorrect": true
+        },
+        {
+          "text": "Myndigheterna kräver detta mellan kl 22 och 06",
+          "isCorrect": false
+        },
+        {
+          "text": "Det skyddar mot regn genom ljusets värmeeffekt",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical outdoor trekking photo, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 57] Vad bör man tänka på om man vill dricka vatten från en källa nära en beteshage?",
+      "answers": [
+        {
+          "text": "Vattnet är alltid giftigt och bör undvikas",
+          "isCorrect": false
+        },
+        {
+          "text": "Risk för bakterie- eller parasitföroreningar ökar om djuren är i närheten",
+          "isCorrect": true
+        },
+        {
+          "text": "Vattnet har naturligt hög salthalt",
+          "isCorrect": false
+        },
+        {
+          "text": "Djuren renar vattnet med sin saliv",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical rural or farmland scenario, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 58] Vilken är en anledning att använda stavar vid löpning eller snabb vandring i fjällmiljö?",
+      "answers": [
+        {
+          "text": "Stavarna håller rovdjur på avstånd med sin doft",
+          "isCorrect": false
+        },
+        {
+          "text": "Man kan avlasta knän, förbättra balans och minska slitaget vid nedförsbackar",
+          "isCorrect": true
+        },
+        {
+          "text": "Stavarna ökar maximala syreintaget med 50 %",
+          "isCorrect": false
+        },
+        {
+          "text": "Man kan glida snabbare i lera",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical fastpacking or trekking scenario, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 59] Varför kan en tunn regnponcho vara mer praktisk än ett tjockt regnställ under lättare skogsvandring?",
+      "answers": [
+        {
+          "text": "Ponchon skyddar även ryggsäck och ventilerar bättre",
+          "isCorrect": true
+        },
+        {
+          "text": "Tjocka regnställ är olagliga i skogsmiljö",
+          "isCorrect": false
+        },
+        {
+          "text": "Ponchon är alltid gjord av stålväv och skyddar mot vind",
+          "isCorrect": false
+        },
+        {
+          "text": "Man svettas mer i ponchon än i regnställ",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical outdoor trekking photo, realistic style."
+    },
+    {
+      "questionText": "[Friluftsliv 60] Vad bör man vara uppmärksam på om man nyttjar en bergsskreva som vindskydd under nattläger?",
+      "answers": [
+        {
+          "text": "Risken för stenskred och att skrevan kan bli vattenfylld om det regnar",
+          "isCorrect": true
+        },
+        {
+          "text": "Att syresättningen blir för hög och man får svårt att sova",
+          "isCorrect": false
+        },
+        {
+          "text": "Att solens reflexer värmer skrevan till obeboelig temperatur",
+          "isCorrect": false
+        },
+        {
+          "text": "Man kan inte få eldsyfte i en skreva",
+          "isCorrect": false
+        }
+      ],
+      "category": "friluftsliv",
+      "difficulty": "normal",
+      "prompt": "A typical mountain or rocky scenario, realistic style."
+    },
+
+    {
+      "questionText": "[Skytte 61] Varför är ett bra anlägg i axeln viktigt vid hagelskytte mot rörliga mål?",
+      "answers": [
+        {
+          "text": "Det ökar kulans hastighet med 50 m/s",
+          "isCorrect": false
+        },
+        {
+          "text": "Det hjälper skytten att följa målet utan att vapnet hoppar eller vobblar",
+          "isCorrect": true
+        },
+        {
+          "text": "Man slipper ställa in choken i hagelgeväret",
+          "isCorrect": false
+        },
+        {
+          "text": "Man kan ladda vapnet snabbare med perfekt anlägg",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical shotgun shooting range photo, realistic style."
+    },
+    {
+      "questionText": "[Skytte 62] Vad kan vara en vanlig orsak till träffbilder som 'sprider' sig vid kulskytte på 100 m?",
+      "answers": [
+        {
+          "text": "Att kikarsiktet är felmonterat eller att skytten inte har konsekvent anlägg och avfyring",
+          "isCorrect": true
+        },
+        {
+          "text": "Att ammunitionens kaliber är för stor för 100 m avstånd",
+          "isCorrect": false
+        },
+        {
+          "text": "Att pipan är för lång, vilket bromsar kulan",
+          "isCorrect": false
+        },
+        {
+          "text": "Att tavlan är gjord av för mjukt papper",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical rifle shooting range photo, realistic style."
+    },
+    {
+      "questionText": "[Skytte 63] Vad menas med 'magasinbrunn' (mag well) i sportsammanhang för vissa pistoler?",
+      "answers": [
+        {
+          "text": "En trattliknande förstorad öppning för enklare och snabbare magasinbyte",
+          "isCorrect": true
+        },
+        {
+          "text": "Ett extra slutstycke i botten på magasinet",
+          "isCorrect": false
+        },
+        {
+          "text": "Ett slangsystem för att kyla patronerna",
+          "isCorrect": false
+        },
+        {
+          "text": "Ett smörjhål för avtryckaren",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical handgun competition photo, realistic style."
+    },
+    {
+      "questionText": "[Skytte 64] Varför är andningsteknik viktig vid precisionsskytte med kulgevär?",
+      "answers": [
+        {
+          "text": "För att syresätta kulan innan den lämnar pipan",
+          "isCorrect": false
+        },
+        {
+          "text": "Rätt andning hjälper skytten att minimera rörelser och puls under avfyringsögonblicket",
+          "isCorrect": true
+        },
+        {
+          "text": "Man kan öka räfflorna i pipan genom snabb andning",
+          "isCorrect": false
+        },
+        {
+          "text": "Andningsteknik styr krutgaser",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical rifle shooting range photo, realistic style."
+    },
+    {
+      "questionText": "[Skytte 65] Vilken effekt kan en 'mynningsbroms' ha vid gevärsskytte?",
+      "answers": [
+        {
+          "text": "Minskar rekylen genom att styra bort krutgaser i sidled eller uppåt",
+          "isCorrect": true
+        },
+        {
+          "text": "Eliminerar mynningsflamman helt",
+          "isCorrect": false
+        },
+        {
+          "text": "Skjuter alltid två kulor i rad",
+          "isCorrect": false
+        },
+        {
+          "text": "Ökar kulans rotationshastighet",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical muzzle brake scenario, realistic style."
+    },
+    {
+      "questionText": "[Skytte 66] Varför är 'avfyringspunkten' (break point) en viktig aspekt av avtryckarens funktion?",
+      "answers": [
+        {
+          "text": "Där bestämmer man kulans kaliber",
+          "isCorrect": false
+        },
+        {
+          "text": "Skytten vill ha en tydlig, förutsägbar punkt där skottet går för att inte rycka avtryckaren",
+          "isCorrect": true
+        },
+        {
+          "text": "Den avgör vilken typ av krut som används",
+          "isCorrect": false
+        },
+        {
+          "text": "Avfyringspunkten ska inte märkas för att ge slumpmässiga skott",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical trigger system scenario, realistic style."
+    },
+    {
+      "questionText": "[Skytte 67] Vad menas med 'double tap' inom pistolskytte?",
+      "answers": [
+        {
+          "text": "Två snabbskott mot samma mål med kort tidsintervall",
+          "isCorrect": true
+        },
+        {
+          "text": "Två avtryckartryck samtidigt",
+          "isCorrect": false
+        },
+        {
+          "text": "Att man håller manteln bakåt två sekunder",
+          "isCorrect": false
+        },
+        {
+          "text": "Man avfyrar två olika vapen i vardera hand",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical pistol competition scenario, realistic style."
+    },
+    {
+      "questionText": "[Skytte 68] Hur påverkar en kraftig sidovind kulans träffläge vid längre avstånd (t ex 300–500 m)?",
+      "answers": [
+        {
+          "text": "Kulan påverkas inte av sidvind om hastigheten överstiger 700 m/s",
+          "isCorrect": false
+        },
+        {
+          "text": "Kulan driver i vindriktningen, vilket kan ge miss om man inte kompenserar",
+          "isCorrect": true
+        },
+        {
+          "text": "Sidvind ger högre kulbana men ingen sidoförskjutning",
+          "isCorrect": false
+        },
+        {
+          "text": "Kulans rotation upphäver sidvindseffekten",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical rifle long-range scenario, realistic style."
+    },
+    {
+      "questionText": "[Skytte 69] Vilken är en typisk uppgift för en 'range officer' vid en skyttetävling?",
+      "answers": [
+        {
+          "text": "Att ladda alla magasin åt skyttarna",
+          "isCorrect": false
+        },
+        {
+          "text": "Att säkerställa att säkerhetsregler följs och ge klartecken för skjutstart",
+          "isCorrect": true
+        },
+        {
+          "text": "Att sälja ammunition till halva priset",
+          "isCorrect": false
+        },
+        {
+          "text": "Att justera sikten på allas vapen",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical shooting competition scenario, realistic style."
+    },
+    {
+      "questionText": "[Skytte 70] Hur kan man enklast veta om ens gevär är inskjutet korrekt på 100 m?",
+      "answers": [
+        {
+          "text": "Skjuta en serie om flera skott på tavla och se om träffgruppen sitter nära centrum",
+          "isCorrect": true
+        },
+        {
+          "text": "Rikta pipan mot solen och kolla reflektioner",
+          "isCorrect": false
+        },
+        {
+          "text": "Mäta pipans temperatur före och efter skott",
+          "isCorrect": false
+        },
+        {
+          "text": "Be en annan skytt hålla i vapnet medan du trycker av",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical shooting range scenario, realistic style."
+    },
+    {
+      "questionText": "[Skytte 71] Varför kan en 'torpedformad' kula vara mer aerodynamiskt effektiv än en rundnoskula?",
+      "answers": [
+        {
+          "text": "För att den roterar motsatt riktning runt sin egen axel",
+          "isCorrect": false
+        },
+        {
+          "text": "Den har lägre luftmotstånd, bibehåller hastighet bättre och ger flackare kulbana",
+          "isCorrect": true
+        },
+        {
+          "text": "Rundnoskulor får rekylen att gå uppåt",
+          "isCorrect": false
+        },
+        {
+          "text": "Endast torpedkulor är tillåtna i tävlingsskytte",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical ballistic explanation scenario, realistic style."
+    },
+    {
+      "questionText": "[Skytte 72] Vad kan vara en nackdel med en mycket lätt avtryckarvikt (under 500 g) på ett precisionsgevär?",
+      "answers": [
+        {
+          "text": "Det blir troligen olagligt i de flesta skyttediscipliner",
+          "isCorrect": false
+        },
+        {
+          "text": "Skytten kan avfyra oavsiktligt vid minsta beröring eller stressrörelse",
+          "isCorrect": true
+        },
+        {
+          "text": "Rekylen blir hårdare",
+          "isCorrect": false
+        },
+        {
+          "text": "Kikarsiktet tål inte låg avtryckarvikt",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical benchrest or target rifle scenario, realistic style."
+    },
+    {
+      "questionText": "[Skytte 73] Varför är det viktigt att hålla samma 'kinnstöd' (cheekweld) varje gång man siktar med kikarsikte?",
+      "answers": [
+        {
+          "text": "För att kikarsiktet annars ändrar förstoring",
+          "isCorrect": false
+        },
+        {
+          "text": "För att undvika parallaxfel och bevara en konsekvent siktlinje",
+          "isCorrect": true
+        },
+        {
+          "text": "Kinnstödet stabiliserar avtryckaren",
+          "isCorrect": false
+        },
+        {
+          "text": "Då känner man krutgaserna bättre",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical rifle scope usage scenario, realistic style."
+    },
+    {
+      "questionText": "[Skytte 74] Vad innebär termen 'fouling shot' inom skytte?",
+      "answers": [
+        {
+          "text": "Ett skott man avfyrar för att mjuka upp avtryckarfingret",
+          "isCorrect": false
+        },
+        {
+          "text": "Ett skott för att 'smutsa in' pipan så nästa serie blir mer konsekvent",
+          "isCorrect": true
+        },
+        {
+          "text": "Ett skott man avfyrar rakt upp i luften som varning",
+          "isCorrect": false
+        },
+        {
+          "text": "Ett luftskott utan krut",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical shooting range scenario, realistic style."
+    },
+    {
+      "questionText": "[Skytte 75] Varför är torrträning (dry practice) vanligt inom sportskytte?",
+      "answers": [
+        {
+          "text": "Man sparar ammunition och kan träna avfyringsmoment och sikte",
+          "isCorrect": true
+        },
+        {
+          "text": "Vapnet blir starkare ju fler klick man gör",
+          "isCorrect": false
+        },
+        {
+          "text": "Man får licens snabbare",
+          "isCorrect": false
+        },
+        {
+          "text": "Torrträning är det enda sättet att justera siktet",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical pistol or rifle training scenario, realistic style."
+    },
+    {
+      "questionText": "[Skytte 76] Hur kan en kikarsiktes parallaxinställning påverka träffsäkerheten vid olika avstånd?",
+      "answers": [
+        {
+          "text": "Om parallaxen är felinställd kan siktbilden förändras beroende på ögats position, vilket ger sidleds- eller höjdmissar",
+          "isCorrect": true
+        },
+        {
+          "text": "Parallax påverkar bara rekyldämpning",
+          "isCorrect": false
+        },
+        {
+          "text": "Rätt parallaxinställning förstorar målet med 200 %",
+          "isCorrect": false
+        },
+        {
+          "text": "Parallax har ingen praktisk betydelse under 500 m",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical scope usage scenario, realistic style."
+    },
+    {
+      "questionText": "[Skytte 77] Varför kan en skytt märka skillnad i träffläge när pipan blivit varm jämfört med kall?",
+      "answers": [
+        {
+          "text": "En uppvärmd pipa kan ändra spänningar och svängningsmönster, vilket påverkar kulans träffläge",
+          "isCorrect": true
+        },
+        {
+          "text": "Kall pipa ger alltid 100 m mer räckvidd",
+          "isCorrect": false
+        },
+        {
+          "text": "Värme gör krutet brinna långsammare",
+          "isCorrect": false
+        },
+        {
+          "text": "Kulans diameter minskar i varm pipa",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical benchrest or target shooting scenario, realistic style."
+    },
+    {
+      "questionText": "[Skytte 78] Vilken roll har en s.k. 'spotter' (hjälpare) vid långhållsskytte?",
+      "answers": [
+        {
+          "text": "Att i realtid ge skytten feedback på vind, träffläge och avstånd för korrigering",
+          "isCorrect": true
+        },
+        {
+          "text": "Att ladda om vapnet mellan varje skott",
+          "isCorrect": false
+        },
+        {
+          "text": "Att räkna antalet skott i magasinet",
+          "isCorrect": false
+        },
+        {
+          "text": "Att montera isär kikarsiktet efter varje serie",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical long-range shooting scenario, realistic style."
+    },
+    {
+      "questionText": "[Skytte 79] Vad syftar en 'benrest' (bipod) till i gevärsskytte?",
+      "answers": [
+        {
+          "text": "Den minskar kulans kaliber vid avfyring",
+          "isCorrect": false
+        },
+        {
+          "text": "Den ger stabilitet framtill på vapnet och minskar risken för rörelser vid avfyring",
+          "isCorrect": true
+        },
+        {
+          "text": "Den omvandlar rekylen till energi för automatladdning",
+          "isCorrect": false
+        },
+        {
+          "text": "Den är enbart dekor",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical bipod usage scenario, realistic style."
+    },
+    {
+      "questionText": "[Skytte 80] Vilken är en typisk nybörjarfälla vid hagelskytte mot lerduvor?",
+      "answers": [
+        {
+          "text": "Att följa duvan för länge och stanna hagelsvärmen i luften",
+          "isCorrect": false
+        },
+        {
+          "text": "Att sätta kinden för högt eller för lågt mot kolven, vilket ger en felaktig träffpunkt",
+          "isCorrect": true
+        },
+        {
+          "text": "Att ladda för stark hagelpatron",
+          "isCorrect": false
+        },
+        {
+          "text": "Att sikta för långt framför duvan i alla lägen",
+          "isCorrect": false
+        }
+      ],
+      "category": "skytte",
+      "difficulty": "normal",
+      "prompt": "A typical clay shooting scenario, realistic style."
+    },
+  
+    {
+      "questionText": "[Vapen 81] Vad är syftet med 'headspace gauges' (mätverktyg) vid vapentillverkning och justering?",
+      "answers": [
+        {
+          "text": "Att avgöra kulans vikt innan laddning",
+          "isCorrect": false
+        },
+        {
+          "text": "Att kontrollera och verifiera att patronläge och slutstyckslåsning har korrekt avstånd",
+          "isCorrect": true
+        },
+        {
+          "text": "De mäter temperatur i pipan",
+          "isCorrect": false
+        },
+        {
+          "text": "De rensar krutrester i vapnet",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical gunsmith scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 82] Vilken skillnad finns mellan en 'fluted barrel' och en 'heavy barrel' för ett kulgevär?",
+      "answers": [
+        {
+          "text": "En fluted pipa har frästa spår för lägre vikt och bättre kylning, medan en heavy barrel är tjock och stabil men tyngre",
+          "isCorrect": true
+        },
+        {
+          "text": "Båda är identiska men fluting är en dekorativ finish",
+          "isCorrect": false
+        },
+        {
+          "text": "Fluting krävs i lag för jaktvapen",
+          "isCorrect": false
+        },
+        {
+          "text": "Heavy barrel är räfflad inuti, fluting är räfflad utanpå",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical rifle barrel scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 83] Varför är en robust avtryckarhake (sear) viktig i ett halvautomatiskt vapen?",
+      "answers": [
+        {
+          "text": "För att den justerar choken i hagelgeväret",
+          "isCorrect": false
+        },
+        {
+          "text": "För att säkerställa pålitlig upphakning och hindra oavsiktlig automateld",
+          "isCorrect": true
+        },
+        {
+          "text": "För att öka avfyringshastigheten över 600 skott/min",
+          "isCorrect": false
+        },
+        {
+          "text": "Den är främst estetisk, ingen funktion",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical semiauto rifle mechanism scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 84] Vilken nytta kan ett 'gas block' med justerbar funktion ha på ett AR-liknande vapen?",
+      "answers": [
+        {
+          "text": "Gör att man kan skjuta krutlöst utan rekyl",
+          "isCorrect": false
+        },
+        {
+          "text": "Man kan anpassa gasflödet beroende på ammunition, vilket kan ge mjukare rekyl och bättre pålitlighet",
+          "isCorrect": true
+        },
+        {
+          "text": "Man ställer in kulans hastighet i pipan",
+          "isCorrect": false
+        },
+        {
+          "text": "Det förbjuder helautomatisk funktion",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical AR platform scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 85] Varför är det olämpligt att använda ett halvautomatiskt kulgevär med för klen ammunition anpassad för övning?",
+      "answers": [
+        {
+          "text": "Pipan blir för varm snabbare",
+          "isCorrect": false
+        },
+        {
+          "text": "Mekanismen kanske inte cyklar korrekt om gastrycket är för lågt",
+          "isCorrect": true
+        },
+        {
+          "text": "Kulans diameter är felaktig",
+          "isCorrect": false
+        },
+        {
+          "text": "Vapnet rostar snabbare av klen ammunition",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical semiauto rifle scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 86] Hur kan en 'pistol-caliber carbine' (PCC) skilja sig från en vanlig karbin i gevärskaliber?",
+      "answers": [
+        {
+          "text": "Den använder pistolammunition (t ex 9 mm) istället för gevärskaliber, vilket ofta ger lägre rekyl och kortare räckvidd",
+          "isCorrect": true
+        },
+        {
+          "text": "Den saknar avtryckare",
+          "isCorrect": false
+        },
+        {
+          "text": "Den har dubbla pipor",
+          "isCorrect": false
+        },
+        {
+          "text": "Den är gjord i rent titan och är vikbar",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical pistol caliber carbine scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 87] Varför är det viktigt att inte 'mix n' match' slumpartade delar i ett AR15-bygge utan kunskap?",
+      "answers": [
+        {
+          "text": "Delar kan ha olika mått, toleranser eller design vilket påverkar funktion och säkerhet",
+          "isCorrect": true
+        },
+        {
+          "text": "AR15-delar är alltid identiska oavsett fabrikat",
+          "isCorrect": false
+        },
+        {
+          "text": "Flera olika färger på delarna är olagligt",
+          "isCorrect": false
+        },
+        {
+          "text": "Man riskerar att avtryckaren rostar snabbare",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical AR15 building scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 88] Vilken risk uppstår om man använder 'magnum'-laddade patroner i ett hagelvapen som inte är avsett för det?",
+      "answers": [
+        {
+          "text": "Haglen smälter ihop till en massiv projektil",
+          "isCorrect": false
+        },
+        {
+          "text": "Trycket kan bli för högt och skada vapnet eller skytten",
+          "isCorrect": true
+        },
+        {
+          "text": "Magnum-laddade patroner saknar hagel helt",
+          "isCorrect": false
+        },
+        {
+          "text": "Hylsan är för kort och fastnar i patronläget",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical shotgun usage scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 89] Varför är materialet i en pistolslid (mantel) viktigt för vapnets livslängd?",
+      "answers": [
+        {
+          "text": "Om manteln är av för mjukt material kan slitaget bli stort och orsaka funktionsfel",
+          "isCorrect": true
+        },
+        {
+          "text": "Mjukare material är alltid bättre för hög hastighet",
+          "isCorrect": false
+        },
+        {
+          "text": "Materialet påverkar inte funktionen men bestämmer kaliber",
+          "isCorrect": false
+        },
+        {
+          "text": "Manteln styr krutgasen i pipan",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical handgun mechanism scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 90] Vilken funktion fyller en excentrisk kam (cam pin) i en AR15-bultmekanism?",
+      "answers": [
+        {
+          "text": "Den roterar bulten för att låsa upp eller låsa patronläget i pipan",
+          "isCorrect": true
+        },
+        {
+          "text": "Den justerar avtrycksvikten automatiskt",
+          "isCorrect": false
+        },
+        {
+          "text": "Den kyler slutstycket med olja",
+          "isCorrect": false
+        },
+        {
+          "text": "Cam pin är en del i kikarsiktet",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical AR15 bolt scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 91] Vilken huvudroll har patronläget i ett eldvapen?",
+      "answers": [
+        {
+          "text": "Det är den del av vapnet som utformar kulans spets",
+          "isCorrect": false
+        },
+        {
+          "text": "Det är utrymmet i pipans bakre del där patronen placeras och stöds vid avfyring",
+          "isCorrect": true
+        },
+        {
+          "text": "Det är ett förvaringsfack för krutflaskor",
+          "isCorrect": false
+        },
+        {
+          "text": "Det är där slagstiftet producerar gnistor",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical firearm anatomy scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 92] Varför är vapenvård (rengöring och smörjning) extra viktig efter att man skjutit stålhagel eller korrosivt krut?",
+      "answers": [
+        {
+          "text": "Stålhagel genererar metallflisor som kan påskynda rost, korrosivt krut lämnar salter som drar till sig fukt",
+          "isCorrect": true
+        },
+        {
+          "text": "Man måste byta kolven efter varje skytte",
+          "isCorrect": false
+        },
+        {
+          "text": "Stålhagel och krut leder till att avtryckaren går sönder direkt",
+          "isCorrect": false
+        },
+        {
+          "text": "Korrosivt krut ger högre rekyltid",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical cleaning and maintenance scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 93] Vad är en av riskerna med att använda starka lösningsmedel på polymerdelar i moderna vapen?",
+      "answers": [
+        {
+          "text": "Polymeren kan svälla eller deformeras, vilket leder till funktionsstörningar",
+          "isCorrect": true
+        },
+        {
+          "text": "Polymerdelar blir självlysande",
+          "isCorrect": false
+        },
+        {
+          "text": "Lösningsmedlet får metall att rosta snabbare",
+          "isCorrect": false
+        },
+        {
+          "text": "Polymerdelar är omöjliga att rengöra",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical firearm cleaning scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 94] Hur påverkar en 'bottleneck'-patron (t ex .308) matningen i ett magasin jämfört med en rak väggad patron?",
+      "answers": [
+        {
+          "text": "Bottleneck-patroner staplas ofta mer stabilt och underlättar matning under sned lutning",
+          "isCorrect": true
+        },
+        {
+          "text": "Rakväggade patroner är alltid mer pålitliga än bottleneck",
+          "isCorrect": false
+        },
+        {
+          "text": "Bottleneckpatroner kräver enbart engångsmagasin",
+          "isCorrect": false
+        },
+        {
+          "text": "Ingen skillnad i matning, men bottleneck ökar recoil",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical cartridge geometry scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 95] Varför är kolvens passform i axeln viktig i hagel- eller kulvapen?",
+      "answers": [
+        {
+          "text": "Dålig passform kan ge oförutsägbart träffläge och obehaglig rekylkänsla",
+          "isCorrect": true
+        },
+        {
+          "text": "Den påverkar endast avfyringshastigheten",
+          "isCorrect": false
+        },
+        {
+          "text": "Passform är oviktig i moderna vapen",
+          "isCorrect": false
+        },
+        {
+          "text": "En perfekt passform reducerar krutgaser",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical stock fitting scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 96] Vilken risk kan uppstå om man glömmer bort en 'squib load' (patron med för lite krut) i pipan?",
+      "answers": [
+        {
+          "text": "Kulhastigheten blir överljudshög och pipan exploderar",
+          "isCorrect": false
+        },
+        {
+          "text": "Kulan kan fastna i pipan och nästa skott kan orsaka allvarlig vapensprängning",
+          "isCorrect": true
+        },
+        {
+          "text": "Patronen flyger bakåt mot skytten",
+          "isCorrect": false
+        },
+        {
+          "text": "All ammunition i magasinet skadas",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical misfire scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 97] Vad är huvudsyftet med en 'forend' (förstock) på ett gevär eller hagelvapen?",
+      "answers": [
+        {
+          "text": "Att man inte ska bränna händerna mot den varma pipan och för att ge stöd",
+          "isCorrect": true
+        },
+        {
+          "text": "Det är bara en dekoration",
+          "isCorrect": false
+        },
+        {
+          "text": "Att automatiskt ladda om vapnet",
+          "isCorrect": false
+        },
+        {
+          "text": "Att styra kulbanan i sidled",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical firearm furniture scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 98] Varför är 'lock time' (tiden från avtryck till att slagstiftet träffar tändhatten) relevant vid precisionsskytte?",
+      "answers": [
+        {
+          "text": "Ju kortare lock time, desto mindre tid hinner skytten röra vapnet efter avtryck",
+          "isCorrect": true
+        },
+        {
+          "text": "Lång lock time ger mer energi i kulan",
+          "isCorrect": false
+        },
+        {
+          "text": "Lock time avgör enbart krutmängden",
+          "isCorrect": false
+        },
+        {
+          "text": "Lock time är ointressant för träffsäkerheten",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical precision shooting scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 99] Vad kan hända om du råkar ladda ett vapen med en patron av fel kaliber som ändå får plats i patronläget?",
+      "answers": [
+        {
+          "text": "Det kan leda till en farlig situation: hylsan tätar inte ordentligt eller kulan fastnar, vilket kan orsaka vapenskada",
+          "isCorrect": true
+        },
+        {
+          "text": "Patronen kommer automatiskt matas ut utan att avfyras",
+          "isCorrect": false
+        },
+        {
+          "text": "All ammunition i magasinet rostar omedelbart",
+          "isCorrect": false
+        },
+        {
+          "text": "Det ger högre träffsäkerhet på kort avstånd",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical ammo mismatch scenario, realistic style."
+    },
+    {
+      "questionText": "[Vapen 100] Varför är vapnets totala vikt en faktor att överväga vid både jakt och sportskytte?",
+      "answers": [
+        {
+          "text": "Tyngre vapen ger ofta stabilare skytte men är mer krävande att bära längre perioder",
+          "isCorrect": true
+        },
+        {
+          "text": "Lätta vapen kan inte träffa något över 50 m",
+          "isCorrect": false
+        },
+        {
+          "text": "Tyngre vapen är alltid mer oprecisa",
+          "isCorrect": false
+        },
+        {
+          "text": "Vikten är endast relevant för kaliber",
+          "isCorrect": false
+        }
+      ],
+      "category": "vapen",
+      "difficulty": "normal",
+      "prompt": "A typical firearm usage scenario, realistic style."
+    }
+  ]
+  

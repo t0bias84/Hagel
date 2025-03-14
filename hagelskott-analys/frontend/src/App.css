@@ -1,0 +1,64 @@
+/* Grundlayout för rotdomen (#root) */
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh; /* Gör att sidan fyller hela höjden */
+  box-sizing: border-box;
+  text-align: center;
+  background-color: #f8f9fa; /* Lätt bakgrundsfärg */
+}
+
+/* .logo-klassen – animering och hovring */
+.logo {
+  height: 6rem;
+  padding: 1.5rem;
+  will-change: filter, transform;
+  transition: filter 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+  transform: scale(1.05);
+}
+
+/* Extra stil om .logo också har klassen .react */
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+/* Nyckelbildrutor för en roterande animering */
+@keyframes logo-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Används om man vill spinna loggan automatiskt */
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+/* Kortkomponent (.card) med enkel skugga & radius */
+.card {
+  margin: 1rem auto;
+  padding: 2rem;
+  max-width: 600px;
+  text-align: left;
+  background-color: #fff;
+  border: 1px solid #eaecef;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Klass för lite mer diskret text (ex. länkar, info) */
+.read-the-docs {
+  color: #666;
+  line-height: 1.6;
+}

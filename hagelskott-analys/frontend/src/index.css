@@ -1,0 +1,158 @@
+/* index.css */
+
+/* 1) Importera Tailwinds bas-, komponent- och utility-klasser */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------
+   2) Grundläggande reset/inställningar
+   ------------------------------------------------------------ */
+
+html, body {
+  /* Egen bakgrund och textfärg (som exempel) */
+  @apply bg-military-900 text-gray-100;
+  
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  
+  /* Exempel på en bra font för UI */
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system,
+               'Segoe UI', sans-serif;
+}
+
+/* Exempel: global box-sizing reset */
+*, *::before, *::after {
+  @apply box-border;
+}
+
+/* ------------------------------------------------------------
+   3) Scrollbar-styling (Chrome/WebKit)
+   ------------------------------------------------------------ */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-military-800;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-military-600;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-military-500;
+}
+
+/* ------------------------------------------------------------
+   4) Länkar (om du vill ha en viss hoverfärg, underline, etc.)
+   ------------------------------------------------------------ */
+a {
+  @apply text-military-200 underline transition-colors duration-150;
+}
+a:hover {
+  @apply text-military-100;
+}
+
+/* ------------------------------------------------------------
+   5) Exempel: Slack-liknande sidomeny
+   ------------------------------------------------------------ */
+.slack-sidebar {
+  @apply bg-military-800 text-gray-100 w-60 flex-shrink-0 flex flex-col gap-4 p-4;
+}
+
+/* Exempel: Slack-liknande topbar */
+.slack-topbar {
+  @apply bg-military-700 text-gray-100 py-3 px-4 flex items-center gap-2;
+}
+
+/* ------------------------------------------------------------
+   6) Militära knappstilar (ex. "btn-military")
+   ------------------------------------------------------------ */
+
+/* Primär militärknapp */
+.btn-military {
+  @apply inline-flex items-center justify-center 
+    px-4 py-2 text-sm font-semibold rounded
+    bg-military-500 text-white
+    transition-colors duration-200;
+}
+.btn-military:hover {
+  @apply bg-military-400;
+}
+
+/* Outline-variant */
+.btn-military-outline {
+  @apply inline-flex items-center justify-center
+    px-4 py-2 text-sm font-semibold rounded
+    border border-military-400
+    text-military-100
+    transition-colors duration-200;
+}
+.btn-military-outline:hover {
+  @apply bg-military-400 text-white;
+}
+
+/* Destruktiv variant */
+.btn-military-danger {
+  @apply inline-flex items-center justify-center
+    px-4 py-2 text-sm font-semibold rounded
+    bg-red-600 text-white
+    transition-colors duration-200;
+}
+.btn-military-danger:hover {
+  @apply bg-red-500;
+}
+
+/* ------------------------------------------------------------
+   7) Extra klasser för container + rubriker + annat
+   ------------------------------------------------------------ */
+.container-max {
+  @apply mx-auto max-w-7xl px-4;
+}
+@screen sm {
+  .container-max {
+    @apply px-6;
+  }
+}
+@screen lg {
+  .container-max {
+    @apply px-8;
+  }
+}
+
+/* Rubriker */
+.heading-1 {
+  @apply mb-4 text-3xl font-bold;
+}
+.heading-2 {
+  @apply mb-3 text-2xl font-semibold;
+}
+
+/* ------------------------------------------------------------
+   8) Exempel: logga-liknande spin/hover-effekt
+   ------------------------------------------------------------ */
+   .logo {
+    /* Byt transition-filter -> transition-all, t.ex.: */
+    @apply transition-all duration-300;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #7f9f7d);
+  /* Ex. militärgrön skuggeffekt */
+}
+
+/* ------------------------------------------------------------
+   9) Om du vill trunkera text med "line-clamp"
+      Kom ihåg att installera och aktivera plugin:
+      npm install -D @tailwindcss/line-clamp
+      // tailwind.config.js => plugins: [require("@tailwindcss/line-clamp")]
+   ------------------------------------------------------------ */
+/* 
+.line-clamp-2 {
+  @apply line-clamp-2;
+}
+*/
+
+/* ------------------------------------------------------------
+   Klart! 
+   Du kan givetvis lägga till fler anpassningar här efter behov.
+   ------------------------------------------------------------ */

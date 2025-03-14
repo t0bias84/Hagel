@@ -1,0 +1,258 @@
+Här kommer en uppdaterad och mer utförlig sammanfattning av ditt projekt — tänkt som en “all-in-one”-beskrivning för någon (eller en AI) som snabbt behöver förstå hur backend och frontend hänger ihop, vilka filer som gör vad och hur forum-, autentiserings- och analyssystemet fungerar. Jag kommer även beröra hur forumkategorierna seedas, hur trådar och inlägg skapas, var man hittar logiken för bilder, handladdning etc. Samtidigt beskriver jag filstrukturen och vanliga flöden i applikationen.
+
+Övergripande Mål & Funktioner
+Ditt projekt är en kombination av:
+
+FastAPI (Python) + MongoDB (via motor) i backend
+React (JavaScript/TypeScript) i frontend
+Huvudfunktionerna kan delas in i:
+
+Forum (med kategorier, trådar, inlägg, eventuella subkategorier)
+Autentisering (JWT-bas, inloggning/utloggning, admin-roller)
+Analyser (hagelskott-analys: uppladdning av bilder, beräkning av hagelsvärm, “services/pattern_analysis”)
+Komponenter (CRUD av krut, hagel, tändhattar, vapenrecensioner etc.)
+Handladdnings-data (ex. loads.py + “LoadsPage” i frontend)
+Övrigt (ex. prepping-liknande “bushcraft”-avdelningar, inställnings-/profil-hantering, bilduppladdningar)
+Koden är uppdelad i backend-katalogen (som körs via uvicorn main:app --reload) och frontend-katalogen (som startas med npm/yarn run dev eller motsvarande).
+
+Backend: FastAPI + MongoDB
+En vanlig mappstruktur i backend/ är:
+
+arduino
+Kopiera kod
+backend/
+└─ app/
+   ├─ api/
+   │   ├─ forum_categories.py
+   │   ├─ forum_threads.py
+   │   ├─ forum_happenings.py        # (om man vill ha notiser/händelser)
+   │   ├─ routes/
+   │   │   ├─ auth.py
+   │   │   ├─ components.py
+   │   │   ├─ loads.py
+   │   │   ├─ analysis.py
+   │   │   ├─ users.py
+   │   └─ ...
+   ├─ core/
+   │   ├─ config.py
+   │   ├─ security.py
+   │   └─ ...
+   ├─ db/
+   │   └─ mongodb.py
+   ├─ services/
+   │   ├─ analysis_service.py
+   │   ├─ pattern_analysis.py
+   │   └─ ...
+   └─ main.py
+main.py
+Central fil som skapar FastAPI-appen.
+Inkluderar routrar från forum (forum_categories.py, forum_threads.py), från routes/auth.py, routes/users.py, routes/components.py, osv.
+Använder “startup”-events för att:
+Ansluta mot databasen (db.connect_db()).
+Seeda admin-user (och ev. forumkategorier).
+Körs via uvicorn main:app --reload.
+forum_categories.py
+Mycket stor fil (upp till 900+ rader) med en gigantisk JSON-lik datastruktur (FORUM_CATEGORIES) som definierar alla huvudkategorier + dess children (subkategorier) i flera nivåer.
+Har endpoints för att:
+Reset alla kategorier (POST /categories/reset) – rensar hela categories-kollektionen i MongoDB.
+Seed forumkategorier (POST /seed) – itererar genom FORUM_CATEGORIES och sparar dem i DB via create_category_recursive(...).
+GET alla kategorier i en platt lista (/categories).
+GET en kategori (/categories/{category_id}).
+Admin-endpoints: Create/Update/Delete kategori manuellt, t.ex.:
+POST /categories -> ny kategori i DB
+PUT /categories/{id}
+DELETE /categories/{id}
+Varje kategori har threadCount, postCount, parent_id (för subkategorier), created_at, updated_at.
+forum_threads.py
+Hanterar trådar och inlägg (posts) i forumet.
+Endpoints:
+POST /categories/{category_id}/threads -> skapa en ny tråd i en kategori
+GET /categories/{category_id}/threads -> lista alla trådar i en kategori
+GET /threads/{thread_id} -> hämta en enskild tråd (och kan öka “views”)
+PUT /threads/{thread_id} och DELETE /threads/{thread_id} -> uppdatera/radera tråd
+POST /threads/{thread_id}/posts -> skapa nytt inlägg i en existerande tråd
+GET /threads/{thread_id}/posts -> lista inlägg i en tråd
+PUT /threads/{thread_id}/posts/{post_id} och DELETE /threads/{thread_id}/posts/{post_id} -> uppdatera/radera inlägg
+Ofta tar man emot title, content och author_id.
+Vissa varianter tar emot form-data (multipart/form-data) om du t.ex. vill bifoga filer vid trådskapande.
+forum_happenings.py (eller liknande)
+(Endast om du skapar en ny fil för “notiser/händelser”.)
+Skulle innehålla endpoints och logik för att:
+Följa en tråd
+Anmäla olämpligt innehåll
+Notiser när någon svarar i en tråd man följer, eller när någon kommenterar ens inlägg.
+Skulle spara i en “notifications”–kollektion i DB, t.ex.:
+POST /threads/{thread_id}/follow
+POST /threads/{thread_id}/report (anmäla)
+GET /notifications (hämtar alla notiser för inloggad user)
+routes/auth.py & routes/users.py
+Autentisering (JWT):
+POST /auth/login -> tar emot användarnamn + lösen, om korrekt -> returnerar {"access_token": "...", "token_type": "bearer"}.
+Har funktioner för att verifiera lösenord (bcrypt), generera JWT (med “secret”), spara “roles” (t.ex. “admin”).
+GET /auth/me -> returnerar “nuvarande inloggade user” (om token är giltig).
+POST /auth/register -> ny användare, spar i users-kollektionen.
+users.py: eventuellt endpoints för att uppdatera user-profil, byta e-post, listan av vapen mm.
+routes/analysis.py, services/analysis_service.py, services/pattern_analysis.py
+Hagelskott-analys:
+Du kan ladda upp en bild (t.ex. “/api/analysis/ …”)
+Tjänsten kör “pattern_analysis” i bakgrunden, hittar hagelsvärmens fördelning, etc.
+Svarar med resultatet (ex. densitet, spridning, träffpunkt).
+routes/components.py & routes/loads.py
+components.py: CRUD för “komponenter” (krut, hylsor, hagelstorlekar, studsarkalibrar, etc.).
+GET /api/components
+POST /api/components
+PUT /api/components/:id
+DELETE /api/components/:id
+loads.py: CRUD för “handladdningar” (recept av ammo).
+GET /api/loads
+POST /api/loads, etc.
+mongodb.py (i db/-mappen)
+En “wrapper” kring Motor-klienten (asynkron MongoDB).
+Metoder:
+connect_db() -> loopar tills den får kontakt, kan skapa indexes
+close_db() -> stänger client
+get_database() -> ger referens till self.database
+Används av övriga filer: db_conn = await db.get_database().
+Frontend: React (JS/TS)
+Vanlig mappstruktur i frontend/:
+
+scss
+Kopiera kod
+frontend/
+├─ src/
+│   ├─ App.jsx
+│   ├─ pages/
+│   │   ├─ Forum.jsx
+│   │   ├─ CategoryView.jsx
+│   │   ├─ ThreadView.jsx
+│   │   ├─ NewThread.jsx
+│   │   ├─ ComponentsPage.jsx
+│   │   ├─ LoadsPage.jsx
+│   │   ├─ ...
+│   ├─ components/
+│   │   ├─ ui/
+│   │   │   ├─ card.jsx
+│   │   │   ├─ alert.jsx
+│   │   │   ├─ Avatar.jsx
+│   │   │   ├─ ReactionBar.jsx
+│   │   └─ ...
+│   ├─ services/
+│   │   ├─ forumApi.js (exempel)
+│   │   ├─ authApi.js
+│   │   └─ ...
+│   ├─ context/
+│   │   └─ AuthContext.jsx (exempel)
+│   └─ ...
+├─ vite.config.js
+├─ package.json
+└─ ...
+App.jsx / App.tsx
+Huvud React-komponent som sätter upp BrowserRouter (React Router) och definierar routes:
+"/forum" -> <Forum />
+"/forum/category/:catId" -> <CategoryView />
+"/forum/threads/:threadId" -> <ThreadView />
+"/forum/new" -> <NewThread />
+"/login", "/register", etc.
+Ofta finns en “ProtectedRoute” som kollar om localStorage.getItem("token") existerar för att låta användaren se sidor som kräver inloggning.
+Forum.jsx
+En “förstasida” för forumet.
+Kallar ex. GET /api/forum/categories för att lista alla top-level kategorier.
+Klick på en kategori -> navigerar vidare till CategoryView.jsx.
+CategoryView.jsx
+Tar emot catId via useParams().
+Hämtar enskild kategori (GET /api/forum/categories/{catId}).
+Hämtar trådar i kategorin (GET /api/forum/categories/{catId}/threads).
+Visar subkategorier (om du har GET /api/forum/categories/{catId}/subcategories).
+Har en “Ny tråd”-knapp -> navigate("/forum/new?categoryId=...").
+Som admin kan man radera trådar, redigera trådtitlar etc.
+ThreadView.jsx
+Tar emot threadId.
+Hämtar tråddetaljer (GET /api/forum/threads/{threadId}).
+Hämtar inlägg i tråden (GET /api/forum/threads/{threadId}/posts).
+Visar dem “horisontellt” (eller i lista).
+Möjliggör att skriva nya inlägg (rich text, länkar, ev. reaktioner).
+Admin (eller inläggsägaren) kan radera/redigera inlägget.
+NewThread.jsx
+Låter användare skapa en helt ny tråd i en valfri kategori (ex. via “?categoryId=xxx”).
+POST-ar till /api/forum/categories/{categoryId}/threads med title, content, ev. form-data med bilagor.
+Efter lyckad skapelse -> redirectar tillbaka till den nyss skapade tråden (/forum/threads/{threadId}).
+ComponentsPage.jsx
+CRUD-sida i React för “komponenter” (ex. krut, hagel).
+GET -> /api/components, POST -> /api/components, etc.
+Avatar.jsx, ReactionBar.jsx
+Små UI-komponenter i components/ui/.
+Avatar.jsx -> visar en rund “avatar” med en bokstav (eller bild).
+ReactionBar.jsx -> en rad med knappar “👍”, “❤️”, “😆” eller anpassat.
+Typiska Flöden
+Inloggning
+
+Går till "/login", anger username & password.
+POST /api/auth/login -> om lyckad: "access_token" i localStorage.
+React sätter “loggedInUser” i en “AuthContext”.
+Besöka forum
+
+Går till "/forum", hämtar alla kategorier (eventuellt top-level).
+Klickar en kategori -> "/forum/category/:catId".
+Ser info om kategorin + lista av trådar. “Ny tråd”-knapp om inloggad.
+Skapa ny tråd
+
+NewThread.jsx => POST /api/forum/categories/:catId/threads.
+Om 200 OK -> redirect "/forum/threads/:threadId".
+Läsa en tråd
+
+ThreadView.jsx => GET /api/forum/threads/:threadId.
+Hämta inlägg => GET /api/forum/threads/:threadId/posts.
+Visa i en “horisontell look” eller “listelement”.
+Möjligt att posta ett nytt inlägg => POST /threads/:threadId/posts.
+Hagelskott-analys
+
+T.ex. AnalysisPage.jsx.
+Uppladdning => POST /api/analysis med bild + metadata (form-data).
+Får resultat => “pattern_density”, “distribution”, etc.
+Lagra i “shots”-kollektionen i DB.
+Summering
+Backend:
+
+main.py: startpunkt, sätter upp routrar, DB-anslutning, seed av admin + forumkategorier.
+forum_categories.py: hela “strukturen” för forumet, med recursiv seeding, get av kategorier, admin-CRUD.
+forum_threads.py: TRÅDAR och INLÄGG, endpoints för create/read/update/delete.
+auth.py: inloggning, JWT, login, GET /auth/me.
+users.py: eventuellt profiluppdateringar, rollhantering.
+analysis.py + analysis_service.py: hagelskott-analyser.
+components.py: hantering av “komponenter” (krut, hagel, hylsor...).
+loads.py: hantering av handladdning (recept).
+mongodb.py: Motor-anslutning med asynkron connect, create indexes.
+Frontend:
+
+App.jsx: router-setup, ProtectedRoutes.
+Sidor i pages/: Forum.jsx, CategoryView.jsx, ThreadView.jsx, NewThread.jsx, ComponentsPage.jsx, LoadsPage.jsx, AnalysisPage.jsx, “SettingsPage.jsx” m.fl.
+UI-komponenter i components/ui/: card.jsx, alert.jsx, Avatar.jsx, ReactionBar.jsx osv.
+Kontext: AuthContext.jsx (för inloggningstillstånd).
+services/: eventuellt funktioner som anropar backend-API.
+Varför detta är användbart:
+
+Du (eller en AI) ser exakt var forumkategorier seedas.
+Hur man skapar nya trådar + inlägg via /api/forum.
+Var i React man listar, redigerar, raderar forumtrådar/inlägg.
+Hur hagelskott-analysen går till (via “analysis”–endpoints).
+Var man eventuellt lägger in notis-/“happenings”-logik.
+När du behöver fejkade foruminlägg (d.v.s. testa forumet innan riktiga användare kommer) kan du skapa ett litet create_fake_forum_posts.py i backend som:
+
+Hämtar alla kategorier ( GET /api/forum/categories ).
+Loopar igenom dem, slumpmässigt skapar trådar ( POST /api/forum/categories/{category_id}/threads ), sedan inlägg ( POST /api/forum/threads/{thread_id}/posts ) i varje.
+Varje inlägg får “innehåll” genererat av AI, plus slumpade author_id (“HunterJohn”, “PrepperLisa” etc.).
+Slutord
+Nu har du en omfattande beskrivning av alla centrala filer, hur de relaterar till varandra, och vad de gör. Denna information bör vara tillräcklig för en annan utvecklare (eller en AI) att snabbt:
+
+Förstå backend-API:et (hur DB, forum, analyser och användar-roller funkar).
+Förstå React-frontendens flöden, filstruktur och var man skapar/redigerar trådar.
+Se exact var man kan lägga till nya features (ex. forum_happenings.py för notiser).
+Få en helhetsbild av projektet “Hagelskott Analys + Forum”.
+Hoppas det ger en god överblick och tydlig vägledning för framtida utveckling!
+
+QuizStartPage.jsx (välj kategori, starta quiz).
+QuizRunner.jsx (visar frågor, låter användaren välja svar).
+QuizResult.jsx (visar sammanfattning).
+QuizAdminPage.jsx (admin CRUD på frågor).
+
+OpenAI API key: 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

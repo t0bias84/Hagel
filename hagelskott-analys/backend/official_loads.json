@@ -1,0 +1,28 @@
+[
+  {
+    "name": "VendorShotshell #1",
+    "description": "Officiell laddning från Alliant Powder",
+    "gauge": "12",
+    "shellLength": 70,
+    "hullId": "64faa242c14ee4a0f6006e91",
+    "primerId": "64faa242c14ee4a0f6006e92",
+    "powderId": "64faa242c14ee4a0f6006e93",
+    "powderCharge": 1.65,
+    "wadId": "64faa242c14ee4a0f6006e94",
+    "shotLoads": [
+      { "material": "steel", "weight_g": 28, "shotSize": "#3" }
+    ],
+    "crimp": { "type": "star", "overshotCard": null },
+    "velocity": 400,
+    "pressure": 800,
+    "source": "alliant, official", 
+
+    // isPublic, isOfficial, approvedBy läggs till i scriptet
+  },
+  {
+    "name": "VendorShotshell #2",
+    "description": "Officiell data för hagelladdning #2",
+    "gauge": "12",
+    // ...
+  }
+]

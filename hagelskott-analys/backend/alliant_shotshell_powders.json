@@ -1,0 +1,165 @@
+[
+    {
+      "name": "AQ-Slug 12ga 422gr (25 per kit)",
+      "type": "slug",
+      "manufacturer": "Ballistic Products Inc (BPI)",
+      "category": "Shotshell Slug",
+      "description": "Self-rifling AQ-Slug in 12 gauge, 422-grain lead ball with nylon fin. Known for accuracy and reliability.",
+      "properties": {
+        "material": "Lead",
+        "gauge": "12ga",
+        "weight_grains": 422,
+        "packaging_count": 25,
+        "notes": "Made in USA, recommended gas seals: X12X, FS12, BPGS, X12X, XF12"
+      }
+    },
+    {
+      "name": "Thug Slug 12ga 1oz (25/pak)",
+      "type": "slug",
+      "manufacturer": "Ballistic Products Inc (BPI)",
+      "category": "Shotshell Slug",
+      "description": "Hard-hitting, flat-nosed Thug Slug. Suitable for both smoothbore and rifled barrels. Roll or fold crimp.",
+      "properties": {
+        "material": "Lead",
+        "gauge": "12ga",
+        "weight_oz": 1.0,
+        "weight_grains": 437.5,
+        "packaging_count": 25,
+        "notes": "One-piece design with double-reinforced gas seal. Made in Italy."
+      }
+    },
+    {
+      "name": "Thug Slug 12ga 1-1/8oz (25/pak)",
+      "type": "slug",
+      "manufacturer": "Ballistic Products Inc (BPI)",
+      "category": "Shotshell Slug",
+      "description": "Hard-hitting, flat-nosed Thug Slug for 12 gauge. Extra payload for increased knockdown power.",
+      "properties": {
+        "material": "Lead",
+        "gauge": "12ga",
+        "weight_oz": 1.125,
+        "weight_grains": 492.2,
+        "packaging_count": 25,
+        "notes": "Use roll/fold crimp data in Slug Manual. Ideal in both smoothbore and rifled shotguns."
+      }
+    },
+    {
+      "name": "Thug Slug 20ga 7/8oz (25/pak)",
+      "type": "slug",
+      "manufacturer": "Ballistic Products Inc (BPI)",
+      "category": "Shotshell Slug",
+      "description": "Thug Slug design for 20 gauge. Delivers tight groupings and hard hits in both smooth and rifled barrels.",
+      "properties": {
+        "material": "Lead",
+        "gauge": "20ga",
+        "weight_oz": 0.875,
+        "weight_grains": 382.8,
+        "packaging_count": 25,
+        "notes": "Unitized one-piece design, quad-buckle cushion. Made in Italy."
+      }
+    },
+    {
+      "name": "Thug Slug .410 127gr (25/pak)",
+      "type": "slug",
+      "manufacturer": "Ballistic Products Inc (BPI)",
+      "category": "Shotshell Slug",
+      "description": "Thug Slug .410 offering with 127 grains. Engineered for smooth feeding and strong impact.",
+      "properties": {
+        "material": "Lead",
+        "gauge": ".410",
+        "weight_grains": 127,
+        "packaging_count": 25,
+        "notes": "Ballistic lab sees success in .410 handguns. Good for small-bore slug applications."
+      }
+    },
+    {
+      "name": "LBC Sabot Slug 12ga (25/pak)",
+      "type": "slug",
+      "manufacturer": "Ballistic Products Inc (BPI)",
+      "category": "Shotshell Slug",
+      "description": "Segmented LBC Sabot with cushion section. Shock-absorbing design for improved load velocity and consistency.",
+      "properties": {
+        "material": "Lead",
+        "gauge": "12ga",
+        "weight_grains": 437,
+        "packaging_count": 25,
+        "notes": "355-grain spire point + 82-grain molded carrier. Overall slug length ~0.894\"."
+      }
+    },
+    {
+      "name": "DGS12 Slug 12ga (25/pak)",
+      "type": "slug",
+      "manufacturer": "Ballistic Products Inc (BPI)",
+      "category": "Shotshell Slug",
+      "description": "Dangerous Game Slug in 12 gauge, single-unit wad/slug with self-adjusting column height for perfect crimps.",
+      "properties": {
+        "material": "Lead",
+        "gauge": "12ga",
+        "weight_grains": 504,
+        "weight_oz": 1.125,
+        "packaging_count": 25,
+        "notes": "Gas seal ~.735, slug diameter ~.731, length ~1.870\". Ideal for big game."
+      }
+    },
+    {
+      "name": "DGS16 Slug 16ga (25/pak)",
+      "type": "slug",
+      "manufacturer": "Ballistic Products Inc (BPI)",
+      "category": "Shotshell Slug",
+      "description": "Dangerous Game Slug in 16 gauge. Delivers balanced downrange energy and excellent accuracy.",
+      "properties": {
+        "material": "Lead",
+        "gauge": "16ga",
+        "weight_grains": 448,
+        "weight_oz": 1.0,
+        "packaging_count": 25,
+        "notes": "Gas seal ~.680, slug ~.668, length ~1.842\". Single-unit design."
+      }
+    },
+    {
+      "name": "DGS20 Slug 20ga (25/pak)",
+      "type": "slug",
+      "manufacturer": "Ballistic Products Inc (BPI)",
+      "category": "Shotshell Slug",
+      "description": "Dangerous Game Slug in 20 gauge. Enhanced velocity with controlled expansion, even in smoothbore barrels.",
+      "properties": {
+        "material": "Lead",
+        "gauge": "20ga",
+        "weight_grains": 398,
+        "weight_oz": 0.875,
+        "packaging_count": 25,
+        "notes": "Gas seal ~.638, slug ~.623, length ~1.825\". Perfect for lighter big-game loads."
+      }
+    },
+    {
+      "name": "DGS Thunderbolt Slug 12ga 1-3/8 oz (10/pak)",
+      "type": "slug",
+      "manufacturer": "Ballistic Products Inc (BPI)",
+      "category": "Shotshell Slug",
+      "description": "High-power Thunderbolt Slug for big game. 1-3/8 oz lead projectile for strong stopping power.",
+      "properties": {
+        "material": "Lead",
+        "gauge": "12ga",
+        "weight_oz": 1.375,
+        "weight_grains": 600.0,
+        "packaging_count": 10,
+        "notes": "Designed for 3\" and 3.5\" chambers, cylinder choke recommended."
+      }
+    },
+    {
+      "name": "DGS Gualbo Steel Slug 12ga (10/pak)",
+      "type": "slug",
+      "manufacturer": "Ballistic Products Inc (BPI)",
+      "category": "Shotshell Slug",
+      "description": "Expanding Gualbo Steel Slug 12ga (32g). Petals peel back on impact for devastating wound channel.",
+      "properties": {
+        "material": "Steel",
+        "gauge": "12ga",
+        "weight_grams": 32,
+        "weight_grains": 494.0,
+        "packaging_count": 10,
+        "notes": "Central plug ensures stability and precision. Plastic body with lateral tongues."
+      }
+    }
+  ]
+  

@@ -1,0 +1,152 @@
+2024-12-18 08:48:10,567 - system - INFO - System Information Collected: {'os_name': 'Windows', 'os_version': '10.0.22631', 'python_version': '3.12.4 (tags/v3.12.4:8e8a4ba, Jun  6 2024, 19:30:16) [MSC v.1940 64 bit (AMD64)]', 'node_version': 'v22.12.0', 'npm_version': None, 'cpu_count': 24, 'total_memory': 31.913558959960938, 'free_memory': 8.104694366455078, 'disk_space': 930.0878868103027, 'free_disk': 133.39441680908203}
+2024-12-18 08:58:00,120 - system - INFO - System Information Collected: {'os_name': 'Windows', 'os_version': '10.0.22631', 'python_version': '3.12.4 (tags/v3.12.4:8e8a4ba, Jun  6 2024, 19:30:16) [MSC v.1940 64 bit (AMD64)]', 'node_version': 'v22.12.0', 'npm_version': None, 'cpu_count': 24, 'total_memory': 31.913558959960938, 'free_memory': 7.843517303466797, 'disk_space': 930.0878868103027, 'free_disk': 133.39337158203125}
+2024-12-18 09:03:31,256 - system - INFO - System Information Collected: {'os_name': 'Windows', 'os_version': '10.0.22631', 'python_version': '3.12.4 (tags/v3.12.4:8e8a4ba, Jun  6 2024, 19:30:16) [MSC v.1940 64 bit (AMD64)]', 'node_version': 'v22.12.0', 'npm_version': None, 'cpu_count': 24, 'total_memory': 31.913558959960938, 'free_memory': 7.899631500244141, 'disk_space': 930.0878868103027, 'free_disk': 133.39516830444336}
+2024-12-18 09:07:16,461 - system - INFO - System Information Collected: {'os_name': 'Windows', 'os_version': '10.0.22631', 'python_version': '3.12.4 (tags/v3.12.4:8e8a4ba, Jun  6 2024, 19:30:16) [MSC v.1940 64 bit (AMD64)]', 'node_version': 'v22.12.0', 'npm_version': None, 'cpu_count': 24, 'total_memory': 31.913558959960938, 'free_memory': 7.913654327392578, 'disk_space': 930.0878868103027, 'free_disk': 133.40008544921875}
+2024-12-18 09:31:33,737 - system - INFO - System Information Collected: {'os_name': 'Windows', 'os_version': '10.0.22631', 'python_version': '3.12.4 (tags/v3.12.4:8e8a4ba, Jun  6 2024, 19:30:16) [MSC v.1940 64 bit (AMD64)]', 'node_version': 'v22.12.0', 'npm_version': None, 'cpu_count': 24, 'total_memory': 31.913558959960938, 'free_memory': 8.5303955078125, 'disk_space': 930.0878868103027, 'free_disk': 133.38762283325195}
+2024-12-18 09:46:25,755 - system - INFO - System Information Collected: {'os_name': 'Windows', 'os_version': '10.0.22631', 'python_version': '3.12.4 (tags/v3.12.4:8e8a4ba, Jun  6 2024, 19:30:16) [MSC v.1940 64 bit (AMD64)]', 'node_version': 'v22.12.0', 'npm_version': None, 'cpu_count': 24, 'total_memory': 31.913558959960938, 'free_memory': 8.089862823486328, 'disk_space': 930.0878868103027, 'free_disk': 134.82070541381836}
+2024-12-18 09:49:58,593 - system - INFO - System Information Collected: {'os_name': 'Windows', 'os_version': '10.0.22631', 'python_version': '3.12.4 (tags/v3.12.4:8e8a4ba, Jun  6 2024, 19:30:16) [MSC v.1940 64 bit (AMD64)]', 'node_version': 'v22.12.0', 'npm_version': None, 'cpu_count': 24, 'total_memory': 31.913558959960938, 'free_memory': 7.877616882324219, 'disk_space': 930.0878868103027, 'free_disk': 134.8195571899414}
+2024-12-18 09:54:53,754 - system - INFO - System Information Collected: {'os_name': 'Windows', 'os_version': '10.0.22631', 'python_version': '3.12.4 (tags/v3.12.4:8e8a4ba, Jun  6 2024, 19:30:16) [MSC v.1940 64 bit (AMD64)]', 'node_version': 'v22.12.0', 'npm_version': None, 'cpu_count': 24, 'total_memory': 31.913558959960938, 'free_memory': 8.104442596435547, 'disk_space': 930.0878868103027, 'free_disk': 134.81853866577148}
+2024-12-18 09:54:53,755 - system - INFO - Checking dependencies from backend/requirements.txt
+2024-12-18 09:54:54,285 - system - INFO - Package found: fastapi
+2024-12-18 09:54:54,814 - system - INFO - Package found: uvicorn
+2024-12-18 09:54:55,344 - system - INFO - Package found: python-multipart
+2024-12-18 09:54:56,629 - system - INFO - Package found: motor
+2024-12-18 09:54:57,162 - system - INFO - Package found: python-dotenv
+2024-12-18 09:54:57,692 - system - INFO - Package found: opencv-python-headless
+2024-12-18 09:54:58,249 - system - INFO - Package found: numpy
+2024-12-18 09:54:58,770 - system - INFO - Package found: pillow
+2024-12-18 09:54:59,310 - system - INFO - Package found: pydantic
+2024-12-18 09:54:59,847 - system - INFO - Package found: aiofiles
+2024-12-18 09:55:00,380 - system - INFO - Package found: pydantic-settings
+2024-12-18 09:55:00,907 - system - INFO - Package found: python-magic
+2024-12-18 09:55:01,438 - system - INFO - Package found: email-validator
+2024-12-18 09:55:01,967 - system - INFO - Package found: logging-formatter-anticrlf
+2024-12-18 09:55:02,494 - system - INFO - Package found: python-json-logger
+2024-12-18 09:55:03,027 - system - INFO - Package found: httpx
+2024-12-18 09:55:03,558 - system - INFO - Package found: tenacity
+2024-12-18 09:55:04,086 - system - INFO - Package found: psutil
+2024-12-18 09:55:04,612 - system - INFO - Package found: aiohttp
+2024-12-18 09:55:05,141 - system - INFO - Package found: dataclasses
+2024-12-18 10:09:29,826 - system - INFO - System Information Collected: {'os_name': 'Windows', 'os_version': '10.0.22631', 'python_version': '3.12.4 (tags/v3.12.4:8e8a4ba, Jun  6 2024, 19:30:16) [MSC v.1940 64 bit (AMD64)]', 'node_version': 'v22.12.0', 'npm_version': None, 'cpu_count': 24, 'total_memory': 31.913558959960938, 'free_memory': 7.816368103027344, 'disk_space': 930.0878868103027, 'free_disk': 134.5960350036621}
+2024-12-18 10:13:22,050 - system - INFO - System Information Collected: {'os_name': 'Windows', 'os_version': '10.0.22631', 'python_version': '3.12.4 (tags/v3.12.4:8e8a4ba, Jun  6 2024, 19:30:16) [MSC v.1940 64 bit (AMD64)]', 'node_version': 'v22.12.0', 'npm_version': None, 'cpu_count': 24, 'total_memory': 31.913558959960938, 'free_memory': 7.708095550537109, 'disk_space': 930.0878868103027, 'free_disk': 134.59636306762695}
+2024-12-18 10:54:02,181 - system - INFO - System Information Collected: {'os_name': 'Windows', 'os_version': '10.0.22631', 'python_version': '3.12.4 (tags/v3.12.4:8e8a4ba, Jun  6 2024, 19:30:16) [MSC v.1940 64 bit (AMD64)]', 'node_version': 'v22.12.0', 'npm_version': None, 'cpu_count': 24, 'total_memory': 31.913558959960938, 'free_memory': 7.716403961181641, 'disk_space': 930.0878868103027, 'free_disk': 134.5331153869629}
+2024-12-18 11:00:45,884 - system - INFO - System Information Collected: {'os_name': 'Windows', 'os_version': '10.0.22631', 'python_version': '3.12.4 (tags/v3.12.4:8e8a4ba, Jun  6 2024, 19:30:16) [MSC v.1940 64 bit (AMD64)]', 'node_version': 'v22.12.0', 'npm_version': None, 'cpu_count': 24, 'total_memory': 31.913558959960938, 'free_memory': 7.458812713623047, 'disk_space': 930.0878868103027, 'free_disk': 134.52963638305664}
+2024-12-18 11:04:06,021 - system - INFO - System Information Collected: {'os_name': 'Windows', 'os_version': '10.0.22631', 'python_version': '3.12.4 (tags/v3.12.4:8e8a4ba, Jun  6 2024, 19:30:16) [MSC v.1940 64 bit (AMD64)]', 'node_version': 'v22.12.0', 'npm_version': None, 'cpu_count': 24, 'total_memory': 31.913558959960938, 'free_memory': 7.604240417480469, 'disk_space': 930.0878868103027, 'free_disk': 134.53368377685547}
+2024-12-18 11:06:51,824 - system - INFO - System Information Collected: {'os_name': 'Windows', 'os_version': '10.0.22631', 'python_version': '3.12.4 (tags/v3.12.4:8e8a4ba, Jun  6 2024, 19:30:16) [MSC v.1940 64 bit (AMD64)]', 'node_version': 'v22.12.0', 'npm_version': None, 'cpu_count': 24, 'total_memory': 31.913558959960938, 'free_memory': 7.541770935058594, 'disk_space': 930.0878868103027, 'free_disk': 134.5277099609375}
+2024-12-18 11:09:32,846 - system - INFO - Debug mode active. Skipping dependency checks...
+2024-12-18 11:09:43,997 - system - INFO - System Information Collected: {'os_name': 'Windows', 'os_version': '10.0.22631', 'python_version': '3.12.4 (tags/v3.12.4:8e8a4ba, Jun  6 2024, 19:30:16) [MSC v.1940 64 bit (AMD64)]', 'node_version': 'v22.12.0', 'npm_version': None, 'cpu_count': 24, 'total_memory': 31.913558959960938, 'free_memory': 7.804866790771484, 'disk_space': 930.0878868103027, 'free_disk': 134.5316047668457}
+2024-12-18 12:15:04,639 - system - INFO - Starting services...
+2024-12-18 12:15:04,640 - system - WARNING - Found 1 structure issues:
+Missing subdirectory: backend/templates
+2024-12-18 12:15:04,640 - system - WARNING - Project structure issues found but continuing...
+2024-12-18 12:15:38,854 - system - ERROR - Failed to start services
+NoneType: None
+2024-12-18 12:15:38,854 - system - INFO - Development environment shut down
+2024-12-18 12:21:09,598 - system - INFO - Starting services...
+2024-12-18 12:21:09,600 - system - WARNING - Found 1 structure issues:
+Missing subdirectory: backend/templates
+2024-12-18 12:21:09,600 - system - WARNING - Project structure issues found but continuing...
+2024-12-18 12:21:56,241 - system - ERROR - Failed to start services
+NoneType: None
+2024-12-18 12:21:56,241 - system - INFO - Development environment shut down
+2024-12-18 12:24:15,377 - system - INFO - Starting services...
+2024-12-18 12:24:15,379 - system - WARNING - Found 1 structure issues:
+Missing subdirectory: backend/templates
+2024-12-18 12:24:15,379 - system - WARNING - Project structure issues found but continuing...
+2024-12-18 12:25:02,356 - system - ERROR - Failed to start services
+NoneType: None
+2024-12-18 12:25:02,356 - system - INFO - Development environment shut down
+2024-12-18 12:30:21,504 - system - INFO - Starting services...
+2024-12-18 12:30:21,506 - system - INFO - Project structure verified successfully
+2024-12-18 12:30:34,815 - system - WARNING - Ports already in use: [8000]
+2024-12-18 12:31:07,113 - system - ERROR - Failed to start services
+NoneType: None
+2024-12-18 12:31:07,113 - system - INFO - Development environment shut down
+2024-12-18 12:37:00,845 - system - INFO - Starting services...
+2024-12-18 12:37:00,847 - system - INFO - Project structure verified successfully
+2024-12-18 12:37:15,489 - system - WARNING - Ports already in use: [8000]
+2024-12-18 12:37:47,805 - system - ERROR - Failed to start services
+NoneType: None
+2024-12-18 12:37:47,805 - system - INFO - Development environment shut down
+2024-12-18 12:38:13,263 - system - INFO - Starting services...
+2024-12-18 12:38:13,264 - system - INFO - Project structure verified successfully
+2024-12-18 12:38:28,055 - system - WARNING - Ports already in use: [8000]
+2024-12-18 12:39:00,266 - system - ERROR - Failed to start services
+NoneType: None
+2024-12-18 12:39:00,266 - system - INFO - Development environment shut down
+2024-12-18 12:42:54,784 - system - INFO - Starting services...
+2024-12-18 12:42:54,785 - system - INFO - Project structure verified successfully
+2024-12-18 12:43:09,258 - system - WARNING - Ports already in use: [8000]
+2024-12-18 12:43:41,443 - system - ERROR - Failed to start services
+NoneType: None
+2024-12-18 12:43:41,444 - system - INFO - Development environment shut down
+2024-12-18 12:45:46,257 - system - INFO - Starting services...
+2024-12-18 12:45:46,258 - system - INFO - Project structure verified successfully
+2024-12-18 12:46:01,274 - system - WARNING - Ports already in use: [8000]
+2024-12-18 12:46:33,611 - system - ERROR - Failed to start services
+NoneType: None
+2024-12-18 12:46:33,611 - system - INFO - Development environment shut down
+2024-12-18 12:52:53,972 - system - INFO - Starting services...
+2024-12-18 12:52:53,974 - system - INFO - Project structure verified successfully
+2024-12-18 12:53:07,444 - system - WARNING - Ports already in use: [8000]
+2024-12-18 12:53:39,743 - system - ERROR - Failed to start services
+NoneType: None
+2024-12-18 12:53:39,744 - system - INFO - Development environment shut down
+2024-12-18 12:59:39,990 - system - INFO - Starting services...
+2024-12-18 12:59:39,992 - system - INFO - Project structure verified successfully
+2024-12-18 12:59:53,211 - system - WARNING - Ports already in use: [8000]
+2024-12-18 12:59:53,217 - system - ERROR - Unexpected error during service startup: object bool can't be used in 'await' expression
+Traceback (most recent call last):
+  File "C:\Users\tjans\Documents\Hagel\hagelskott-analys\development.py", line 589, in start_services
+    if await self.start_backend():
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object bool can't be used in 'await' expression
+2024-12-18 12:59:53,217 - system - ERROR - Failed to start services
+NoneType: None
+2024-12-18 12:59:53,217 - system - INFO - Development environment shut down
+2024-12-18 13:01:28,127 - system - INFO - Starting services...
+2024-12-18 13:01:28,129 - system - INFO - Project structure verified successfully
+2024-12-18 13:01:41,297 - system - WARNING - Ports already in use: [8000]
+2024-12-18 13:01:41,298 - system - ERROR - Unexpected error during service startup: object bool can't be used in 'await' expression
+Traceback (most recent call last):
+  File "C:\Users\tjans\Documents\Hagel\hagelskott-analys\development.py", line 589, in start_services
+    if await self.start_backend():
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object bool can't be used in 'await' expression
+2024-12-18 13:01:41,298 - system - ERROR - Failed to start services
+NoneType: None
+2024-12-18 13:01:41,298 - system - INFO - Development environment shut down
+2024-12-18 13:14:59,867 - system - INFO - Starting services...
+2024-12-18 13:14:59,868 - system - INFO - Project structure verified successfully
+2024-12-18 13:15:14,091 - system - WARNING - Ports already in use: [8000]
+2024-12-18 13:15:14,093 - system - ERROR - Unexpected error during service startup: object bool can't be used in 'await' expression
+Traceback (most recent call last):
+  File "C:\Users\tjans\Documents\Hagel\hagelskott-analys\development.py", line 589, in start_services
+    if await self.start_backend():
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object bool can't be used in 'await' expression
+2024-12-18 13:15:14,093 - system - ERROR - Failed to start services
+NoneType: None
+2024-12-18 13:15:14,093 - system - INFO - Development environment shut down
+2024-12-18 13:24:15,754 - system - INFO - Starting services...
+2024-12-18 13:24:15,756 - system - INFO - Project structure verified successfully
+2024-12-18 13:24:29,881 - system - ERROR - Unexpected error during service startup: object bool can't be used in 'await' expression
+Traceback (most recent call last):
+  File "C:\Users\tjans\Documents\Hagel\hagelskott-analys\development.py", line 589, in start_services
+    if await self.start_backend():
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object bool can't be used in 'await' expression
+2024-12-18 13:24:29,882 - system - ERROR - Failed to start services
+NoneType: None
+2024-12-18 13:24:29,882 - system - INFO - Development environment shut down
+2024-12-18 13:28:41,892 - system - INFO - Starting services...
+2024-12-18 13:28:41,893 - system - INFO - Project structure verified successfully
+2024-12-18 13:29:10,349 - system - ERROR - Unexpected error during service startup: object bool can't be used in 'await' expression
+Traceback (most recent call last):
+  File "C:\Users\tjans\Documents\Hagel\hagelskott-analys\development.py", line 611, in start_services
+    if await self.start_backend():
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: object bool can't be used in 'await' expression
+2024-12-18 13:29:10,352 - system - ERROR - Failed to start services
+NoneType: None
+2024-12-18 13:29:10,353 - system - INFO - Development environment shut down

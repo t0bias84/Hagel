@@ -1,0 +1,59 @@
+2024-12-18 12:15:04,640 - dependency - ERROR - Error checking Python dependencies: name 'aiofiles' is not defined
+Traceback (most recent call last):
+  File "C:\Users\tjans\Documents\Hagel\hagelskott-analys\development.py", line 324, in check_dependencies
+    async with aiofiles.open(requirements_file, mode='r') as f:
+               ^^^^^^^^
+NameError: name 'aiofiles' is not defined
+2024-12-18 12:15:04,649 - dependency - INFO - All dependencies verified successfully
+2024-12-18 12:21:21,966 - dependency - WARNING - Dependency issues found:
+Python package issue: python-jose[cryptography]==3.3.0 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'python-jose[cryptography]']' returned non-zero exit status 1.
+Python package issue: passlib[bcrypt]==1.7.4 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'passlib[bcrypt]']' returned non-zero exit status 1.
+Python package issue: typing-extensions>=4.11,<5 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'typing-extensions>=4.11,<5']' returned non-zero exit status 1.
+2024-12-18 12:24:28,083 - dependency - WARNING - Dependency issues found:
+Python package issue: python-jose[cryptography]==3.3.0 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'python-jose[cryptography]']' returned non-zero exit status 1.
+Python package issue: passlib[bcrypt]==1.7.4 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'passlib[bcrypt]']' returned non-zero exit status 1.
+Python package issue: typing-extensions>=4.11,<5 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'typing-extensions>=4.11,<5']' returned non-zero exit status 1.
+2024-12-18 12:30:33,800 - dependency - WARNING - Dependency issues found:
+Python package issue: python-jose[cryptography]==3.3.0 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'python-jose[cryptography]']' returned non-zero exit status 1.
+Python package issue: passlib[bcrypt]==1.7.4 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'passlib[bcrypt]']' returned non-zero exit status 1.
+Python package issue: typing-extensions>=4.11,<5 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'typing-extensions>=4.11,<5']' returned non-zero exit status 1.
+2024-12-18 12:37:14,479 - dependency - WARNING - Dependency issues found:
+Python package issue: python-jose[cryptography]==3.3.0 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'python-jose[cryptography]']' returned non-zero exit status 1.
+Python package issue: passlib[bcrypt]==1.7.4 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'passlib[bcrypt]']' returned non-zero exit status 1.
+Python package issue: typing-extensions>=4.11,<5 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'typing-extensions>=4.11,<5']' returned non-zero exit status 1.
+2024-12-18 12:38:27,042 - dependency - WARNING - Dependency issues found:
+Python package issue: python-jose[cryptography]==3.3.0 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'python-jose[cryptography]']' returned non-zero exit status 1.
+Python package issue: passlib[bcrypt]==1.7.4 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'passlib[bcrypt]']' returned non-zero exit status 1.
+Python package issue: typing-extensions>=4.11,<5 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'typing-extensions>=4.11,<5']' returned non-zero exit status 1.
+2024-12-18 12:43:08,242 - dependency - WARNING - Dependency issues found:
+Python package issue: python-jose[cryptography]==3.3.0 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'python-jose[cryptography]']' returned non-zero exit status 1.
+Python package issue: passlib[bcrypt]==1.7.4 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'passlib[bcrypt]']' returned non-zero exit status 1.
+Python package issue: typing-extensions>=4.11,<5 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'typing-extensions>=4.11,<5']' returned non-zero exit status 1.
+2024-12-18 12:46:00,241 - dependency - WARNING - Dependency issues found:
+Python package issue: python-jose[cryptography]==3.3.0 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'python-jose[cryptography]']' returned non-zero exit status 1.
+Python package issue: passlib[bcrypt]==1.7.4 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'passlib[bcrypt]']' returned non-zero exit status 1.
+Python package issue: typing-extensions>=4.11,<5 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'typing-extensions>=4.11,<5']' returned non-zero exit status 1.
+2024-12-18 12:53:06,434 - dependency - WARNING - Dependency issues found:
+Python package issue: python-jose[cryptography]==3.3.0 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'python-jose[cryptography]']' returned non-zero exit status 1.
+Python package issue: passlib[bcrypt]==1.7.4 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'passlib[bcrypt]']' returned non-zero exit status 1.
+Python package issue: typing-extensions>=4.11,<5 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'typing-extensions>=4.11,<5']' returned non-zero exit status 1.
+2024-12-18 12:59:52,192 - dependency - WARNING - Dependency issues found:
+Python package issue: python-jose[cryptography]==3.3.0 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'python-jose[cryptography]']' returned non-zero exit status 1.
+Python package issue: passlib[bcrypt]==1.7.4 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'passlib[bcrypt]']' returned non-zero exit status 1.
+Python package issue: typing-extensions>=4.11,<5 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'typing-extensions>=4.11,<5']' returned non-zero exit status 1.
+2024-12-18 13:01:40,294 - dependency - WARNING - Dependency issues found:
+Python package issue: python-jose[cryptography]==3.3.0 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'python-jose[cryptography]']' returned non-zero exit status 1.
+Python package issue: passlib[bcrypt]==1.7.4 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'passlib[bcrypt]']' returned non-zero exit status 1.
+Python package issue: typing-extensions>=4.11,<5 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'typing-extensions>=4.11,<5']' returned non-zero exit status 1.
+2024-12-18 13:15:13,050 - dependency - WARNING - Dependency issues found:
+Python package issue: python-jose[cryptography]==3.3.0 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'python-jose[cryptography]']' returned non-zero exit status 1.
+Python package issue: passlib[bcrypt]==1.7.4 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'passlib[bcrypt]']' returned non-zero exit status 1.
+Python package issue: typing-extensions>=4.11,<5 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'typing-extensions>=4.11,<5']' returned non-zero exit status 1.
+2024-12-18 13:24:27,874 - dependency - WARNING - Dependency issues found:
+Python package issue: python-jose[cryptography]==3.3.0 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'python-jose[cryptography]']' returned non-zero exit status 1.
+Python package issue: passlib[bcrypt]==1.7.4 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'passlib[bcrypt]']' returned non-zero exit status 1.
+Python package issue: typing-extensions>=4.11,<5 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'typing-extensions>=4.11,<5']' returned non-zero exit status 1.
+2024-12-18 13:28:53,299 - dependency - WARNING - Dependency issues found:
+Python package issue: python-jose[cryptography]==3.3.0 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'python-jose[cryptography]']' returned non-zero exit status 1.
+Python package issue: passlib[bcrypt]==1.7.4 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'passlib[bcrypt]']' returned non-zero exit status 1.
+Python package issue: typing-extensions>=4.11,<5 - Command '['C:\\Users\\tjans\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-m', 'pip', 'show', 'typing-extensions>=4.11,<5']' returned non-zero exit status 1.

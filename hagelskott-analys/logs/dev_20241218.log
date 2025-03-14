@@ -1,0 +1,19 @@
+2024-12-18 08:36:17,239 - dev - INFO - Backend started
+2024-12-18 08:36:17,246 - dev - ERROR - Failed to start frontend
+2024-12-18 08:36:17,246 - dev - INFO - Stopping backend...
+2024-12-18 08:36:17,247 - dev - INFO - Stopping backend...
+2024-12-18 08:36:17,247 - dev - INFO - Shutdown complete
+2024-12-18 08:38:01,439 - dev - INFO - Kontrollerar systemkrav...
+2024-12-18 08:38:01,479 - dev - INFO - Node.js version: v22.12.0
+2024-12-18 08:38:01,480 - dev - INFO - Python version: 3.12.4
+2024-12-18 08:38:01,772 - dev - INFO - PIP version: 24.3.1
+2024-12-18 08:38:01,772 - dev - ERROR - Saknade systemkrav:
+2024-12-18 08:38:01,779 - dev - ERROR - - npm: NPM måste vara installerat (följer vanligtvis med Node.js)
+2024-12-18 08:38:01,779 - dev - ERROR - Systemkrav ej uppfyllda. Åtgärda problemen och försök igen.
+2024-12-18 08:38:17,106 - dev - INFO - Kontrollerar systemkrav...
+2024-12-18 08:38:17,143 - dev - INFO - Node.js version: v22.12.0
+2024-12-18 08:38:17,144 - dev - INFO - Python version: 3.12.4
+2024-12-18 08:38:17,421 - dev - INFO - PIP version: 24.3.1
+2024-12-18 08:38:17,422 - dev - ERROR - Saknade systemkrav:
+2024-12-18 08:38:17,422 - dev - ERROR - - npm: NPM måste vara installerat (följer vanligtvis med Node.js)
+2024-12-18 08:38:17,422 - dev - ERROR - Systemkrav ej uppfyllda. Åtgärda problemen och försök igen.

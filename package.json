@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@radix-ui/react-alert-dialog": "^1.1.4",
+    "lucide-react": "^0.468.0",
+    "prop-types": "^15.8.1",
+    "react-helmet": "^6.1.0",
+    "react-router-dom": "^7.0.2",
+    "recharts": "^2.15.0"
+  }
+}
