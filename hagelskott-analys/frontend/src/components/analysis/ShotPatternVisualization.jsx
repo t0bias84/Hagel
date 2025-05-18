@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import {
   ZoomIn,
   ZoomOut,
@@ -14,7 +14,7 @@ import {
 /**
  * ShotPatternVisualization
  * ========================
- * - Mörk bakgrund => text i “badge” => ex. <span className="bg-white text-black px-1 ...">
+ * - Mörk bakgrund => text i "badge" => ex. <span className="bg-white text-black px-1 ...">
  * - Pan & Zoom
  * - Add/Remove hits (knapp + klick)
  * - Justera ring
@@ -66,6 +66,16 @@ export default function ShotPatternVisualization({
       return Math.min(Math.max(0.5, newS), 5);
     });
   },[]);
+
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element) return;
+
+    element.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      element.removeEventListener('wheel', handleWheel);
+    };
+  }, [handleWheel]);
 
   const handleMouseDown=(e)=>{
     if (!containerRef.current) return;
@@ -218,36 +228,36 @@ export default function ShotPatternVisualization({
 
   return (
     <div
-      className={`relative border rounded-lg overflow-hidden ${className}`}
+      className={`relative border border-military-600 rounded-lg overflow-hidden ${className}`}
       style={{ aspectRatio }}
     >
       {/* Topp-rad */}
-      <div className="flex items-center gap-2 p-2 border-b bg-gray-900 text-white">
+      <div className="flex items-center gap-2 p-2 border-b border-military-600 bg-military-800 text-gray-100">
         {/* Toggle grid */}
         <button
           onClick={()=> setShowGrid(!showGrid)}
-          className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 text-sm"
+          className="px-2 py-1 rounded bg-military-700 hover:bg-military-600 text-sm"
         >
           {showGrid? "Dölj rutnät": "Visa rutnät"}
         </button>
         {/* Zoom in */}
         <button
           onClick={()=> setScale(s=> Math.min(5,s+0.1))}
-          className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 text-sm flex items-center"
+          className="px-2 py-1 rounded bg-military-700 hover:bg-military-600 text-sm flex items-center"
         >
           <ZoomIn size={16}/>
         </button>
         {/* Zoom out */}
         <button
           onClick={()=> setScale(s=> Math.max(0.5,s-0.1))}
-          className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 text-sm flex items-center"
+          className="px-2 py-1 rounded bg-military-700 hover:bg-military-600 text-sm flex items-center"
         >
           <ZoomOut size={16}/>
         </button>
         {/* Reset */}
         <button
           onClick={resetView}
-          className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 text-sm flex items-center"
+          className="px-2 py-1 rounded bg-military-700 hover:bg-military-600 text-sm flex items-center"
         >
           <RefreshCw size={16}/>
         </button>
@@ -256,9 +266,8 @@ export default function ShotPatternVisualization({
       {/* Bild-container */}
       <div
         ref={containerRef}
-        className="relative bg-gray-100 w-full h-full"
+        className="relative bg-military-900 w-full h-full"
         style={{ touchAction:"none", cursor:"crosshair"}}
-        onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -289,8 +298,8 @@ export default function ShotPatternVisualization({
               transform:`translate(${pan.x}px, ${pan.y}px) scale(${scale})`,
               transformOrigin:"0 0",
               backgroundImage:
-                "linear-gradient(to right, rgba(255,255,255,0.2) 1px, transparent 1px),"+
-                "linear-gradient(to bottom, rgba(255,255,255,0.2) 1px, transparent 1px)",
+                "linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),"+
+                "linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px)",
               backgroundSize:"10% 10%"
             }}
           />
@@ -330,7 +339,7 @@ export default function ShotPatternVisualization({
       </div>
 
       {/* Nedersta menyrad */}
-      <div className="p-2 flex items-center gap-2 border-t bg-gray-900 text-white">
+      <div className="p-2 flex items-center gap-2 border-t border-military-600 bg-military-800 text-gray-100">
         {/* Lägg till träff */}
         <button
           onClick={()=>{
@@ -338,7 +347,7 @@ export default function ShotPatternVisualization({
             setRemovingHit(false);
           }}
           className={`px-3 py-1.5 rounded flex items-center gap-1 text-sm ${
-            addingHit? "bg-green-400 text-black":"bg-gray-700 hover:bg-gray-600"
+            addingHit? "bg-green-600 text-white":"bg-military-700 hover:bg-military-600"
           }`}
         >
           {addingHit? <Slash size={16}/> : <PlusCircle size={16}/> }
@@ -352,7 +361,7 @@ export default function ShotPatternVisualization({
             setAddingHit(false);
           }}
           className={`px-3 py-1.5 rounded flex items-center gap-1 text-sm ${
-            removingHit? "bg-red-400 text-black":"bg-gray-700 hover:bg-gray-600"
+            removingHit? "bg-red-600 text-white":"bg-military-700 hover:bg-military-600"
           }`}
         >
           {removingHit? <Slash size={16}/> : <XCircle size={16}/> }
@@ -363,7 +372,7 @@ export default function ShotPatternVisualization({
         <button
           onClick={()=> setManualRingMode(!manualRingMode)}
           className={`px-3 py-1.5 rounded flex items-center gap-1 text-sm ${
-            manualRingMode? "bg-blue-400 text-black":"bg-gray-700 hover:bg-gray-600"
+            manualRingMode? "bg-blue-600 text-white":"bg-military-700 hover:bg-military-600"
           }`}
         >
           {manualRingMode? <Slash size={16}/> : <Edit size={16}/>}

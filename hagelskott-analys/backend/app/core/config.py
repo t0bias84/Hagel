@@ -33,6 +33,18 @@ class Settings(BaseSettings):
     CORS_ALLOW_METHODS: List[str] = ["*"]
     CORS_ALLOW_HEADERS: List[str] = ["*"]
 
+    # =================== Email-inställningar ===================
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    EMAIL_FROM: str = "noreply@hagelskott.se"
+    EMAIL_FROM_NAME: str = "Hagelskott Analys"
+    EMAIL_TEMPLATES_DIR: Path = Path("app/templates/email")
+    EMAIL_USE_TLS: bool = True
+    EMAIL_USE_SSL: bool = False
+    EMAIL_TIMEOUT: int = 30
+
     # =================== Fil- och bildhantering ===================
     UPLOAD_DIR: Path = Path("uploads")
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10 MB
@@ -76,14 +88,6 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     LOG_FILE: Optional[Path] = Path("logs/app.log")
-
-    # =================== Email (notiser, reset-länkar) ===================
-    SMTP_HOST: Optional[str] = None
-    SMTP_PORT: Optional[int] = None
-    SMTP_USER: Optional[str] = None
-    SMTP_PASSWORD: Optional[str] = None
-    EMAIL_FROM: Optional[str] = None
-    EMAIL_FROM_NAME: Optional[str] = None
 
     # =================== Prestanda & databaspoolning ===================
     WORKER_COUNT: int = 4
@@ -146,16 +150,24 @@ class Settings(BaseSettings):
                 "newMessages": True,
                 "forumMentions": True,
                 "productUpdates": True,
+                "friendRequests": True,
+                "groupInvites": True,
+                "achievementUnlocked": True,
+                "loadComments": True
             },
             "notifications": {
                 "email": True,
                 "browser": True,
-                "mobile": False,
+                "mobile": True,
+                "sound": True,
+                "desktop": True
             },
             "layout": {
                 "compactView": False,
                 "showSidebar": True,
                 "dashboardLayout": "grid",
+                "showOnlineUsers": True,
+                "showActivityFeed": True
             },
         },
         "privacy": {
@@ -163,6 +175,9 @@ class Settings(BaseSettings):
             "showOnlineStatus": True,
             "showLoadingData": True,
             "showForumStats": True,
+            "showAchievements": True,
+            "showFriendList": True,
+            "allowTagging": True
         },
         "equipment": {
             "firearms": [],
@@ -184,6 +199,51 @@ class Settings(BaseSettings):
                 "analyses": 0,
             },
         },
+        "social": {
+            "allowFriendRequests": True,
+            "allowMessages": True,
+            "allowGroupInvites": True,
+            "showActivity": True,
+            "allowMentions": True,
+            "allowDirectMessages": True,
+            "allowGroupChat": True,
+            "showLastSeen": True,
+            "allowComments": True,
+            "blockedUsers": [],
+            "preferredCommunication": "both",
+            "notificationPreferences": {
+                "friendRequests": True,
+                "messages": True,
+                "mentions": True,
+                "loadingComments": True,
+                "groupInvites": True,
+                "likes": True,
+                "shares": True,
+                "achievements": True,
+                "milestones": True
+            }
+        },
+        "notifications": {
+            "email": True,
+            "browser": True,
+            "mobile": True,
+            "desktop": True,
+            "sound": True,
+            "frequency": "instant",
+            "types": {
+                "friendRequests": True,
+                "messages": True,
+                "mentions": True,
+                "loadingComments": True,
+                "groupInvites": True,
+                "achievements": True,
+                "likes": True,
+                "shares": True,
+                "newFollowers": True,
+                "systemUpdates": True,
+                "securityAlerts": True
+            }
+        }
     }
 
     DEFAULT_FORUM_SETTINGS: Dict[str, Any] = {

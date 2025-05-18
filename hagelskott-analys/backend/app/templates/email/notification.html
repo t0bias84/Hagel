@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .notification {
+            border-left: 4px solid #007bff;
+            padding-left: 15px;
+            margin: 20px 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #666;
+        }
+        .language-section {
+            margin-bottom: 30px;
+        }
+        .language-section:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- English Version -->
+        <div class="language-section">
+            <h2>New Notification from {{app_name}}</h2>
+            <p>Hi {{username}},</p>
+            <p>You have a new notification:</p>
+            <div class="notification">
+                <p>{{notification_message}}</p>
+                {% if action_url %}
+                <a href="{{action_url}}" class="button">View More</a>
+                {% endif %}
+            </div>
+            <p>To manage your notification settings, visit your profile page.</p>
+        </div>
+
+        <!-- Swedish Version -->
+        <div class="language-section">
+            <h2>Ny notifiering från {{app_name}}</h2>
+            <p>Hej {{username}},</p>
+            <p>Du har en ny notifiering:</p>
+            <div class="notification">
+                <p>{{notification_message}}</p>
+                {% if action_url %}
+                <a href="{{action_url}}" class="button">Visa mer</a>
+                {% endif %}
+            </div>
+            <p>Om du vill hantera dina notifieringsinställningar, besök din profilsida.</p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated message. Please do not reply to this email.</p>
+            <p>Detta är ett automatiskt genererat meddelande. Vänligen svara inte på detta e-postmeddelande.</p>
+        </div>
+    </div>
+</body>
+</html> 

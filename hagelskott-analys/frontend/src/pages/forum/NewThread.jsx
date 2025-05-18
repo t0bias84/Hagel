@@ -1,17 +1,25 @@
 // src/pages/NewThread.jsx
 
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { useNavigate, useParams, useLocation, Link } from "react-router-dom";
+import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "../../components/ui/card";
 import {
   Loader2,
   AlertCircle,
   Image as ImageIcon,
   Link2,
   Trash2,
-  ChevronLeft
+  ChevronLeft,
+  Plus
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { en } from "../../translations/en";
+import { sv } from "../../translations/sv";
+import { Button } from "../../components/ui/button";
+import { Textarea } from "../../components/ui/textarea";
+import { Input } from "../../components/ui/input";
 
 // React Quill för rik text
 import ReactQuill from "react-quill";
@@ -20,7 +28,7 @@ import "react-quill/dist/quill.snow.css";
 /**
  * NewThread
  * =========
- * Skapar en ny tråd i en vald kategori (via dropdown).
+ * Creates a new thread in a selected category (via dropdown).
  * Alternativ: om du vill låsa till en :categoryId från URL,
  *   använd parametern i stället för att visa dropdown.
  * 
@@ -30,8 +38,19 @@ import "react-quill/dist/quill.snow.css";
  */
 export default function NewThread() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { language } = useLanguage();
+  const t = language === 'en' ? en : sv;
+  
   // Om du *vill* ta emot en categoryId från URL:en:
   const { categoryId: paramCatId } = useParams();
+  
+  // Hämta categoryId från query-parametern (om den finns)
+  const searchParams = new URLSearchParams(location.search);
+  const queryCatId = searchParams.get("categoryId");
+  
+  // Använd param eller query param om tillgänglig
+  const initialCategoryId = paramCatId || queryCatId || "";
 
   // State
   const [title, setTitle] = useState("");
@@ -42,7 +61,7 @@ export default function NewThread() {
 
   // Kategorier & vald kategori
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(paramCatId || "");
+  const [selectedCategory, setSelectedCategory] = useState(initialCategoryId);
 
   // Filinput-ref om du vill trigga .click() programatiskt
   const fileInputRef = useRef(null);
@@ -55,10 +74,11 @@ export default function NewThread() {
       try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/api/forum/categories`);
         if (!res.ok) {
-          throw new Error("Kunde inte hämta kategorilistan");
+          throw new Error("Could not fetch category list");
         }
         const data = await res.json();
-        // Sortera eller filtrera om du vill
+        // Sortera kategorier i alfabetisk ordning
+        data.sort((a, b) => a.name.localeCompare(b.name));
         setCategories(data);
       } catch (err) {
         console.error("Fel vid hämtning av kategorier:", err);
@@ -88,17 +108,17 @@ export default function NewThread() {
 
     // 1) Validera
     if (!selectedCategory) {
-      setError("Du måste välja (eller ange) en kategori.");
+      setError(t.forum.selectCategoryError || "You must select a category.");
       return;
     }
     if (!title.trim()) {
-      setError("Du måste ange en titel.");
+      setError(t.forum.titleRequiredError || "You must enter a title.");
       return;
     }
     // Kolla att content inte är tomt (i ren text):
     const plainText = content.replace(/<[^>]+>/g, "").trim();
     if (!plainText) {
-      setError("Du måste ange något innehåll.");
+      setError(t.forum.contentRequiredError || "You must enter some content.");
       return;
     }
     setLoading(true);
@@ -109,8 +129,13 @@ export default function NewThread() {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("content", content); // Quill-HTML
-      // Exempel: sätt author_id till inloggad user (hämta från store/ctx)
-      formData.append("author_id", "myLoggedInUser123");
+      
+      // Använd token för att få användar-ID från servern
+      const token = localStorage.getItem("token") || "";
+      
+      // Bifoga author_id om du har det i localStorage
+      // Annars hämta det från servern eller låt servern hantera det
+      formData.append("author_id", localStorage.getItem("userId") || "current_user");
 
       // Bifoga filer
       attachedFiles.forEach((file, idx) => {
@@ -118,7 +143,6 @@ export default function NewThread() {
       });
 
       // 3) Skicka anrop
-      const token = localStorage.getItem("token") || "";
       const res = await fetch(
         // Anropa rätt kategori. selectedCategory => ex "1234abcd"
         `${import.meta.env.VITE_API_URL}/api/forum/categories/${selectedCategory}/threads`,
@@ -133,14 +157,14 @@ export default function NewThread() {
       );
 
       if (!res.ok) {
-        throw new Error("Kunde inte skapa ny tråd. Kontrollera dina fält och försök igen.");
+        throw new Error(await res.text() || "Could not create thread");
       }
 
       const createdThread = await res.json();
       // Navigera till den nya tråden
-      navigate(`/forum/threads/${createdThread.id}`);
+      navigate(`/forum/thread/${createdThread.id}`);
     } catch (err) {
-      setError(err.message || "Något gick fel vid skapandet av tråden.");
+      setError(err.message || t.forum.threadCreationError || "Something went wrong when creating the thread");
       console.error("Fel vid skapandet av tråd:", err);
     } finally {
       setLoading(false);
@@ -148,181 +172,140 @@ export default function NewThread() {
   };
 
   return (
-    <div className="container mx-auto max-w-2xl p-4 space-y-4">
-      {/* Tillbaka-knapp / Sidhuvud */}
-      <div className="flex items-center justify-between mb-2">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-1 text-gray-500 hover:text-gray-700"
-        >
-          <ChevronLeft className="h-5 w-5" />
-          <span>Tillbaka</span>
-        </button>
-      </div>
+    <div className="container max-w-4xl mx-auto py-6 px-4">
+      <Link to="/forum" className="flex items-center text-white mb-6 hover:underline">
+        <ChevronLeft className="mr-1 h-4 w-4" />
+        {t.forum.backToForum}
+      </Link>
 
-      {/* Kort: Skapa ny tråd */}
-      <Card>
+      <Card className="bg-dark-800 border-dark-700 shadow-lg">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Skapa ny tråd</CardTitle>
+          <CardTitle className="text-white text-xl">{t.forum.createNewThread}</CardTitle>
+          <CardDescription className="text-gray-300">
+            {t.forum.createThreadDescription}
+          </CardDescription>
         </CardHeader>
-
-        <CardContent>
-          {/* Felmeddelande */}
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          {/* Laddningsindikator */}
-          {loading && (
-            <div className="flex items-center gap-2 text-gray-500 mb-4">
-              <Loader2 className="h-5 w-5 animate-spin" />
-              <span>Skapar tråd...</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Välj kategori (om paramCatId saknas) */}
-            {!paramCatId && (
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Kategori <span className="text-red-500">*</span>
-                </label>
-                <select
-                  className="w-full px-3 py-2 rounded-md border border-gray-300
-                             focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  disabled={loading}
-                >
-                  <option value="">-- Välj kategori --</option>
-                  {categories.map((cat) => (
-                    <option key={cat._id} value={cat._id}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            {error && (
+              <Alert variant="destructive" className="bg-red-950 border-red-800 text-red-200">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
             )}
 
-            {/* Titel */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Titel <span className="text-red-500">*</span>
+            <div className="space-y-2">
+              <label htmlFor="category" className="block text-white text-sm font-medium">
+                {t.forum.category}
               </label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 rounded-md border border-gray-300 
-                           focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="En kort och beskrivande titel..."
+              <Select 
+                value={selectedCategory} 
+                onValueChange={setSelectedCategory}
+              >
+                <SelectTrigger id="category">
+                  <SelectValue placeholder={t.forum.selectCategory} />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category._id} value={category._id}>
+                      {language === 'en' ? category.english_name || category.name : category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="title" className="block text-white text-sm font-medium">
+                {t.forum.threadTitle}
+              </label>
+              <Input
+                id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                disabled={loading}
+                className="bg-dark-700 border-dark-600 text-white"
+                placeholder={t.forum.threadTitlePlaceholder}
               />
             </div>
 
-            {/* Innehåll: ReactQuill */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Innehåll <span className="text-red-500">*</span>
+            <div className="space-y-2">
+              <label htmlFor="content" className="block text-white text-sm font-medium">
+                {t.forum.threadContent}
               </label>
-              <ReactQuill
-                theme="snow"
+              <Textarea
+                id="content"
                 value={content}
-                onChange={setContent}
-                placeholder="Dela med dig av dina tankar, länkar eller frågor..."
-                className="bg-white"
-                readOnly={loading}
+                onChange={(e) => setContent(e.target.value)}
+                className="bg-dark-700 border-dark-600 text-white min-h-[200px]"
+                placeholder={t.forum.threadContentPlaceholder}
               />
             </div>
 
-            {/* Bifogade filer (valfritt) */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Bifoga filer (valfritt)
+            <div className="space-y-2">
+              <label className="block text-white text-sm font-medium">
+                {t.forum.attachFiles}
               </label>
-
-              {/* Uppladdningsknapp */}
               <div className="flex items-center gap-2">
-                <button
+                <Button
                   type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={loading}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm 
-                             rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600"
+                  variant="outline"
+                  className="bg-dark-700 border-dark-600 text-white hover:bg-dark-600"
+                  onClick={() => document.getElementById("file-upload").click()}
                 >
-                  <ImageIcon className="h-4 w-4" />
-                  Lägg till filer
-                </button>
-
-                {/* (ex. Infoga-länk-knapp om du vill, i framtiden) */}
-                <button
-                  type="button"
-                  disabled
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm
-                             rounded-md bg-gray-50 text-gray-400 cursor-not-allowed"
-                >
-                  <Link2 className="h-4 w-4" />
-                  Infoga länk (kommer senare)
-                </button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  {t.forum.selectFiles}
+                </Button>
+                <input
+                  id="file-upload"
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={handleFilesSelected}
+                />
               </div>
-
-              {/* Filinput (gömd) */}
-              <input
-                type="file"
-                multiple
-                ref={fileInputRef}
-                onChange={handleFilesSelected}
-                className="hidden"
-              />
-
-              {/* Förhandsvisning av valda filer */}
               {attachedFiles.length > 0 && (
-                <div className="mt-3 space-y-1">
-                  {attachedFiles.map((file, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-between text-sm"
-                    >
-                      <span className="truncate">{file.name}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeFile(idx)}
-                        className="text-red-500 hover:text-red-600"
-                        disabled={loading}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ))}
+                <div className="mt-2">
+                  <h4 className="text-white text-sm font-medium mb-2">{t.forum.selectedFiles}:</h4>
+                  <ul className="space-y-1">
+                    {attachedFiles.map((file, index) => (
+                      <li key={index} className="flex items-center justify-between bg-dark-700 rounded p-2">
+                        <span className="text-white text-sm truncate">{file.name}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="text-white hover:text-red-400"
+                          onClick={() => removeFile(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
             </div>
-
-            {/* Knappar */}
-            <div className="flex items-center justify-end gap-4">
-              <button
-                type="button"
-                onClick={() => navigate(-1)}
-                disabled={loading}
-                className="px-4 py-2 rounded-md border border-gray-300
-                           text-gray-600 hover:bg-gray-100"
-              >
-                Avbryt
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-4 py-2 bg-blue-600 text-white
-                           rounded-md hover:bg-blue-500"
-              >
-                Publicera
-              </button>
-            </div>
-          </form>
-        </CardContent>
+          </CardContent>
+          <CardFooter className="flex justify-end space-x-2 border-t border-dark-700 pt-4">
+            <Button
+              type="button"
+              variant="ghost"
+              className="text-white hover:bg-dark-700"
+              onClick={() => navigate(-1)}
+              disabled={loading}
+            >
+              {t.forum.cancel}
+            </Button>
+            <Button 
+              type="submit" 
+              className="bg-primary hover:bg-primary/90 text-white"
+              disabled={loading}
+            >
+              {loading ? t.common.loading : t.forum.submit}
+            </Button>
+          </CardFooter>
+        </form>
       </Card>
     </div>
   );

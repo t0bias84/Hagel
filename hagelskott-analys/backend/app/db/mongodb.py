@@ -16,6 +16,7 @@ class MongoDB:
     def __init__(self):
         self.client: AsyncIOMotorClient | None = None
         self.database = None
+        logger.info("MongoDB class initialized")
 
     async def connect_db(self) -> None:
         """
@@ -24,6 +25,9 @@ class MongoDB:
         """
         attempt = 0
         max_attempts = 3
+
+        logger.info(f"Settings MONGODB_URL = {settings.MONGODB_URL}")
+        logger.info(f"Settings MONGODB_DB = {settings.MONGODB_DB}")
 
         while attempt < max_attempts:
             try:
@@ -40,6 +44,14 @@ class MongoDB:
                 )
                 self.database = self.client[settings.MONGODB_DB]
 
+                # Verifiera anslutningen med 'ping'
+                await self.client.admin.command("ping")
+                logger.info(
+                    f"Connected to MongoDB: {settings.MONGODB_URL}, "
+                    f"using database='{settings.MONGODB_DB}'."
+                )
+
+                logger.info("Creating indexes...")
                 # ---------------------------------------------------
                 # Exempel: Index för "shots"
                 # ---------------------------------------------------
@@ -107,15 +119,8 @@ class MongoDB:
 
                 logger.info("MongoDB indexes created successfully.")
 
-                # Verifiera anslutningen med 'ping'
-                await self.client.admin.command("ping")
-                logger.info(
-                    f"Connected to MongoDB: {settings.MONGODB_URL}, "
-                    f"using database='{settings.MONGODB_DB}'."
-                )
-
                 # Logga kollektions-stats
-                await self.log_collection_stats(["shotgun_data", "loads", "users"])
+                await self.log_collection_stats(["users", "forum_threads", "categories", "threads"])
 
                 return
 

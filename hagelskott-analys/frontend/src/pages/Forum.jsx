@@ -1,7 +1,7 @@
 // src/pages/Forum.jsx
 
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   MessageSquare,
@@ -11,43 +11,65 @@ import {
   Trash2,
   Edit3,
   ChevronRight,
+  AlertCircle,
+  User,
+  Calendar,
+  MessageCircle
 } from "lucide-react";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { CardHeader, CardTitle } from "@/components/ui/card";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { en } from "@/translations/en";
+import { sv } from "@/translations/sv";
 
-/**
- * Bygger ett kategoriträd (rekursivt) genom att sortera in
- * varje kategori i `subcategories` baserat på parent_id.
- */
-function buildCategoryTree(allCats, parentId = null) {
-  return allCats
-    .filter((cat) => cat.parent_id === parentId)
-    .map((cat) => {
-      const newCat = {
-        ...cat,
-        id: cat._id, // alias
-        subcategories: [],
-      };
-      newCat.subcategories = buildCategoryTree(allCats, cat._id);
-      return newCat;
-    });
+// Import utils
+import { 
+  buildCategoryTree, 
+  formatDate, 
+  getCategoryBackground, 
+  searchCategories 
+} from "@/utils/forumUtils";
+import { getData, getCategories, getHotThreads } from "@/utils/apiUtils";
+
+// ThreadCard component to display thread summaries
+function ThreadCard({ thread }) {
+  const navigate = useNavigate();
+  const { language } = useLanguage();
+  const t = language === 'en' ? en : sv;
+
+  return (
+    <Card 
+      className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+      onClick={() => navigate(`/forum/thread/${thread._id}`)}
+    >
+      <CardContent className="p-4">
+        <h3 className="font-semibold text-lg mb-2">{thread.title}</h3>
+        <div className="flex items-center text-sm text-gray-500 space-x-4">
+          <div className="flex items-center">
+            <User className="h-4 w-4 mr-1" />
+            <span>{thread.author?.username || t.forum.author}</span>
+          </div>
+          <div className="flex items-center">
+            <Calendar className="h-4 w-4 mr-1" />
+            <span>{formatDate(thread.createdAt, language)}</span>
+          </div>
+          <div className="flex items-center">
+            <MessageCircle className="h-4 w-4 mr-1" />
+            <span>{thread.replyCount || 0} {t.forum.replies}</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 /**
- * Returnerar en CSS-klass för bakgrund beroende på djup:
- *  - depth=0 → lite mörkare grå (bg-gray-300)
- *  - depth=1 → ljusare grå (bg-gray-100)
- *  - depth>1 → ingen bakgrund
- */
-function getCategoryBg(depth) {
-  if (depth === 0) {
-    return "bg-gray-300"; // Mörkare gråton för huvudkategorier
-  } else if (depth === 1) {
-    return "bg-gray-100"; // Ljusare för underkategorier
-  }
-  return ""; // Ingen bakgrund för ännu djupare
-}
-
-/**
- * Renders en kategori-rad med expandering, plus (X trådar, Y inlägg).
+ * Renders a category row with expansion, plus (X threads, Y posts).
  */
 function CategoryBlock({
   category,
@@ -59,12 +81,14 @@ function CategoryBlock({
   onEditCategory,
 }) {
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const t = language === 'en' ? en : sv;
 
   const hasSubcats = category.subcategories && category.subcategories.length > 0;
-  const isExpanded = expandedMap[category.id] ?? true;
+  const isExpanded = expandedMap[category.id] ?? false;
   const canGoDeeper = depth < maxDepth;
 
-  // Klick på pilen => expand/collapse
+  // Click on arrow => expand/collapse
   const handleToggleExpand = (e) => {
     e.stopPropagation();
     if (hasSubcats && canGoDeeper) {
@@ -75,14 +99,14 @@ function CategoryBlock({
     }
   };
 
-  // Klick på text eller ikon => navigera till CategoryView
+  // Click on text or icon => navigate to CategoryView
   const handleNavigate = (e) => {
     e.stopPropagation();
     navigate(`/forum/category/${category.id}`);
   };
 
   const marginLeft = `${0.75 * depth}rem`;
-  const rowBg = getCategoryBg(depth);
+  const rowBg = getCategoryBackground(depth);
 
   const threadCount = category.threadCount || 0;
   const postCount = category.postCount || 0;
@@ -92,60 +116,60 @@ function CategoryBlock({
       <div
         className={`
           flex items-center justify-between
-          px-2 py-1 rounded hover:bg-gray-50 cursor-pointer group
-          text-sm transition
+          px-3 py-2 rounded-lg hover:bg-dark-500 cursor-pointer group
+          text-sm transition duration-200 ease-in-out
           ${rowBg}
         `}
         aria-expanded={isExpanded}
       >
-        {/* Vänster del */}
-        <div className="flex items-center gap-2 overflow-hidden">
-          {/* 1) Pilen (endast om subkategorier finns och depth < maxDepth) */}
+        {/* Left section */}
+        <div className="flex items-center gap-3 overflow-hidden">
+          {/* 1) Arrow */}
           {hasSubcats && canGoDeeper ? (
             <ChevronRight
               onClick={handleToggleExpand}
-              className={`h-4 w-4 text-gray-600 transition-transform ${
+              className={`h-4 w-4 text-white transition-transform ${
                 isExpanded ? "rotate-90" : ""
-              } hover:text-gray-800`}
+              } hover:text-blue-400`}
             />
           ) : (
             <div className="w-4 h-4" />
           )}
 
-          {/* 2) Ikon för kategori */}
+          {/* 2) Category icon */}
           <MessageSquare
             onClick={handleNavigate}
-            className={`h-4 w-4 ${
-              depth === 0 ? "text-blue-800" : "text-gray-500"
-            } hover:scale-105 transition`}
+            className={`h-5 w-5 ${
+              depth === 0 ? "text-blue-400" : "text-gray-300"
+            } hover:scale-110 transition-all`}
           />
 
-          {/* 3) Kategori-namnet */}
+          {/* 3) Category name */}
           <span
             onClick={handleNavigate}
             className={`truncate ${
-              depth === 0 ? "font-semibold" : "font-normal"
-            }`}
+              depth === 0 ? "font-semibold text-white" : "font-normal text-white"
+            } hover:text-blue-400 transition-colors`}
             title={category.description || ""}
           >
             {category.name}
           </span>
 
-          {/* 4) Siffror: (X trådar, Y inlägg) */}
-          <span className="text-xs text-gray-700 whitespace-nowrap">
-            ({threadCount} trådar, {postCount} inlägg)
+          {/* 4) Statistics */}
+          <span className="text-xs text-white/80 whitespace-nowrap">
+            ({threadCount} {t.forum.threadCount}, {postCount} {t.forum.postCount})
           </span>
         </div>
 
-        {/* Höger del (Edit/Radera) */}
-        <div className="flex items-center gap-2">
+        {/* Right section (Edit/Delete) */}
+        <div className="flex items-center gap-3">
           <button
             onClick={(e) => {
               e.stopPropagation();
               onEditCategory?.(category);
             }}
-            title="Redigera kategori"
-            className="text-xs text-yellow-600 hover:text-yellow-800"
+            title={t.forum.editCategory}
+            className="text-xs text-yellow-500 hover:text-yellow-400 transition-colors"
           >
             <Edit3 className="w-4 h-4" />
           </button>
@@ -154,17 +178,17 @@ function CategoryBlock({
               e.stopPropagation();
               onDeleteCategory?.(category);
             }}
-            title="Radera kategori"
-            className="text-xs text-red-600 hover:text-red-800"
+            title={t.forum.deleteCategory}
+            className="text-xs text-red-500 hover:text-red-400 transition-colors"
           >
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Subkategorier */}
+      {/* Subcategories */}
       {isExpanded && hasSubcats && canGoDeeper && (
-        <div className="ml-1 border-l border-gray-300">
+        <div className="ml-2 border-l border-dark-400">
           {category.subcategories.map((sub) => (
             <CategoryBlock
               key={sub.id}
@@ -185,207 +209,230 @@ function CategoryBlock({
 
 export default function Forum() {
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const t = language === 'en' ? en : sv;
+  
   const [categories, setCategories] = useState([]);
   const [expandedMap, setExpandedMap] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [recentThreads, setRecentThreads] = useState([]);
+  const [popularThreads, setPopularThreads] = useState([]);
 
-  const maxDepth = 10; // hur djupt vi kan expandera
+  const maxDepth = 10; // How deep we can expand categories
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Hämta kategorier + counts
-        const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/forum/categories-with-counts`
-        );
-        if (!res.ok) throw new Error("Kunde inte hämta kategorier med counts.");
-        const data = await res.json();
-
-        // Bygg träd
-        const tree = buildCategoryTree(data);
+        setLoading(true);
+        
+        // Använd cache-funktion för att hämta kategorier
+        const categoriesData = await getCategories(language);
+        
+        // Build category tree with our safe utility function
+        const tree = buildCategoryTree(categoriesData);
         setCategories(tree);
-
-        // Expandera alla
+        
+        // Initialize expansion state (all collapsed by default)
         const expandAll = {};
-        const markAllExpanded = (arr) => {
+        const setupExpansionState = (arr) => {
           arr.forEach((cat) => {
-            expandAll[cat.id] = true;
-            if (cat.subcategories) markAllExpanded(cat.subcategories);
+            expandAll[cat.id] = false;
+            if (cat.subcategories) setupExpansionState(cat.subcategories);
           });
         };
-        markAllExpanded(tree);
+        setupExpansionState(tree);
         setExpandedMap(expandAll);
-
+        
+        // Fetch recent threads
+        try {
+          const recentThreadsData = await getData('/api/forum/threads?sort=latest&limit=5');
+          setRecentThreads(recentThreadsData);
+        } catch (recentErr) {
+          console.warn("Failed to fetch recent threads:", recentErr);
+        }
+        
+        // Använd cache-funktion för att hämta populära trådar
+        try {
+          const popularThreadsData = await getHotThreads(5);
+          setPopularThreads(popularThreadsData);
+        } catch (popularErr) {
+          console.warn("Failed to fetch popular threads:", popularErr);
+        }
+        
+        setError(null);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching forum data:", err);
+        setError(err.message || "Failed to load forum data");
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchData();
-  }, []);
+  }, [language]); // Refresh when language changes
 
-  // Expandera alla
-  const handleExpandAll = () => {
-    const newMap = {};
-    const markAll = (arr) => {
-      arr.forEach((cat) => {
-        newMap[cat.id] = true;
-        if (cat.subcategories) markAll(cat.subcategories);
-      });
-    };
-    markAll(categories);
-    setExpandedMap(newMap);
-  };
-
-  // Komprimera alla
-  const handleCollapseAll = () => {
-    const newMap = {};
-    const markAll = (arr) => {
-      arr.forEach((cat) => {
-        newMap[cat.id] = false;
-        if (cat.subcategories) markAll(cat.subcategories);
-      });
-    };
-    markAll(categories);
-    setExpandedMap(newMap);
-  };
-
-  // Sökfunktion
-  function searchCats(catsArr, term) {
-    if (!term) return catsArr;
-    return catsArr
-      .map((cat) => {
-        const match = cat.name.toLowerCase().includes(term.toLowerCase());
-        const childRes = cat.subcategories
-          ? searchCats(cat.subcategories, term)
-          : [];
-        if (match || childRes.length > 0) {
-          return { ...cat, subcategories: childRes };
-        }
-        return null;
-      })
-      .filter(Boolean);
-  }
-
-  const filtered = searchCats(categories, searchTerm);
-
-  // Exempel: Radera kategori
-  const handleDeleteCategory = async (cat) => {
-    const confirmed = window.confirm(`Ta bort kategori "${cat.name}"?`);
-    if (!confirmed) return;
+  // Function to refresh forum data (e.g., after category update)
+  const refreshForumData = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/forum/categories/${cat.id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (!res.ok) throw new Error("Kunde inte radera kategori.");
-      alert("Kategorin raderad.");
-
-      // Ta bort lokalt
-      const newTree = removeCatById([...categories], cat.id);
-      setCategories(newTree);
-    } catch (error) {
-      console.error(error);
-      alert("Fel vid radering av kategori.");
+      setLoading(true);
+      
+      // Använd forceRefresh för att tvinga uppdatering av cache
+      const categoriesData = await getCategories(language, true);
+      
+      const tree = buildCategoryTree(categoriesData);
+      setCategories(tree);
+      
+      // Update popular threads
+      const popularThreadsData = await getHotThreads(5, true);
+      setPopularThreads(popularThreadsData);
+      
+      // Update recent threads
+      const recentThreadsData = await getData('/api/forum/threads?sort=latest&limit=5');
+      setRecentThreads(recentThreadsData);
+      
+      setError(null);
+    } catch (err) {
+      console.error("Error refreshing forum data:", err);
+      setError(err.message || "Failed to refresh forum data");
+    } finally {
+      setLoading(false);
     }
   };
 
-  function removeCatById(catsArr, catId) {
-    return catsArr
-      .filter((c) => c.id !== catId)
-      .map((c) => ({
-        ...c,
-        subcategories: removeCatById(c.subcategories || [], catId),
-      }));
-  }
+  // Filter categories based on search term
+  const filtered = searchTerm
+    ? searchCategories(categories, searchTerm)
+    : categories;
 
-  const handleEditCategory = (cat) => {
-    alert(`Här kan du navigera till /forum/edit-category/${cat.id} eller liknande.`);
+  // Handlers for category actions
+  const handleDeleteCategory = (category) => {
+    // Implement category deletion
+    console.log("Delete category:", category);
+  };
+
+  const handleEditCategory = (category) => {
+    // Implement category editing
+    console.log("Edit category:", category);
   };
 
   return (
-    <div className="container mx-auto px-3 py-2 max-w-4xl">
-      {/* Titel-rad */}
-      <div className="flex justify-between items-center mb-2">
-        <div>
-          <h1 className="text-lg font-semibold">Forum</h1>
-          <p className="text-gray-600 text-sm">Diskutera jakt, metodik och utrustning</p>
-        </div>
-        <button
-          onClick={() => navigate("/forum/new")}
-          className="flex items-center gap-1 px-3 py-2 text-sm bg-blue-600 text-white 
-                     rounded hover:bg-blue-700 transition"
+    <div className="space-y-8 mb-10">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-white">{t.forum.forum}</h1>
+        <Button 
+          onClick={() => navigate("/forum/new-category")}
+          className="flex items-center"
         >
-          <Plus className="h-4 w-4" />
-          Ny tråd
-        </button>
+          <Plus className="h-4 w-4 mr-2" />
+          {t.forum.newCategory}
+        </Button>
       </div>
 
-      {/* Sök & expand/collapse */}
-      <Card className="mb-2">
-        <CardContent className="p-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div className="relative w-full sm:max-w-xs">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Sök..."
-              className="pl-7 pr-6 py-1 rounded border text-sm w-full
-                         focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 
-                           text-gray-400 hover:text-gray-600"
-              >
-                <XCircle className="h-4 w-4" />
-              </button>
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>{t.common.error}</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* Information */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Recent Threads */}
+        <Card>
+          <CardHeader className="bg-dark-800 rounded-t-lg">
+            <CardTitle className="text-white">{t.forum.recentThreads}</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            {recentThreads.length > 0 ? (
+              <div className="space-y-4">
+                {recentThreads.map((thread) => (
+                  <ThreadCard key={thread._id} thread={thread} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-white/70">{t.forum.noThreads}</p>
             )}
-          </div>
-
-          <div className="flex gap-2">
-            <button
-              onClick={handleExpandAll}
-              className="px-2 py-1 text-sm rounded bg-gray-100 hover:bg-gray-200"
+            <Button 
+              variant="outline" 
+              className="mt-4 w-full"
+              onClick={() => navigate("/forum/new-thread")}
             >
-              Expandera alla
-            </button>
-            <button
-              onClick={handleCollapseAll}
-              className="px-2 py-1 text-sm rounded bg-gray-100 hover:bg-gray-200"
-            >
-              Komprimera alla
-            </button>
-          </div>
-        </CardContent>
-      </Card>
+              <Plus className="h-4 w-4 mr-2" />
+              {t.forum.createThread}
+            </Button>
+          </CardContent>
+        </Card>
 
-      {/* Kategoriträd-lista */}
+        {/* Popular Threads */}
+        <Card>
+          <CardHeader className="bg-dark-800 rounded-t-lg">
+            <CardTitle className="text-white">{t.forum.popularThreads}</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            {popularThreads.length > 0 ? (
+              <div className="space-y-4">
+                {popularThreads.map((thread) => (
+                  <ThreadCard key={thread._id} thread={thread} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-white/70">{t.forum.noPopularThreads}</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Categories */}
       <Card>
-        <CardContent className="p-2 space-y-2">
-          {filtered.length > 0 ? (
-            filtered.map((cat) => (
-              <CategoryBlock
-                key={cat.id}
-                category={cat}
-                depth={0}
-                expandedMap={expandedMap}
-                setExpandedMap={setExpandedMap}
-                maxDepth={maxDepth}
-                onDeleteCategory={handleDeleteCategory}
-                onEditCategory={handleEditCategory}
+        <CardHeader className="bg-dark-800 rounded-t-lg">
+          <CardTitle className="text-white">{t.forum.categories}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {/* Category search field */}
+          <div className="flex items-center mb-4">
+            <div className="relative w-full max-w-xs">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder={t.forum.searchCategories}
+                className="w-full py-2 pl-10 pr-4 bg-dark-700 rounded-lg border border-dark-500"
               />
-            ))
+              <Search className="absolute left-3 top-2.5 text-gray-400 h-4 w-4" />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-3 top-2.5 text-gray-400 hover:text-white"
+                >
+                  <XCircle className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Category tree */}
+          {loading ? (
+            <div className="flex justify-center items-center h-40">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            </div>
+          ) : filtered.length === 0 ? (
+            <p className="text-gray-400">{t.common.noResults}</p>
           ) : (
-            <div className="text-center text-sm text-gray-500 py-4">
-              Inga matchande kategorier
+            <div className="space-y-2">
+              {filtered.map((cat) => (
+                <CategoryBlock
+                  key={cat.id}
+                  category={cat}
+                  expandedMap={expandedMap}
+                  setExpandedMap={setExpandedMap}
+                  maxDepth={maxDepth}
+                  onDeleteCategory={handleDeleteCategory}
+                  onEditCategory={handleEditCategory}
+                />
+              ))}
             </div>
           )}
         </CardContent>

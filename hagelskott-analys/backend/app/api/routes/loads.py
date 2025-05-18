@@ -15,6 +15,7 @@ from bson import ObjectId
 import shutil
 import os
 import math  # <--- för exp, log etc.
+from datetime import datetime
 
 from app.db.mongodb import db
 from app.api.schemas.load_schemas import (
@@ -386,6 +387,9 @@ async def create_shotshell_load(
     shotshell_data: ShotshellLoadCreate = Body(...),
     current_user: User = Depends(get_current_active_user),
 ):
+    # Konvertera components array till individuella fält
+    shotshell_data.process_components()
+    
     doc = shotshell_data.dict()
     doc["ownerId"] = str(current_user.id)
     if "category" not in doc or not doc["category"]:
@@ -481,3 +485,153 @@ async def get_load(load_id: str, current_user: User = Depends(get_current_active
     doc["_id"] = str(doc["_id"])
     await expand_components_in_loads(doc)
     return ShotshellLoadResponse(**doc)
+
+# Röstning på laddningar
+@router.post("/{load_id}/vote")
+async def vote_on_load(
+    load_id: str,
+    vote_data: dict = Body(...),
+    current_user: User = Depends(get_current_active_user)
+):
+    if not ObjectId.is_valid(load_id):
+        raise HTTPException(status_code=400, detail="Ogiltigt laddnings-ID")
+
+    vote_type = vote_data.get("voteType")
+    if vote_type not in ["up", "down"]:
+        raise HTTPException(status_code=400, detail="Ogiltig rösttyp")
+
+    try:
+        database = await db.get_database()
+        loads_coll = database["loads"]
+        votes_coll = database["load_votes"]
+
+        # Ta bort eventuell tidigare röst
+        await votes_coll.delete_one({
+            "loadId": load_id,
+            "userId": str(current_user.id)
+        })
+
+        # Lägg till ny röst
+        await votes_coll.insert_one({
+            "loadId": load_id,
+            "userId": str(current_user.id),
+            "voteType": vote_type,
+            "createdAt": datetime.utcnow()
+        })
+
+        # Räkna röster
+        upvotes = await votes_coll.count_documents({
+            "loadId": load_id,
+            "voteType": "up"
+        })
+        downvotes = await votes_coll.count_documents({
+            "loadId": load_id,
+            "voteType": "down"
+        })
+
+        return {
+            "votes": {
+                "upvotes": upvotes,
+                "downvotes": downvotes
+            }
+        }
+    except Exception as e:
+        logger.error(f"Vote error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Kunde inte hantera röstning")
+
+@router.get("/{load_id}/votes")
+async def get_load_votes(
+    load_id: str,
+    current_user: User = Depends(get_current_active_user)
+):
+    if not ObjectId.is_valid(load_id):
+        raise HTTPException(status_code=400, detail="Ogiltigt laddnings-ID")
+
+    try:
+        database = await db.get_database()
+        votes_coll = database["load_votes"]
+
+        # Räkna röster
+        upvotes = await votes_coll.count_documents({
+            "loadId": load_id,
+            "voteType": "up"
+        })
+        downvotes = await votes_coll.count_documents({
+            "loadId": load_id,
+            "voteType": "down"
+        })
+
+        # Hämta användarens röst
+        user_vote = await votes_coll.find_one({
+            "loadId": load_id,
+            "userId": str(current_user.id)
+        })
+
+        return {
+            "votes": {
+                "upvotes": upvotes,
+                "downvotes": downvotes
+            },
+            "userVote": user_vote["voteType"] if user_vote else None
+        }
+    except Exception as e:
+        logger.error(f"Get votes error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Kunde inte hämta röster")
+
+# Kommentarer på laddningar
+@router.post("/{load_id}/comments")
+async def add_comment(
+    load_id: str,
+    comment_data: dict = Body(...),
+    current_user: User = Depends(get_current_active_user)
+):
+    if not ObjectId.is_valid(load_id):
+        raise HTTPException(status_code=400, detail="Ogiltigt laddnings-ID")
+
+    content = comment_data.get("content")
+    if not content or not content.strip():
+        raise HTTPException(status_code=400, detail="Kommentaren får inte vara tom")
+
+    try:
+        database = await db.get_database()
+        comments_coll = database["load_comments"]
+
+        comment = {
+            "loadId": load_id,
+            "userId": str(current_user.id),
+            "author": current_user.username,
+            "content": content.strip(),
+            "createdAt": datetime.utcnow()
+        }
+
+        result = await comments_coll.insert_one(comment)
+        comment["_id"] = str(result.inserted_id)
+
+        return comment
+    except Exception as e:
+        logger.error(f"Add comment error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Kunde inte lägga till kommentar")
+
+@router.get("/{load_id}/comments")
+async def get_comments(
+    load_id: str,
+    current_user: User = Depends(get_current_active_user)
+):
+    if not ObjectId.is_valid(load_id):
+        raise HTTPException(status_code=400, detail="Ogiltigt laddnings-ID")
+
+    try:
+        database = await db.get_database()
+        comments_coll = database["load_comments"]
+
+        comments = await comments_coll.find(
+            {"loadId": load_id}
+        ).sort("createdAt", -1).to_list(length=100)
+
+        for comment in comments:
+            comment["_id"] = str(comment["_id"])
+
+        return comments
+    except Exception as e:
+        logger.error(f"Get comments error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Kunde inte hämta kommentarer")

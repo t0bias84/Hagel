@@ -15,6 +15,8 @@ import logging
 import cv2
 import numpy as np
 from pydantic import BaseModel
+from app.models.user import User
+from app.api.routes.auth import get_current_active_user, UserInDB
 
 # Egna imports
 from app.services.pattern_analysis import PatternAnalyzer
@@ -132,6 +134,66 @@ async def upload_shot_image(
     except Exception as e:
         logger.error(f"Fel i /upload => {e}", exc_info=True)
         raise HTTPException(500, f"Fel vid upload_shot_image => {e}")
+
+
+class RecoilRequest(BaseModel):
+    shotWeight: float  # gram
+    powderWeight: float  # gram
+    muzzleVelocity: float  # m/s
+    gunWeight: float  # kg
+
+@router.post("/results/recoil")
+async def calculate_recoil(
+    shot_weight: float = Body(..., description="Hagelvikt i gram"),
+    powder_weight: float = Body(..., description="Krutladdning i gram"),
+    muzzle_velocity: float = Body(..., description="Mynningshastighet i m/s"),
+    gun_weight: float = Body(..., description="Vapenvikt i kg", ge=0)
+):
+    """
+    Beräknar rekyl baserat på laddningsdata.
+    Returnerar rekylenergi (J), rekylhastighet (m/s) och rekylimpuls (Ns).
+    
+    Formler:
+    - Rekylhastighet (v_r) = (m_p * v_m) / m_g
+      där m_p = projektilvikt (kg), v_m = mynningshastighet (m/s), m_g = vapenvikt (kg)
+    
+    - Rekylenergi (E) = 0.5 * m_g * v_r^2
+      där m_g = vapenvikt (kg), v_r = rekylhastighet (m/s)
+    
+    - Rekylimpuls (I) = m_p * v_m
+      där m_p = projektilvikt (kg), v_m = mynningshastighet (m/s)
+    """
+    try:
+        # Konvertera vikter till kg
+        projectile_weight_kg = (shot_weight + powder_weight) / 1000.0  # gram till kg
+        gun_weight_kg = gun_weight  # redan i kg
+        
+        # Beräkna rekylhastighet (m/s)
+        recoil_velocity = (projectile_weight_kg * muzzle_velocity) / gun_weight_kg
+        
+        # Beräkna rekylenergi (J) - använd vapenvikt och rekylhastighet
+        recoil_energy = 0.5 * gun_weight_kg * (recoil_velocity ** 2)
+        
+        # Beräkna rekylimpuls (Ns)
+        recoil_impulse = projectile_weight_kg * muzzle_velocity
+        
+        # Bedöm rekylnivån baserat på energi i Joule
+        rating = "Lätt"
+        if recoil_energy > 25:
+            rating = "Kraftig"
+        elif recoil_energy > 15:
+            rating = "Måttlig"
+            
+        return {
+            "recoilEnergy": round(recoil_energy, 2),
+            "recoilVelocity": round(recoil_velocity, 2),
+            "recoilImpulse": round(recoil_impulse, 2),
+            "rating": rating
+        }
+        
+    except Exception as e:
+        logger.error(f"Fel i calculate_recoil => {e}", exc_info=True)
+        raise HTTPException(500, "Kunde inte beräkna rekyl.")
 
 
 @router.get("/results/{shot_id}", response_model=ShotAnalysisResult)

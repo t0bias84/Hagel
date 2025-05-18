@@ -166,6 +166,7 @@ export default function ShotgunLoadCreation() {
     filler: true,
     crimp: true,
     naming: true,
+    recoil: false,
   });
 
   // Hylsa
@@ -216,6 +217,10 @@ export default function ShotgunLoadCreation() {
   const [loadPurpose, setLoadPurpose] = useState("");
   const [tags, setTags] = useState([]);
   const [newTag, setNewTag] = useState("");
+
+  // Vapenvikt
+  const [gunWeight, setGunWeight] = useState("");
+  const [muzzleVelocity, setMuzzleVelocity] = useState("");
 
   /** Hämta /api/components */
   useEffect(() => {
@@ -460,102 +465,111 @@ export default function ShotgunLoadCreation() {
     try {
       setError("");
       setLoading(true);
-      if (!loadName.trim()) throw new Error("Du måste ange ett namn.");
+      
+      // Grundläggande validering
+      if (!loadName.trim()) throw new Error("Du måste ange ett namn på laddningen.");
+      if (!selectedHull?._id) throw new Error("Du måste välja en giltig hylsa.");
+      if (!selectedPrimer?._id && !hullHasPrimer) throw new Error("Du måste välja en giltig tändhatt.");
+      if (!selectedPowder?._id) throw new Error("Du måste välja ett giltigt krut.");
+      if (!powderChargeValue) throw new Error("Du måste ange krutmängd.");
+      if (!selectedWad?._id) throw new Error("Du måste välja en giltig förladdning.");
 
-      // Bygg docs
+      // Validera hagel/slug baserat på typ
+      if (shotType === "slug") {
+        if (!selectedSlug?._id) throw new Error("Du måste välja en giltig slug.");
+        if (!slugWeightValue) throw new Error("Du måste ange slugvikt.");
+      } else if (shotType === "duplex") {
+        if (!duplexA?._id || !duplexB?._id) throw new Error("Du måste välja giltiga hageltyper för duplex.");
+        if (!duplexAvalue || !duplexBvalue) throw new Error("Du måste ange vikt för båda hageltyperna.");
+      } else {
+        if (!selectedShot?._id) throw new Error("Du måste välja en giltig hageltyp.");
+        if (!shotWeightValue) throw new Error("Du måste ange hagelvikt.");
+      }
+
+      // Bygg components array med bara validerade komponenter
+      const components = [];
+
+      // Lägg till hylsa
+      components.push({
+        id: selectedHull._id,
+        name: selectedHull.name,
+        type: "hull",
+        weight: selectedHull.weight || 0
+      });
+
+      // Lägg till tändhatt om den inte är inbyggd
+      if (!hullHasPrimer || overridePrimer) {
+        components.push({
+          id: selectedPrimer._id,
+          name: selectedPrimer.name,
+          type: "primer",
+          weight: selectedPrimer.weight || 0
+        });
+      }
+
+      // Lägg till krut med angiven vikt
+      components.push({
+        id: selectedPowder._id,
+        name: selectedPowder.name,
+        type: "powder",
+        weight: parseFloat(powderChargeValue)
+      });
+
+      // Lägg till förladdning
+      components.push({
+        id: selectedWad._id,
+        name: selectedWad.name,
+        type: "wad",
+        weight: selectedWad.weight || 0
+      });
+
+      // Lägg till hagel/slug baserat på typ
+      if (shotType === "slug") {
+        components.push({
+          id: selectedSlug._id,
+          name: selectedSlug.name,
+          type: "slug",
+          weight: parseFloat(slugWeightValue)
+        });
+      } else if (shotType === "duplex") {
+        components.push(
+          {
+            id: duplexA._id,
+            name: duplexA.name,
+            type: "shot",
+            weight: parseFloat(duplexAvalue)
+          },
+          {
+            id: duplexB._id,
+            name: duplexB.name,
+            type: "shot",
+            weight: parseFloat(duplexBvalue)
+          }
+        );
+      } else {
+        components.push({
+          id: selectedShot._id,
+          name: selectedShot.name,
+          type: "shot",
+          weight: parseFloat(shotWeightValue)
+        });
+      }
+
+      // Bygg docs med validerade komponenter
       const doc = {
-        name: loadName,
-        description: loadPurpose,
+        name: loadName.trim(),
+        description: loadPurpose.trim(),
         isPublic: true,
         gauge: caliber,
         shellLength: parseFloat(shellLength),
-        hullId: null,    // <--- default
-        primerId: null,  // <--- default
-        powderId: selectedPowder?._id || null,
-        powderCharge: 0,
-        wadId: selectedWad?._id || null,
-        shotLoads: null,
-        slug: null,
-        filler_g: useFiller ? parseFloat(fillerQuantity) || 0 : 0,
-        crimp: {
-          type: crimpType === "roll" ? "roll" : "star",
-          overshotCard: crimpType === "roll" ? "paper" : null,
-        },
-        source: tags.join(", "),
-        category: "shotshell",
+        components: components,
+        tags: tags
       };
 
-      // Om hylsa vald med 24-hex ID => sätt hullId
-      if (selectedHull && selectedHull._id && selectedHull._id.length === 24) {
-        doc.hullId = selectedHull._id; // <--- ADDED
-      }
-
-      // Kolla om primer override
-      if (hullHasPrimer && !overridePrimer) {
-        // intentionally doc.primerId = null
-      } else if (selectedPrimer && selectedPrimer._id && selectedPrimer._id.length === 24) {
-        doc.primerId = selectedPrimer._id; // <--- ADDED
-      }
-
-      // Krutmängd => gram
-      const pcVal = parseFloat(powderChargeValue) || 0;
-      if (pcVal > 0) {
-        doc.powderCharge = (powderChargeUnit === "g")
-          ? pcVal
-          : grainsToGrams(pcVal);
-      }
-
-      // Hagel/slug
-      if (shotType === "slug" && selectedSlug) {
-        let slugVal = parseFloat(slugWeightValue) || 0;
-        if (slugWeightUnit === "gr") {
-          slugVal = grainsToGrams(slugVal);
-        }
-        doc.slug = {
-          modelId: selectedSlug._id, // <--- expansionskoden kollar shotLoads[*].modelId, men här sätter vi i slug
-          name: selectedSlug.name,
-          weight_g: slugVal || 28,
-        };
-      }
-      else if (shotType === "duplex" && duplexA && duplexB) {
-        let aVal = parseFloat(duplexAvalue) || 0;
-        if (duplexAunit === "gr") aVal = grainsToGrams(aVal);
-        let bVal = parseFloat(duplexBvalue) || 0;
-        if (duplexBunit === "gr") bVal = grainsToGrams(bVal);
-
-        doc.shotLoads = [
-          {
-            material: duplexA.properties?.material || "steel",
-            weight_g: aVal || 14,
-            shotSize: duplexA.properties?.shotSize || "#4",
-            modelId: (duplexA._id && duplexA._id.length === 24) ? duplexA._id : undefined, // <--- ADDED
-          },
-          {
-            material: duplexB.properties?.material || "tungsten",
-            weight_g: bVal || 14,
-            shotSize: duplexB.properties?.shotSize || "#2",
-            modelId: (duplexB._id && duplexB._id.length === 24) ? duplexB._id : undefined,
-          },
-        ];
-      }
-      else if (["lead", "steel", "tungsten", "bismuth"].includes(shotType) && selectedShot) {
-        let singleVal = parseFloat(shotWeightValue) || 0;
-        if (shotWeightUnit === "gr") singleVal = grainsToGrams(singleVal);
-
-        doc.shotLoads = [
-          {
-            material: selectedShot.properties?.material || shotType,
-            weight_g: singleVal || 28,
-            shotSize: selectedShot.properties?.shotSize || "#4",
-            modelId: (selectedShot._id && selectedShot._id.length === 24) 
-                       ? selectedShot._id 
-                       : undefined, // <--- ADDED
-          },
-        ];
-      }
-
-      // Skickar
+      // Skicka till API
       const token = localStorage.getItem("token");
+      if (!token) throw new Error("Du måste vara inloggad för att spara laddningar.");
+
       const resp = await fetch("http://localhost:8000/api/loads/shotshell", {
         method: "POST",
         headers: {
@@ -564,11 +578,15 @@ export default function ShotgunLoadCreation() {
         },
         body: JSON.stringify(doc),
       });
-      if (!resp.ok) throw new Error("Kunde inte spara hagelladdningen.");
+
+      if (!resp.ok) {
+        const errorData = await resp.json();
+        throw new Error(errorData.detail || "Kunde inte spara hagelladdningen.");
+      }
 
       alert("Laddning sparad!");
 
-      // Återställ allt
+      // Återställ formuläret
       setLoadName("");
       setLoadPurpose("");
       setCaliber("12");
@@ -577,37 +595,29 @@ export default function ShotgunLoadCreation() {
       setHullHasPrimer(false);
       setSelectedPrimer(null);
       setOverridePrimer(false);
-
       setSelectedPowder(null);
       setPowderChargeValue("");
       setPowderChargeUnit("g");
-
       setSelectedWad(null);
       setShotType("lead");
       setSelectedShot(null);
-
       setSelectedSlug(null);
       setSlugWeightValue("");
       setSlugWeightUnit("g");
-
       setDuplexA(null);
       setDuplexB(null);
       setDuplexAvalue("");
       setDuplexBvalue("");
       setDuplexAunit("g");
       setDuplexBunit("g");
-
       setShotWeightValue("");
       setShotWeightUnit("g");
-
       setUseFiller(false);
       setFillerPosition("underWad");
       setFillerQuantity("");
-
       setCrimpType("star");
       setTags([]);
       setNewTag("");
-
       setOpenSections({
         hull: true,
         primer: false,
@@ -617,6 +627,7 @@ export default function ShotgunLoadCreation() {
         filler: true,
         crimp: true,
         naming: true,
+        recoil: false,
       });
     } catch (err) {
       setError(err.message);

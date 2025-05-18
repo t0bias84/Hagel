@@ -1,9 +1,13 @@
 // Fil: PenetrationTestPage.jsx
 // ============================
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Loader2, AlertCircle, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { en } from "@/translations/en";
+import { sv } from "@/translations/sv";
 
 import PenetrationChart from "./PenetrationChart";
 
@@ -19,6 +23,14 @@ import { getPelletCount } from "@/utils/shotCalculator";
 
 export default function PenetrationTestPage() {
   const navigate = useNavigate();
+  const { loadId } = useParams();
+  const { language } = useLanguage();
+  const t = language === 'en' ? en : sv;
+
+  // State för laddningar
+  const [loads, setLoads] = useState([]);
+  const [selectedLoadId, setSelectedLoadId] = useState(loadId || "");
+  const [selectedLoad, setSelectedLoad] = useState(null);
 
   // 1) State
   const [muzzle, setMuzzle] = useState("1300");
@@ -31,11 +43,49 @@ export default function PenetrationTestPage() {
   // Data
   const [dataPoints, setDataPoints] = useState([]);
   const [lethalObj, setLethalObj] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Sätt denna = false om du vill anropa servern.
   const LOCAL_MODE = true;
+
+  // 1. Hämta alla laddningar
+  useEffect(() => {
+    const fetchLoads = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/loads`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) throw new Error("Failed to fetch loads");
+        const data = await response.json();
+        setLoads(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLoads();
+  }, []);
+
+  // 2. När loadId eller loads ändras, uppdatera selectedLoad
+  useEffect(() => {
+    if (selectedLoadId && loads.length > 0) {
+      const load = loads.find(l => l._id === selectedLoadId);
+      if (load) {
+        setSelectedLoad(load);
+        // Uppdatera formuläret med laddningens data
+        setMuzzle(load.muzzleVelocity?.toString() || "1300");
+        setShotSize(load.shotSize || "4");
+        setShotType(load.shotType || "steel");
+        setShotLoad(load.shotWeight || 28);
+      }
+    }
+  }, [selectedLoadId, loads]);
 
   // 2) Räkna pelletCount
   useEffect(() => {
@@ -86,10 +136,11 @@ export default function PenetrationTestPage() {
           const qs = new URLSearchParams({
             muzzle: muzzle_fps.toString(),
             shotSize: shotSize.trim(),
-            shotType: shotType.trim().toLowerCase()
+            shotType: shotType.trim().toLowerCase(),
+            shotLoadGram: shotLoad.toString()
           });
           const token = localStorage.getItem("token") || "";
-          const url = `/api/loads/penetration-flex-params?${qs.toString()}`;
+          const url = `${import.meta.env.VITE_API_URL}/api/loads/penetration-flex-params?${qs.toString()}`;
           console.log("GET", url);
 
           const resp = await fetch(url, {
@@ -102,7 +153,7 @@ export default function PenetrationTestPage() {
           const raw = json.dataPoints || [];
           // Samma operation: append totalEnergy
           const final = raw.map(row => {
-            const e = row.energy_ftlbs ?? 0;
+            const e = row.energy_pellet_ftlbs ?? 0;
             const tot = e * pelletCount;
             return {
               distance_yd: row.distance_yd,
@@ -136,38 +187,57 @@ export default function PenetrationTestPage() {
 
   if(loading) {
     return (
-      <div className="flex justify-center items-center py-10">
-        <Loader2 className="h-6 w-6 animate-spin text-blue-500"/>
-        <span className="ml-2 text-gray-100">Laddar data...</span>
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-military-500"></div>
       </div>
     );
   }
   if(error) {
     return (
-      <Alert variant="destructive" className="m-4">
-        <AlertCircle className="h-5 w-5"/>
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
+      <div className="p-4">
+        <div className="bg-red-500 text-white p-4 rounded">
+          {error}
+        </div>
+      </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-4 text-gray-100">
-
+    <div className="container mx-auto p-6">
       {/* Titel + Tillbaka */}
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Penetrationsanalys</h1>
+        <h1 className="text-2xl font-bold">{t.penetrationAnalysis.title}</h1>
         <button
           onClick={() => navigate(-1)}
           className="bg-military-700 hover:bg-military-600 px-3 py-2 rounded"
         >
-          Tillbaka
+          {t.navigation.back}
         </button>
+      </div>
+
+      {/* Laddningsväljare */}
+      <div className="bg-military-700 p-4 rounded mb-4">
+        <h2 className="text-lg font-semibold mb-3">{t.penetrationAnalysis.loadSelector.title}</h2>
+        <select 
+          value={selectedLoadId} 
+          onChange={(e) => {
+            setSelectedLoadId(e.target.value);
+            navigate(`/penetration-test/${e.target.value}`, { replace: true });
+          }}
+          className="w-full bg-military-800 border border-military-600 rounded px-3 py-2 text-sm"
+        >
+          <option value="">{t.penetrationAnalysis.loadSelector.placeholder}</option>
+          {loads.map(load => (
+            <option key={load._id} value={load._id}>
+              {load.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Filter */}
       <div className="bg-military-700 p-4 rounded mb-4">
-        <h2 className="text-lg font-semibold mb-3">Välj parametrar</h2>
+        <h2 className="text-lg font-semibold mb-3">Parametrar</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {/* Muzzle */}
           <div>
@@ -241,114 +311,44 @@ export default function PenetrationTestPage() {
       {/* Dödlig-avstånd */}
       {Object.keys(lethalObj).length>0 && (
         <div className="bg-military-700 p-2 rounded mb-4 flex flex-wrap items-center gap-3">
-          <span className="text-sm font-semibold">Dödlig på avstånd (penetrationskrav):</span>
+          <span className="text-sm font-semibold">{t.penetrationAnalysis.lethalDistances.title}:</span>
           <span className="bg-gray-800 px-2 py-1 rounded text-xs text-gray-200">
-            And/Duck { (useMetric
+            {t.penetrationAnalysis.lethalDistances.duck} { (useMetric
               ? yardToMeter(lethalObj.duck||0).toFixed(0)+" m"
               : (lethalObj.duck||0).toFixed(0)+" yd") }
           </span>
           <span className="bg-gray-800 px-2 py-1 rounded text-xs text-gray-200">
-            Rådjur { (useMetric
+            {t.penetrationAnalysis.lethalDistances.roe} { (useMetric
               ? yardToMeter(lethalObj.roe||0).toFixed(0)+" m"
               : (lethalObj.roe||0).toFixed(0)+" yd") }
           </span>
           <span className="bg-gray-800 px-2 py-1 rounded text-xs text-gray-200">
-            Vildsvin { (useMetric
+            {t.penetrationAnalysis.lethalDistances.boar} { (useMetric
               ? yardToMeter(lethalObj.boar||0).toFixed(0)+" m"
               : (lethalObj.boar||0).toFixed(0)+" yd") }
           </span>
         </div>
       )}
 
-      {/* Chart + Table */}
-      {dataPoints.length>0 ? (
-        <div className="bg-military-800 p-3 rounded mb-6">
-          <h3 className="text-lg font-semibold text-gray-100 mb-2">
-            Resultat (Per Hagel & Totalt)
-          </h3>
-          <div className="bg-military-900 p-4 rounded mb-4">
-            <PenetrationChart
-              data={dataPoints.map(dp => ({
-                distance_yd: dp.distance_yd,
-                velocity_fps: dp.velocity_fps,
-                penetration_in: dp.penetration_in
-              }))}
-              isMetric={useMetric}
-            />
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-gray-700 text-left">
-                  <th className="p-2">Distans</th>
-                  <th className="p-2">Hastighet</th>
-                  <th className="p-2">Penetration</th>
-                  <th className="p-2">Energi/hagel</th>
-                  <th className="p-2">Tot. energi (laddn)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dataPoints.map((row, i) => {
-                  const ePel = row.energy_pellet_ftlbs;
-                  const eTot = row.total_energy_ftlbs;
-                  const ePelStr = displayEnergy(ePel);
-                  const eTotStr = displayEnergy(eTot);
-                  // Skriv ut dist, velocity, pen
-                  return (
-                    <tr key={i} className="border-b border-military-600">
-                      <td className="p-2">
-                        { useMetric
-                          ? yardToMeter(row.distance_yd).toFixed(1) + " m"
-                          : row.distance_yd.toFixed(0) + " yd"
-                        }
-                      </td>
-                      <td className="p-2">
-                        { useMetric
-                          ? (row.velocity_fps*0.3048).toFixed(0) + " m/s"
-                          : row.velocity_fps.toFixed(0) + " fps"
-                        }
-                      </td>
-                      <td className="p-2">
-                        { useMetric
-                          ? (row.penetration_in*25.4).toFixed(2)+" mm"
-                          : row.penetration_in.toFixed(2)+" in"
-                        }
-                      </td>
-                      <td className="p-2">{ ePelStr }</td>
-                      <td className="p-2">{ eTotStr }</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : (
-        <div className="bg-military-800 p-3 rounded">
-          <p className="text-sm text-gray-300">
-            Ingen penetration beräknad.
-          </p>
-        </div>
-      )}
+      {/* Penetrationschart */}
+      <div className="bg-military-700 p-4 rounded">
+        <h2 className="text-lg font-semibold mb-3">{t.penetrationAnalysis.data.title}</h2>
+        <PenetrationChart
+          dataPoints={dataPoints}
+          lethalObj={lethalObj}
+          useMetric={useMetric}
+        />
+      </div>
 
       {/* Info-ruta */}
-      <div className="bg-gray-800 p-4 rounded text-sm border border-gray-700">
-        <div className="flex items-center mb-2 text-yellow-400">
-          <Info className="h-4 w-4 mr-1"/>
-          <span className="font-semibold">Beräkningsmetod & Begränsningar</span>
+      <div className="bg-military-700 p-4 rounded">
+        <h2 className="text-lg font-semibold mb-3">{t.penetrationAnalysis.info.title}</h2>
+        <div className="space-y-2 text-sm text-gray-300">
+          <p>{t.penetrationAnalysis.info.description1}</p>
+          <p>{t.penetrationAnalysis.info.description2}</p>
+          <p>{t.penetrationAnalysis.info.description3}</p>
+          <p className="text-yellow-400 mt-4">{t.penetrationAnalysis.info.warning}</p>
         </div>
-        <p className="text-gray-200 mb-2">
-          Denna modul gör en enkel exponentiell avtagning av hastighet (v(d)) beroende på hagelstorlek.
-          Penetrationsformeln är <em>ungefärlig</em> och baserar sig på diameter, hastighet och materialfaktor.
-          Målet är att stål #3–#4 i ~1300 fps ska räcka för <strong>and på ~40 m</strong>, bly #1–#2 för
-          <strong>rådjur ~30–40 m</strong>, etc.
-        </p>
-        <p className="text-gray-200">
-          De forensiska källorna visar hur hagel tappar fart. I verkligheten påverkar även
-          luftfuktighet, vinkel, hageldeformation m.m.
-          <strong> Använd siffrorna som en grov vägledning, ej en exakt sanning.</strong>
-        </p>
       </div>
     </div>
   );

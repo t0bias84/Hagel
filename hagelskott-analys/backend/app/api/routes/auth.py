@@ -11,6 +11,7 @@ from fastapi import (
     Depends,
     HTTPException,
     status,
+    Request
 )
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr, Field
@@ -19,6 +20,7 @@ from email_validator import validate_email, EmailNotValidError
 
 from app.db.mongodb import db
 from app.core.config import settings
+from app.utils.email import EmailService
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -74,6 +76,11 @@ class UserCreate(UserBase):
 
 class PasswordReset(BaseModel):
     email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+    confirm_password: str
 
 class PasswordUpdate(BaseModel):
     current_password: str
@@ -250,103 +257,359 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     """
     user = await authenticate_user(form_data.username, form_data.password)
     if not user:
-        logger.warning(f"[AUTH] Login failed for user: {form_data.username}")
+        logger.error(f"[AUTH] login failed for {form_data.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Fel användarnamn eller lösenord",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
+    
+    if user.disabled:
+        logger.error(f"[AUTH] login attempt for disabled user {form_data.username}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Kontot är inaktiverat",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        subject=user.username,
-        expires_delta=access_token_expires
+        subject=user.username, expires_delta=access_token_expires
     )
-
+    
+    logger.info(f"[AUTH] login success for {form_data.username}")
     return {
         "access_token": access_token,
         "token_type": "bearer",
-        "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60  # i sekunder
     }
 
-@router.post("/register", response_model=User)
-async def register_user(user_data: UserCreate):
+@router.post("/register", response_model=dict)
+async def register_user(user_data: UserCreate, request: Request):
     """
-    Registrera ny användare: 
-    - Kollar om lösenordsfälten stämmer 
-    - Kollar unik username och email 
-    - Hashar lösenord & spar i DB
+    Registrera en ny användare
     """
-    if user_data.password != user_data.confirm_password:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Passwords do not match"
-        )
-
-    # Kolla e-post
     try:
-        validate_email(user_data.email)
-    except EmailNotValidError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid email address: {str(e)}"
+        database = await db.get_database()
+        users_collection = database["users"]
+        
+        # Kontrollera att lösenorden matchar
+        if user_data.password != user_data.confirm_password:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Lösenorden matchar inte"
+            )
+        
+        # Kontrollera unik användarnamn
+        existing_user = await users_collection.find_one({"username": user_data.username})
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Användarnamn finns redan"
+            )
+        
+        # Kontrollera unik e-post
+        existing_email = await users_collection.find_one({"email": user_data.email})
+        if existing_email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="E-postadressen används redan"
+            )
+        
+        # Hasha lösenord
+        hashed_password = get_password_hash(user_data.password)
+        
+        # Skapa användare och spara i databasen
+        new_user = {
+            "username": user_data.username,
+            "email": user_data.email,
+            "hashed_password": hashed_password,
+            "full_name": user_data.full_name,
+            "disabled": False,
+            "roles": ["user"],  # Standard roll
+            "created_at": datetime.now(timezone.utc),
+            "email_verified": False  # E-post behöver verifieras
+        }
+        
+        await users_collection.insert_one(new_user)
+        
+        # Skapa en verifieringstoken för e-post
+        verification_token = create_access_token(
+            subject=user_data.username,
+            expires_delta=timedelta(hours=24)  # Giltig i 24 timmar
         )
-
-    database = await db.get_database()
-    users_coll = database["users"]
-
-    existing = await users_coll.find_one({
-        "$or": [
-            {"username": user_data.username.lower()},
-            {"email": user_data.email.lower()}
-        ]
-    })
-    if existing:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username or email already registered"
+        
+        # Spara verifieringstoken i databasen
+        await users_collection.update_one(
+            {"username": user_data.username},
+            {"$set": {
+                "verification_token": verification_token,
+                "verification_token_expires": datetime.now(timezone.utc) + timedelta(hours=24)
+            }}
         )
-
-    now_utc = datetime.now(timezone.utc)
-    new_user_doc = {
-        "username": user_data.username.lower(),
-        "email": user_data.email.lower(),
-        "full_name": user_data.full_name,
-        "disabled": False,
-        "hashed_password": get_password_hash(user_data.password),
-        "created_at": now_utc,
-        "roles": []
-    }
-
-    result = await users_coll.insert_one(new_user_doc)
-    logger.info(f"[AUTH] New user created: {user_data.username.lower()}")
-
-    created = await get_user(user_data.username.lower())
-    if not created:
+        
+        # Skapa URL för e-postverifiering
+        base_url = str(request.base_url).rstrip('/')
+        verification_url = f"{base_url}/verify-email?token={verification_token}"
+        
+        # Skicka verifieringsmail
+        EmailService.send_email_verification(
+            recipient_email=user_data.email,
+            username=user_data.username,
+            verification_url=verification_url
+        )
+        
+        logger.info(f"[AUTH] New user registered: {user_data.username}")
+        
+        # I utvecklingsmiljö returnerar vi token för testning
+        if settings.ENVIRONMENT == "development":
+            return {
+                "message": "Användare skapad! Vänligen verifiera din e-postadress.",
+                "verification_token": verification_token,  # Endast i utvecklingsmiljö
+                "verification_url": verification_url       # Endast i utvecklingsmiljö
+            }
+        
+        return {
+            "message": "Användare skapad! Vänligen verifiera din e-postadress."
+        }
+    except HTTPException:
+        # Vidarebefordra HTTP-undantag
+        raise
+    except Exception as e:
+        logger.error(f"[AUTH] Registration error: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="User creation failed unexpectedly."
+            detail=f"Ett fel uppstod vid registrering: {str(e)}"
         )
-    return created
+
+@router.post("/verify-email")
+async def verify_email(token: str):
+    """
+    Verifiera användarens e-post med token.
+    """
+    try:
+        database = await db.get_database()
+        users_collection = database["users"]
+        
+        # Validera token
+        try:
+            payload = jwt.decode(
+                token,
+                settings.SECRET_KEY,
+                algorithms=[settings.ALGORITHM]
+            )
+            username = payload.get("sub")
+            
+            if not username:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Ogiltig verifieringstoken"
+                )
+        except JWTError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Ogiltig eller utgången verifieringstoken"
+            )
+        
+        # Kontrollera att användaren finns och token är giltig
+        user = await users_collection.find_one({
+            "username": username,
+            "verification_token": token,
+            "verification_token_expires": {"$gt": datetime.now(timezone.utc)}
+        })
+        
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Ogiltig eller utgången verifieringstoken"
+            )
+        
+        # Uppdatera användarens e-postverifieringsstatus
+        result = await users_collection.update_one(
+            {"username": username},
+            {"$set": {
+                "email_verified": True,
+                "verification_completed_at": datetime.now(timezone.utc)
+            },
+            "$unset": {
+                "verification_token": "",
+                "verification_token_expires": ""
+            }}
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Användaren hittades inte eller e-posten är redan verifierad"
+            )
+        
+        # Skicka en välkomstmejl
+        try:
+            EmailService.send_email(
+                recipient_email=user.get("email"),
+                subject="Välkommen till Hagelskott Analys",
+                template_name="welcome",
+                username=username,
+                app_name=settings.PROJECT_NAME
+            )
+        except Exception as e:
+            logger.error(f"[AUTH] Failed to send welcome email: {str(e)}")
+        
+        logger.info(f"[AUTH] Email verified for user {username}")
+        return {"message": "E-postadress verifierad!"}
+    
+    except HTTPException:
+        # Vidarebefordra HTTP-undantag
+        raise
+    except Exception as e:
+        logger.error(f"[AUTH] Email verification error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Ett fel uppstod vid verifiering av e-postadressen"
+        )
 
 @router.post("/password-reset")
-async def request_password_reset(reset_req: PasswordReset):
+async def request_password_reset(password_reset: PasswordReset, request: Request):
     """
-    Begär lösenordsåterställning (dummy-exempel).
-    Skulle i en riktig app:
-    1) Generera en engångslänk eller token 
-    2) Skicka mail till user
+    Begär återställning av lösenord via e-post.
     """
-    database = await db.get_database()
-    user_doc = await database.users.find_one({"email": reset_req.email.lower()})
-    if user_doc:
-        reset_token = secrets.token_urlsafe(32)
-        logger.info(f"[AUTH] Password reset for {user_doc['username']} => {reset_token}")
-        # Spara i DB t.ex. i "password_resets", skicka e-post etc.
+    try:
+        database = await db.get_database()
+        users_collection = database["users"]
+        
+        # Kontrollera om e-postadressen finns i databasen
+        user = await users_collection.find_one({"email": password_reset.email})
+        if not user:
+            # För säkerhetens skull, låtsas som om det gick bra även om e-postadressen inte finns
+            return {"message": "Om e-postadressen finns registrerad, har ett återställningsmail skickats."}
+        
+        # Skapa en lösenordsåterställningstoken
+        reset_token = create_access_token(
+            subject=user["username"],
+            expires_delta=timedelta(hours=1)  # Giltig i 1 timme
+        )
+        
+        # Spara token i databasen för validering
+        await users_collection.update_one(
+            {"_id": user["_id"]},
+            {"$set": {
+                "reset_token": reset_token, 
+                "reset_token_expires": datetime.now(timezone.utc) + timedelta(hours=1),
+                "reset_requested_at": datetime.now(timezone.utc)
+            }}
+        )
+        
+        # Skapa URL för återställning
+        base_url = str(request.base_url).rstrip('/')
+        reset_url = f"{base_url}/reset-password?token={reset_token}"
+        
+        # Skicka e-post med återställningslänk
+        EmailService.send_password_reset_email(
+            recipient_email=password_reset.email,
+            username=user["username"],
+            reset_url=reset_url
+        )
+        
+        logger.info(f"[AUTH] Password reset requested for {password_reset.email}")
+        
+        # I produktion returnerar vi inte token, men för utvecklingsändamål kan vi göra det
+        if settings.ENVIRONMENT == "development":
+            return {
+                "message": "Om e-postadressen finns registrerad, har ett återställningsmail skickats.",
+                "reset_token": reset_token,  # Endast i utvecklingsmiljö
+                "reset_url": reset_url       # Endast i utvecklingsmiljö
+            }
+        
+        return {"message": "Om e-postadressen finns registrerad, har ett återställningsmail skickats."}
+    except Exception as e:
+        logger.error(f"[AUTH] Password reset error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Ett fel uppstod vid begäran om lösenordsåterställning"
+        )
 
-    return {
-        "message": "If the email exists, a reset link/token will be sent."
-    }
+@router.post("/reset-password")
+async def reset_password(request_data: ResetPasswordRequest):
+    """
+    Återställ lösenord med token
+    """
+    try:
+        database = await db.get_database()
+        users_collection = database["users"]
+        
+        # Verifiera att lösenorden matchar
+        if request_data.new_password != request_data.confirm_password:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Lösenorden matchar inte"
+            )
+        
+        # Validera token
+        try:
+            payload = jwt.decode(
+                request_data.token,
+                settings.SECRET_KEY,
+                algorithms=[settings.ALGORITHM]
+            )
+            username = payload.get("sub")
+            token_type = payload.get("type")
+            
+            if not username or token_type != "password_reset":
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Ogiltig återställningstoken"
+                )
+        except JWTError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Ogiltig eller utgången återställningstoken"
+            )
+        
+        # Hitta användaren
+        user = await users_collection.find_one({"username": username})
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Användaren hittades inte"
+            )
+        
+        # Uppdatera lösenordet
+        hashed_password = get_password_hash(request_data.new_password)
+        result = await users_collection.update_one(
+            {"username": username},
+            {"$set": {
+                "hashed_password": hashed_password,
+                "password_last_changed": datetime.now(timezone.utc)
+            }}
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Lösenordet kunde inte uppdateras"
+            )
+        
+        # Skicka e-post om lösenordsändring
+        try:
+            EmailService.send_password_changed_notification(
+                recipient_email=user.get("email"),
+                username=username
+            )
+        except Exception as e:
+            logger.error(f"[AUTH] Failed to send password changed notification: {str(e)}")
+        
+        logger.info(f"[AUTH] Password reset for user {username}")
+        return {"message": "Lösenordet har återställts"}
+    
+    except HTTPException:
+        # Vidarebefordra HTTP-undantag
+        raise
+    except Exception as e:
+        logger.error(f"[AUTH] Password reset error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Ett fel uppstod vid återställning av lösenordet"
+        )
 
 @router.post("/change-password")
 async def change_password(
@@ -388,3 +651,32 @@ async def read_users_me(current_user: UserInDB = Depends(get_current_active_user
     """
     logger.info(f"[AUTH] read_users_me => current_user={current_user.username}")
     return current_user
+
+@router.post("/refresh", response_model=Token)
+async def refresh_token(current_user: UserInDB = Depends(get_current_active_user)):
+    """
+    Förnya access token för inloggad användare
+    """
+    logger.info(f"[AUTH] Refreshing token for user: {current_user.username}")
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        subject=current_user.username,
+        expires_delta=access_token_expires
+    )
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    }
+
+@router.post("/logout")
+async def logout(current_user: UserInDB = Depends(get_current_active_user)):
+    """
+    Logga ut användaren
+    """
+    logger.info(f"[AUTH] Logging out user: {current_user.username}")
+    # I en mer komplett implementation skulle vi här kunna:
+    # 1. Invalidera tokens
+    # 2. Rensa sessioner
+    # 3. Uppdatera last_logout i databasen
+    return {"message": "Successfully logged out"}

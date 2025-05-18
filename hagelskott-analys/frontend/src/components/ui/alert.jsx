@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 
 /**
  * Här definierar vi två varianter:
@@ -14,11 +14,9 @@ const Alert = React.forwardRef(
     // Variant-klasser för bakgrund, text och ev. border.
     const variants = {
       default: [
-        // T.ex. lite ljusare militärgrön bakgrund.
-        "bg-military-600",
-        "text-white",
-        // Vill du ha en tunnare border i samma ton kan du lägga till:
-        "border border-military-400"
+        "bg-dark-secondary",
+        "text-dark-highlight",
+        "border border-dark-accent"
       ].join(" "),
       destructive: [
         "bg-red-700",

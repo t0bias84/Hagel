@@ -3,8 +3,6 @@
 import React, {
   Suspense,
   lazy,
-  useState,
-  useEffect,
   createContext,
   useContext,
 } from "react";
@@ -13,7 +11,6 @@ import {
   Routes,
   Route,
   Navigate,
-  useNavigate,
 } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { Loader2 } from "lucide-react";
@@ -35,14 +32,16 @@ import ShotgunLoadCreation from "./components/LoadCreation/ShotgunLoadCreation";
 import BulletLoadCreation from "./components/LoadCreation/BulletLoadCreation";
 import EditLoadPage from "./components/LoadCreation/EditLoadPage";
 import LoadListPage from "./components/LoadCreation/LoadListPage";
+import LoadDetailPage from "./components/LoadCreation/LoadDetailPage";
 
 // Quiz-sidor (direktimport)
 import QuizStartPage from "./pages/QuizStartPage";
 import QuizPlayPage from "./pages/QuizPlayPage";
 import QuizResultPage from "./pages/QuizResultPage";
 
-// Language context
-import { LanguageProvider, useLanguage } from "./context/LanguageProvider";
+// Language context och Auth context
+import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
 // === Import av QUIZ-sidor direkt ===
 // (Redan gjort ovan)
@@ -57,102 +56,35 @@ const ShotAnalysisContainer = lazy(() =>
 const UploadPage = lazy(() => import("./pages/UploadPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
+const RegisterPage = lazy(() => import("./pages/RegisterPage"));
+const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
+const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
+const RecoilAnalysisPage = lazy(() => import("./pages/RecoilAnalysisPage"));
+const RecoilAnalysisSelectionPage = lazy(() => import("./pages/RecoilAnalysisSelectionPage"));
 
 // === Importera vår nya ComponentEditPage för att kunna redigera komponenter ===
 import ComponentEditPage from "./pages/ComponentEditPage";
 
 // === NYTT: Lazy-ladda PenetrationTestPage (som du själv skapar) ===
-const PenetrationTestPage = lazy(() =>
-  import("./pages/PenetrationTestPage/PenetrationTestPage")
-);
+const PenetrationTestPage = lazy(() => import("./pages/PenetrationTestPage/PenetrationTestPage"));
 
-// Auth
-export const AuthContext = createContext(null);
+// Admin routes
+import UserManagement from "./components/admin/UserManagement";
 
+// Loading spinner component
 const LoadingSpinner = () => (
-  <div className="flex flex-col justify-center items-center h-screen bg-military-900 text-gray-100">
-    <Loader2 className="h-8 w-8 animate-spin text-military-500 mb-2" />
-    <div className="text-lg font-semibold">Laddar...</div>
+  <div className="flex items-center justify-center h-screen">
+    <Loader2 className="animate-spin h-8 w-8 text-gray-500" />
   </div>
 );
 
-const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/auth/me`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-        } else {
-          handleLogout();
-        }
-      } catch (error) {
-        console.error("Auth check failed:", error);
-        handleLogout();
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkAuth();
-  }, []);
-
-  const handleLogin = (token, userData) => {
-    localStorage.setItem("token", token);
-    setUser(userData);
-    navigate("/dashboard");
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setUser(null);
-    navigate("/login");
-  };
-
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
-  return (
-    <AuthContext.Provider value={{ user, handleLogin, handleLogout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
-
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
-  if (!token) {
+  const { user } = useAuth();
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
-  return (
-    <div className="flex">
-      <Sidebar />
-      <div className="flex-1 overflow-auto bg-military-900 text-gray-100">
-        {children}
-      </div>
-    </div>
-  );
+  return children;
 };
 
 const AppWithLanguage = () => {
@@ -177,13 +109,63 @@ const AppWithLanguage = () => {
             </>
           }
         />
+        
+        <Route
+          path="/register"
+          element={
+            <>
+              <Helmet>
+                <title>
+                  {language === "sv"
+                    ? "Registrera | Hagelskott Analys"
+                    : "Register | Shotgun Analysis"}
+                </title>
+              </Helmet>
+              <RegisterPage />
+            </>
+          }
+        />
+        
+        <Route
+          path="/forgot-password"
+          element={
+            <>
+              <Helmet>
+                <title>
+                  {language === "sv"
+                    ? "Glömt lösenord | Hagelskott Analys"
+                    : "Forgot Password | Shotgun Analysis"}
+                </title>
+              </Helmet>
+              <ForgotPasswordPage />
+            </>
+          }
+        />
+        
+        <Route
+          path="/reset-password"
+          element={
+            <>
+              <Helmet>
+                <title>
+                  {language === "sv"
+                    ? "Återställ lösenord | Hagelskott Analys"
+                    : "Reset Password | Shotgun Analysis"}
+                </title>
+              </Helmet>
+              <ResetPasswordPage />
+            </>
+          }
+        />
 
         {/* Skyddade routes */}
         <Route
           path="/"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <Layout>
+                <Dashboard />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -191,7 +173,9 @@ const AppWithLanguage = () => {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <Layout>
+                <Dashboard />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -201,7 +185,9 @@ const AppWithLanguage = () => {
           path="/forum"
           element={
             <ProtectedRoute>
-              <Forum />
+              <Layout>
+                <Forum />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -209,7 +195,9 @@ const AppWithLanguage = () => {
           path="/forum/new"
           element={
             <ProtectedRoute>
-              <NewThread />
+              <Layout>
+                <NewThread />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -217,7 +205,9 @@ const AppWithLanguage = () => {
           path="/forum/category/:catId"
           element={
             <ProtectedRoute>
-              <CategoryView />
+              <Layout>
+                <CategoryView />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -225,7 +215,9 @@ const AppWithLanguage = () => {
           path="/forum/threads/:threadId"
           element={
             <ProtectedRoute>
-              <ThreadView />
+              <Layout>
+                <ThreadView />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -235,7 +227,9 @@ const AppWithLanguage = () => {
           path="/load-creation"
           element={
             <ProtectedRoute>
-              <LoadTypeSelection />
+              <Layout>
+                <LoadTypeSelection />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -243,7 +237,9 @@ const AppWithLanguage = () => {
           path="/load-creation/shotgun"
           element={
             <ProtectedRoute>
-              <ShotgunLoadCreation />
+              <Layout>
+                <ShotgunLoadCreation />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -251,33 +247,39 @@ const AppWithLanguage = () => {
           path="/load-creation/bullet"
           element={
             <ProtectedRoute>
-              <BulletLoadCreation />
+              <Layout>
+                <BulletLoadCreation />
+              </Layout>
             </ProtectedRoute>
           }
         />
         <Route
-          path="/load-creation/edit/:id"
+          path="/loads"
           element={
             <ProtectedRoute>
-              <EditLoadPage />
+              <Layout>
+                <LoadListPage />
+              </Layout>
             </ProtectedRoute>
           }
         />
         <Route
-          path="/load-list"
+          path="/loads/:id"
           element={
             <ProtectedRoute>
-              <LoadListPage />
+              <Layout>
+                <LoadDetailPage />
+              </Layout>
             </ProtectedRoute>
           }
         />
-
-        {/* NY route: Penetrations-sida för en viss laddning */}
         <Route
-          path="/penetration-test/:loadId"
+          path="/load-edit/:id"
           element={
             <ProtectedRoute>
-              <PenetrationTestPage />
+              <Layout>
+                <EditLoadPage />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -287,7 +289,9 @@ const AppWithLanguage = () => {
           path="/upload-components"
           element={
             <ProtectedRoute>
-              <ComponentsPage />
+              <Layout>
+                <ComponentsPage />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -295,7 +299,43 @@ const AppWithLanguage = () => {
           path="/components/edit/:id"
           element={
             <ProtectedRoute>
-              <ComponentEditPage />
+              <Layout>
+                <ComponentEditPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Penetration Test */}
+        <Route
+          path="/penetration-test"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <PenetrationTestPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Recoil Analysis - endast via laddningar */}
+        <Route
+          path="/analysis/recoil"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <RecoilAnalysisSelectionPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/analysis/recoil/:loadId"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <RecoilAnalysisPage />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -305,7 +345,9 @@ const AppWithLanguage = () => {
           path="/analysis"
           element={
             <ProtectedRoute>
-              <AnalysisList />
+              <Layout>
+                <AnalysisList />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -313,7 +355,9 @@ const AppWithLanguage = () => {
           path="/analysis/:id"
           element={
             <ProtectedRoute>
-              <ShotAnalysisContainer />
+              <Layout>
+                <ShotAnalysisContainer />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -323,7 +367,9 @@ const AppWithLanguage = () => {
           path="/upload"
           element={
             <ProtectedRoute>
-              <UploadPage />
+              <Layout>
+                <UploadPage />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -331,7 +377,9 @@ const AppWithLanguage = () => {
           path="/settings"
           element={
             <ProtectedRoute>
-              <SettingsPage />
+              <Layout>
+                <SettingsPage />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -341,7 +389,9 @@ const AppWithLanguage = () => {
           path="/quiz"
           element={
             <ProtectedRoute>
-              <QuizStartPage />
+              <Layout>
+                <QuizStartPage />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -349,7 +399,9 @@ const AppWithLanguage = () => {
           path="/quiz/play"
           element={
             <ProtectedRoute>
-              <QuizPlayPage />
+              <Layout>
+                <QuizPlayPage />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -357,20 +409,27 @@ const AppWithLanguage = () => {
           path="/quiz/result"
           element={
             <ProtectedRoute>
-              <QuizResultPage />
+              <Layout>
+                <QuizResultPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin routes */}
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <UserManagement />
+              </Layout>
             </ProtectedRoute>
           }
         />
 
         {/* 404 */}
-        <Route
-          path="*"
-          element={
-            <ProtectedRoute>
-              <NotFoundPage />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
   );
@@ -378,23 +437,15 @@ const AppWithLanguage = () => {
 
 function App() {
   return (
-    <Router>
-      <ErrorBoundary>
+    <ErrorBoundary>
+      <Router>
         <LanguageProvider>
           <AuthProvider>
-            <Helmet>
-              <title>Hagelskott Analys</title>
-              <meta
-                name="description"
-                content="Analys av hagelskott och träffmönster"
-              />
-            </Helmet>
-
             <AppWithLanguage />
           </AuthProvider>
         </LanguageProvider>
-      </ErrorBoundary>
-    </Router>
+      </Router>
+    </ErrorBoundary>
   );
 }
 

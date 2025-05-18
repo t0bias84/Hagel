@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
 } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Loader2,
   AlertCircle,
@@ -14,11 +14,82 @@ import {
   ArrowLeftCircle,
   Edit,
   Trash2,
+  ChevronLeft,
+  MessageCircle,
+  Eye,
+  Clock,
+  User,
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { en } from "@/translations/en";
+import { sv } from "@/translations/sv";
+
+import { formatDate } from "@/utils/forumUtils";
+import { getData } from "@/utils/apiUtils";
+
+// CategoryCard component to display subcategories
+function CategoryCard({ category, onClick }) {
+  const { language } = useLanguage();
+  const t = language === 'en' ? en : sv;
+  
+  return (
+    <Card 
+      className="cursor-pointer hover:bg-dark-700 transition-colors"
+      onClick={onClick}
+    >
+      <CardContent className="p-4">
+        <h3 className="font-semibold text-lg mb-2 text-white">{category.name}</h3>
+        {category.description && (
+          <p className="text-sm text-gray-300 mb-2">{category.description}</p>
+        )}
+        <div className="flex items-center text-xs text-gray-400">
+          <span>{category.threadCount || 0} {t.forum.threadCount}</span>
+          <span className="mx-2">•</span>
+          <span>{category.postCount || 0} {t.forum.postCount}</span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ThreadRow component for displaying threads in a category
+function ThreadRow({ thread, onClick }) {
+  const { language } = useLanguage();
+  const t = language === 'en' ? en : sv;
+  
+  return (
+    <div 
+      className="border-b border-dark-600 p-4 hover:bg-dark-700 cursor-pointer transition-colors"
+      onClick={onClick}
+    >
+      <h3 className="font-medium text-white mb-2">{thread.title}</h3>
+      <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400">
+        <div className="flex items-center">
+          <User className="h-3 w-3 mr-1" />
+          <span>{thread.author?.username || t.forum.author}</span>
+        </div>
+        <div className="flex items-center">
+          <Clock className="h-3 w-3 mr-1" />
+          <span>{formatDate(thread.createdAt, language)}</span>
+        </div>
+        <div className="flex items-center">
+          <MessageCircle className="h-3 w-3 mr-1" />
+          <span>{thread.replyCount || 0}</span>
+        </div>
+        <div className="flex items-center">
+          <Eye className="h-3 w-3 mr-1" />
+          <span>{thread.views || 0}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function CategoryView() {
-  const { catId } = useParams();
+  const { categoryId } = useParams();
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const t = language === 'en' ? en : sv;
 
   const [category, setCategory] = useState(null);
   const [threads, setThreads] = useState([]);
@@ -58,60 +129,41 @@ export default function CategoryView() {
         }
 
         // --- B) Hämta kategori-info ---
-        const catRes = await fetch(`${apiBase}/api/forum/categories/${catId}`, {
-          headers,
-        });
-        if (!catRes.ok) {
-          throw new Error("Kunde inte hämta kategoriinfo.");
-        }
-        const catData = await catRes.json();
-        setCategory(catData);
+        const categoryData = await getData(`/api/forum/categories/${categoryId}`);
+        setCategory(categoryData);
 
         // --- C) Försök hämta subkategorier (om endpoint finns) ---
         // Skulle ge 404 om du inte har en sådan endpoint.
         // Om den inte existerar, sätter vi subcategories = []
         try {
-          const subsRes = await fetch(
-            `${apiBase}/api/forum/categories/${catId}/subcategories`,
-            { headers }
-          );
-          if (subsRes.ok) {
-            const dataSubs = await subsRes.json();
-            setSubcategories(dataSubs);
-          } else {
-            setSubcategories([]); // Fallback
-          }
+          const subcategoriesData = await getData(`/api/forum/categories/${categoryId}/subcategories`);
+          setSubcategories(subcategoriesData);
         } catch (subErr) {
-          console.warn("Ingen subkategorilist-endpoint hittad:", subErr);
+          console.warn("No subcategory list endpoint found:", subErr);
           setSubcategories([]);
         }
 
         // --- D) Hämta alla trådar för denna kategori ---
-        const thrRes = await fetch(
-          `${apiBase}/api/forum/categories/${catId}/threads`,
-          { headers }
-        );
-        if (!thrRes.ok) {
-          throw new Error("Kunde inte hämta trådar i denna kategori.");
-        }
-        const thrData = await thrRes.json();
-        setThreads(thrData);
+        const threadsData = await getData(`/api/forum/categories/${categoryId}/threads`);
+        setThreads(threadsData);
       } catch (err) {
-        console.error("Error i CategoryView:", err);
-        setError(err.message || "Ett oväntat fel uppstod.");
+        console.error("Error in CategoryView:", err);
+        setError(err.message || "An unexpected error occurred.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, [catId, apiBase]);
+    if (categoryId) {
+      fetchData();
+    }
+  }, [categoryId, apiBase]);
 
   // ----------------------------------------------------------------------------
   // 2) Ny tråd
   // ----------------------------------------------------------------------------
-  const handleNewThread = () => {
-    navigate(`/forum/new?categoryId=${catId}`);
+  const handleCreateThread = () => {
+    navigate(`/forum/new-thread?category=${categoryId}`);
   };
 
   // ----------------------------------------------------------------------------
@@ -119,7 +171,7 @@ export default function CategoryView() {
   // ----------------------------------------------------------------------------
   const handleDeleteThread = async (threadId) => {
     const confirmDel = window.confirm(
-      "Är du säker på att du vill radera denna tråd?"
+      "Are you sure you want to delete this thread?"
     );
     if (!confirmDel) return;
 
@@ -130,15 +182,15 @@ export default function CategoryView() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
-        throw new Error("Kunde inte radera tråden.");
+        throw new Error("Could not delete the thread.");
       }
 
       // Ta bort lokalt i state
       setThreads((prev) => prev.filter((t) => t.id !== threadId));
-      alert("Tråd raderad!");
+      alert("Thread deleted!");
     } catch (err) {
-      console.error("Fel vid radering av tråd:", err);
-      alert("Misslyckades med att radera tråd.");
+      console.error("Error deleting thread:", err);
+      alert("Failed to delete thread.");
     }
   };
 
@@ -160,7 +212,7 @@ export default function CategoryView() {
         body: JSON.stringify({ title: newTitle.trim() }),
       });
       if (!res.ok) {
-        throw new Error("Kunde inte uppdatera tråd.");
+        throw new Error("Could not update thread.");
       }
       const updated = await res.json();
 
@@ -168,10 +220,10 @@ export default function CategoryView() {
       setThreads((prev) =>
         prev.map((t) => (t.id === thread.id ? { ...t, title: updated.title } : t))
       );
-      alert("Tråd uppdaterad!");
+      alert("Thread updated!");
     } catch (err) {
-      console.error("Fel vid uppdatering av tråd:", err);
-      alert("Misslyckades med att uppdatera tråd.");
+      console.error("Error updating thread:", err);
+      alert("Failed to update thread.");
     }
   };
 
@@ -183,7 +235,7 @@ export default function CategoryView() {
       <div className="flex h-[60vh] justify-center items-center">
         <div className="flex flex-col items-center gap-2 text-gray-700">
           <Loader2 className="w-6 h-6 animate-spin text-green-600" />
-          <p>Laddar kategori...</p>
+          <p>{t.common.loading}</p>
         </div>
       </div>
     );
@@ -194,6 +246,7 @@ export default function CategoryView() {
       <div className="max-w-2xl mx-auto p-4">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
+          <AlertTitle>{t.common.error}</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       </div>
@@ -205,7 +258,7 @@ export default function CategoryView() {
       <div className="max-w-2xl mx-auto p-4">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>Kategorin hittades inte.</AlertDescription>
+          <AlertDescription>Category not found.</AlertDescription>
         </Alert>
       </div>
     );
@@ -223,14 +276,14 @@ export default function CategoryView() {
           className="flex items-center gap-1 text-sm px-3 py-1 rounded hover:bg-gray-100 transition"
         >
           <ArrowLeftCircle className="w-4 h-4 text-gray-500" />
-          <span>Tillbaka</span>
+          <span>{t.common.back}</span>
         </button>
         <button
-          onClick={handleNewThread}
+          onClick={handleCreateThread}
           className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm"
         >
           <Plus className="w-4 h-4" />
-          Ny tråd
+          {t.forum.newThread}
         </button>
       </div>
 
@@ -241,32 +294,27 @@ export default function CategoryView() {
             {category.name}
           </CardTitle>
           {category.description && (
-            <p className="text-sm text-gray-500 mt-1">{category.description}</p>
+            <p className="text-sm text-gray-300 dark:text-gray-300 mt-1">{category.description}</p>
           )}
         </CardHeader>
       </Card>
 
-      {/* Ev. subkategorier */}
+      {/* Subcategories */}
       {subcategories.length > 0 && (
         <Card className="shadow">
           <CardHeader>
-            <CardTitle className="text-sm font-medium">Underkategorier</CardTitle>
+            <CardTitle className="text-sm font-medium">{t.forum.subcategories}</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {subcategories.map((sub) => (
-                <li
-                  key={sub.id}
-                  onClick={() => navigate(`/forum/category/${sub.id}`)}
-                  className="p-3 border border-gray-200 rounded cursor-pointer hover:bg-gray-50 transition"
-                >
-                  <div className="font-semibold text-gray-800">{sub.name}</div>
-                  {sub.description && (
-                    <div className="text-sm text-gray-600">{sub.description}</div>
-                  )}
-                </li>
+                <CategoryCard 
+                  key={sub._id} 
+                  category={sub}
+                  onClick={() => navigate(`/forum/category/${sub._id}`)}
+                />
               ))}
-            </ul>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -275,81 +323,23 @@ export default function CategoryView() {
       <Card className="shadow">
         <CardHeader>
           <CardTitle className="text-sm font-medium">
-            Trådar ({threads.length})
+            {t.forum.threadsInCategory} ({threads.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
           {threads.length === 0 ? (
-            <p className="text-sm text-gray-500 italic">
-              Inga trådar ännu. Var först med att skapa en!
+            <p className="text-sm text-gray-300 dark:text-gray-300 italic">
+              {t.forum.noThreadsBeFirst}
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-gray-100 text-gray-700 text-sm">
-                    <th className="p-2 font-medium">Titel</th>
-                    <th className="p-2 font-medium">Skapad av</th>
-                    <th className="p-2 font-medium">Skapad</th>
-                    <th className="p-2 font-medium w-24">Åtgärder</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {threads.map((thread) => (
-                    <tr
-                      key={thread.id}
-                      className="border-b hover:bg-gray-50 text-sm"
-                    >
-                      <td
-                        className="p-2 cursor-pointer text-blue-600 underline"
-                        onClick={() => navigate(`/forum/threads/${thread.id}`)}
-                      >
-                        {thread.title}
-                      </td>
-                      <td className="p-2 text-gray-700">
-                        {thread.author_id || "Okänd"}
-                      </td>
-                      <td className="p-2 text-gray-600">
-                        {thread.created_at
-                          ? new Date(thread.created_at).toLocaleDateString("sv-SE", {
-                              year: "numeric",
-                              month: "2-digit",
-                              day: "2-digit",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })
-                          : ""}
-                      </td>
-                      <td className="p-2">
-                        {isAdmin ? (
-                          <div className="flex gap-2">
-                            {/* Edit-knapp */}
-                            <button
-                              onClick={() => handleEditThread(thread)}
-                              title="Redigera tråd"
-                              className="text-yellow-600 hover:text-yellow-800"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            {/* Delete-knapp */}
-                            <button
-                              onClick={() => handleDeleteThread(thread.id)}
-                              title="Radera tråd"
-                              className="text-red-600 hover:text-red-800"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-gray-400 italic">
-                            Ingen åtgärd
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="divide-y divide-dark-600">
+              {threads.map((thread) => (
+                <ThreadRow 
+                  key={thread._id} 
+                  thread={thread}
+                  onClick={() => navigate(`/forum/thread/${thread._id}`)}
+                />
+              ))}
             </div>
           )}
         </CardContent>

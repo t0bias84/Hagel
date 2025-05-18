@@ -407,3 +407,103 @@ async def reset_user_settings(current_user: User = Depends(get_current_active_us
     except Exception as e:
         logger.error(f"Settings reset error: {str(e)}")
         raise HTTPException(status_code=500, detail="Kunde inte återställa inställningar")
+
+
+@router.get("/profile/{user_id}", response_model=UserProfile)
+async def get_user_profile_by_id(user_id: str):
+    """
+    Hämta användarprofil baserat på användar-ID
+    Om användaren inte hittas returneras en default profil
+    """
+    try:
+        # Skapa en default profil som används om något går fel
+        default_profile = {
+            "username": f"user_{user_id[:8]}",
+            "displayName": f"Användare {user_id[:8]}",
+            "bio": "",
+            "location": "",
+            "imageUrl": None,
+            "experience": "",
+            "preferredDisciplines": [],
+            "created_at": datetime.utcnow()
+        }
+
+        database = await db.get_database()
+        users_coll = database["users"]
+        profiles_coll = database["profiles"]
+
+        # Försök hitta användaren
+        try:
+            user = await users_coll.find_one({"_id": ObjectId(user_id)})
+            if not user:
+                logger.warning(f"User not found for ID: {user_id}")
+                return UserProfile(**default_profile)
+        except Exception as e:
+            logger.error(f"Invalid ObjectId format or other error: {str(e)}")
+            return UserProfile(**default_profile)
+
+        # Hämta profilen
+        try:
+            profile = await profiles_coll.find_one({"username": user["username"]})
+            if not profile:
+                # Om ingen profil finns, skapa en standardprofil
+                profile = {
+                    "username": user["username"],
+                    "displayName": user["username"],
+                    "bio": "",
+                    "location": "",
+                    "imageUrl": None,
+                    "experience": "",
+                    "preferredDisciplines": [],
+                    "created_at": datetime.utcnow()
+                }
+                await profiles_coll.insert_one(profile)
+            return UserProfile(**profile)
+        except Exception as e:
+            logger.error(f"Error fetching/creating profile: {str(e)}")
+            return UserProfile(**default_profile)
+
+    except Exception as e:
+        logger.error(f"Error in get_user_profile_by_id: {str(e)}")
+        return UserProfile(**default_profile)
+
+
+@router.get("/", response_model=List[User])
+async def get_users(current_user: UserInDB = Depends(get_current_active_user)):
+    """
+    Hämta lista över alla användare
+    """
+    database = await db.get_database()
+    users = await database.users.find(
+        {"disabled": False},
+        {"hashed_password": 0}  # Exkludera lösenordshash
+    ).to_list(None)
+    return users
+
+
+@router.get("", response_description="List all users")
+async def list_users(limit: int = 10, skip: int = 0):
+    """
+    Hämta en lista över användare. 
+    Denna endpoint kräver inte autentisering för att användas av forumet.
+    """
+    try:
+        users = []
+        cursor = db.users.find().skip(skip).limit(limit)
+        
+        async for user in cursor:
+            # Rensa bort känslig information som lösenord
+            user_data = {
+                "id": str(user["_id"]),
+                "username": user["username"],
+                "email": user.get("email", ""),
+                "disabled": user.get("disabled", False),
+                "roles": user.get("roles", []),
+                "created_at": user.get("created_at", datetime.utcnow()),
+            }
+            users.append(user_data)
+        
+        return users
+    except Exception as e:
+        logger.error(f"Error fetching users: {str(e)}")
+        raise HTTPException(status_code=500, detail="Kunde inte hämta användare")

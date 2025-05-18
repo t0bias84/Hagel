@@ -29,7 +29,7 @@ export default function ComponentsPage() {
   const [selectedType, setSelectedType] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Ny komponent “default”
+  // Ny komponent "default"
   const [newComponent, setNewComponent] = useState({
     name: "",
     type: "powder",
@@ -70,7 +70,7 @@ export default function ComponentsPage() {
       const res = await fetch("http://localhost:8000/api/components", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error("Kunde inte hämta komponenter");
+      if (!res.ok) throw new Error("Could not fetch components");
 
       const data = await res.json();
       // Sortera
@@ -225,9 +225,9 @@ export default function ComponentsPage() {
 
         {/* Laddar... */}
         {loading && (
-          <div className="flex items-center gap-2 text-gray-300 mb-4">
-            <Loader2 className="h-5 w-5 animate-spin text-green-400" />
-            <span>Laddar komponenter...</span>
+          <div className="flex flex-col items-center gap-2 text-gray-700">
+            <Loader2 className="w-6 h-6 animate-spin text-green-600" />
+            <span>Loading components...</span>
           </div>
         )}
 
@@ -295,7 +295,9 @@ export default function ComponentsPage() {
 
                 {/* Typ */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Typ</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Type <span className="text-red-500">*</span>
+                  </label>
                   <select
                     value={newComponent.type}
                     onChange={(e) =>
@@ -388,9 +390,9 @@ export default function ComponentsPage() {
                         className="absolute inset-0 opacity-0 cursor-pointer"
                       />
                     </div>
-                    <p className="text-sm text-gray-400">
-                      Klicka för att välja bild (max 5MB)
-                    </p>
+                    <div className="text-center p-8 text-gray-500">
+                      Click to select image (max 5MB)
+                    </div>
                   </div>
                 </div>
               </div>
@@ -439,9 +441,10 @@ export default function ComponentsPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-500 transition-colors"
+                  disabled={loading}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                 >
-                  Spara
+                  Save
                 </button>
               </div>
             </form>
@@ -449,70 +452,74 @@ export default function ComponentsPage() {
         )}
 
         {/* Lista av befintliga komponenter */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredComponents.map((comp) => (
-            <div
-              key={comp._id}
-              className="bg-military-800 rounded p-4 hover:bg-military-700 transition-colors"
-            >
-              <div className="flex items-start gap-4">
-                {comp.image?.url ? (
-                  <img
-                    src={comp.image.url}
-                    alt={comp.name}
-                    className="w-20 h-20 rounded object-cover"
-                  />
-                ) : (
-                  <div className="w-20 h-20 bg-military-700 rounded flex items-center justify-center">
-                    <Camera className="w-8 h-8 text-gray-400" />
-                  </div>
-                )}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          {Object.entries(groupedTypes).map(([category, types]) => (
+            types.map(type => {
+              const typeComponents = filteredComponents.filter(comp => comp.type === type.id);
+              if (typeComponents.length === 0) return null;
+              
+              return (
+                <div key={type.id} className="bg-military-800 rounded-lg p-3">
+                  <h3 className="text-sm font-semibold mb-2 text-gray-300">{type.name}</h3>
+                  <div className="space-y-2">
+                    {typeComponents.map((comp) => (
+                      <div
+                        key={comp._id}
+                        className="bg-military-700 rounded p-2 hover:bg-military-600 transition-colors"
+                      >
+                        <div className="flex items-start gap-2">
+                          {comp.image?.url ? (
+                            <img
+                              src={comp.image.url}
+                              alt={comp.name}
+                              className="w-12 h-12 rounded object-cover"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-military-600 rounded flex items-center justify-center">
+                              <Camera className="w-6 h-6 text-gray-400" />
+                            </div>
+                          )}
 
-                <div className="flex-1">
-                  <div className="flex justify-between">
-                    <h3 className="font-semibold">{comp.name}</h3>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleEdit(comp._id)}
-                        className="text-blue-400 p-1 hover:text-blue-300"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(comp._id)}
-                        className="text-red-400 p-1 hover:text-red-300"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-start">
+                              <h4 className="text-sm font-medium truncate">{comp.name}</h4>
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={() => handleEdit(comp._id)}
+                                  className="text-blue-400 p-1 hover:text-blue-300"
+                                >
+                                  <Edit className="w-3 h-3" />
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(comp._id)}
+                                  className="text-red-400 p-1 hover:text-red-300"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                            <p className="text-xs text-gray-400 truncate">{comp.manufacturer || "—"}</p>
+                            {comp.caliber && (
+                              <span className="inline-block mt-1 px-1.5 py-0.5 text-[10px] bg-military-600 rounded">
+                                {comp.caliber}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <p className="text-sm text-gray-400">{comp.manufacturer || "—"}</p>
-                  <div className="mt-2 flex gap-2 flex-wrap">
-                    <span className="px-2 py-1 text-xs bg-military-700 rounded">
-                      {comp.type}
-                    </span>
-                    {comp.caliber && (
-                      <span className="px-2 py-1 text-xs bg-military-700 rounded">
-                        Kaliber {comp.caliber}
-                      </span>
-                    )}
-                  </div>
-                  {comp.description && (
-                    <p className="text-sm text-gray-300 mt-2 line-clamp-2">
-                      {comp.description}
-                    </p>
-                  )}
                 </div>
-              </div>
-            </div>
+              );
+            })
           ))}
         </div>
 
-        {/* Om vi inte laddar & inga filter-resultat */}
+        {/* If not loading & no filter results */}
         {!loading && filteredComponents.length === 0 && (
-          <p className="text-center text-gray-400 mt-6">
-            Inga komponenter matchade din sökning.
-          </p>
+          <div className="text-center py-8 text-gray-500">
+            No components match your search criteria.
+          </div>
         )}
       </div>
     </div>

@@ -6,7 +6,7 @@ import logging
 import traceback
 import json
 import asyncio
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from contextlib import asynccontextmanager
 from typing import Dict, Any, Optional
 
@@ -46,7 +46,8 @@ from fastapi import (
     File,
     Form,
     UploadFile,
-    status
+    status,
+    Query
 )
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -70,9 +71,10 @@ from app.services.pattern_analysis import PatternAnalyzer
 from app.core.targets import get_target, get_available_targets
 
 # Forum-relaterade routrar
-from app.api.forum_categories import router as forum_categories_router, seed_forum_categories
+from app.api.forum_categories import router as forum_categories_router, seed_forum_categories_internal
 from app.api.forum_threads import router as forum_threads_router
 from app.api.forum_happenings import router as forum_happenings_router
+from app.api.routes.social import router as social_router
 
 # Övriga routrar
 from app.api.routes.loads import router as loads_router
@@ -80,6 +82,9 @@ from app.api.routes.components import router as components_router
 from app.api.routes import analysis, auth, users
 from app.api.routes.auth import get_current_active_user, User, create_test_users
 from app.api.routes import quiz as quiz_router
+from app.api.routes import admin
+from app.api.websocket import websocket_endpoint
+from app.api.users import router as users_router
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +100,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ----------- OAuth2 -----------
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 #################################################################
 # Du kan definiera en bas-URL för bilder om du vill.
@@ -119,6 +124,10 @@ async def lifespan(app: FastAPI):
             upload_path = settings.UPLOAD_DIR / subdir
             upload_path.mkdir(parents=True, exist_ok=True)
         logger.info("Upload directories created")
+
+        # 3) Seed forum categories
+        await seed_forum_categories_internal()
+        logger.info("Forum categories seeded")
 
     except Exception as e:
         logger.error(f"Startup error: {str(e)}")
@@ -151,20 +160,40 @@ app = FastAPI(
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 #################################################################
+# CORS Debugging
+#################################################################
+@app.middleware("http")
+async def cors_debugging_middleware(request, call_next):
+    """
+    Middleware for debugging CORS issues.
+    Logs information about each request's origin and headers.
+    """
+    # Log request details
+    origin = request.headers.get("origin", "No Origin")
+    method = request.method
+    path = request.url.path
+    
+    logger.info(f"CORS Debug - Request from: {origin}, Method: {method}, Path: {path}")
+    logger.info(f"Request headers: {dict(request.headers)}")
+    
+    # Process the request
+    response = await call_next(request)
+    
+    # Log response headers (for CORS debugging)
+    logger.info(f"CORS Debug - Response headers: {dict(response.headers)}")
+    
+    return response
+
+#################################################################
 # CORS
 #################################################################
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"],
+    expose_headers=["*"]
 )
 
 #################################################################
@@ -172,7 +201,11 @@ app.add_middleware(
 #################################################################
 
 # Forum categories
-app.include_router(forum_categories_router)
+app.include_router(
+    forum_categories_router,
+    prefix="/api/forum",
+    tags=["Forum Categories"]
+)
 
 # Forum threads
 app.include_router(
@@ -212,10 +245,9 @@ app.include_router(
 
 # Users
 app.include_router(
-    users.router,
+    users_router,
     prefix="/api/users",
-    tags=["users"],
-    dependencies=[Depends(get_current_active_user)]
+    tags=["users"]
 )
 
 # Forum happenings
@@ -225,12 +257,26 @@ app.include_router(
     tags=["Forum Actions"]
 )
 
+# Social
+app.include_router(social_router, prefix="/api/social", tags=["social"])
+
 # Quiz
 app.include_router(
     quiz_router.router,
     prefix="/api",
     tags=["quiz"]
 )
+
+# Admin routes
+app.include_router(
+    admin.router,
+    prefix="/api/admin",
+    tags=["admin"],
+    dependencies=[Depends(get_current_active_user)]
+)
+
+# WebSocket endpoint
+app.add_websocket_route("/ws", websocket_endpoint)
 
 #################################################################
 # OM du förut hade: app.include_router(settings.router, ...)
@@ -263,7 +309,7 @@ async def init_data_on_startup():
         database = await db.get_database()
 
         # 1) seed forumkategorier
-        await seed_forum_categories()
+        await seed_forum_categories_internal()
 
         # 2) test_user + admin_user
         await create_test_users(database)
@@ -294,6 +340,10 @@ class Notification(BaseModel):
     type: str
     read: bool
     created_at: datetime
+    
+    model_config = {
+        "arbitrary_types_allowed": True
+    }
 
 class ForumPost(BaseModel):
     id: str
@@ -302,6 +352,10 @@ class ForumPost(BaseModel):
     content: str
     created_at: datetime
     replies: int
+    
+    model_config = {
+        "arbitrary_types_allowed": True
+    }
 
 class UserSettings(BaseModel):
     interface: Dict[str, Any]
@@ -669,22 +723,115 @@ async def root():
         "status": "operational"
     }
 
-@app.get("/health")
-async def health_check():
+@app.get("/api/test")
+async def test_endpoint():
+    return {"message": "Backend is responding!", "timestamp": datetime.now().isoformat()}
+
+#################################################################
+# Loads statistik
+#################################################################
+@app.get("/api/loads/mine/stats")
+async def get_my_loads_stats(current_user: User = Depends(get_current_active_user)):
     try:
         database = await db.get_database()
-        await database.command("ping")
-        db_status = "connected"
+        loads_coll = database["loads"]
+        
+        # Räkna användarens laddningar
+        load_count = await loads_coll.count_documents({"user_id": str(current_user.id)})
+        
+        # Räkna totala visningar för användarens laddningar
+        pipeline = [
+            {"$match": {"user_id": str(current_user.id)}},
+            {"$group": {
+                "_id": None,
+                "totalViews": {"$sum": "$views"}
+            }}
+        ]
+        result = await loads_coll.aggregate(pipeline).to_list(length=1)
+        total_views = result[0]["totalViews"] if result else 0
+        
+        return {
+            "loadCount": load_count,
+            "totalViews": total_views
+        }
     except Exception as e:
-        logger.error(f"Database health check failed: {str(e)}")
-        db_status = "disconnected"
+        logger.error(f"Error fetching loads stats: {str(e)}")
+        raise HTTPException(status_code=500, detail="Kunde inte hämta laddningsstatistik")
 
-    return {
-        "status": "healthy" if db_status == "connected" else "unhealthy",
-        "database": db_status,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "version": settings.VERSION,
-    }
+#################################################################
+# Forum mest gillade/ogillade inlägg
+#################################################################
+@app.get("/api/forum/mostliked")
+async def get_most_liked_posts(
+    week: bool = Query(False, description="Om true, returnera bara inlägg från senaste veckan"),
+    current_user: User = Depends(get_current_active_user)
+):
+    try:
+        database = await db.get_database()
+        posts_coll = database["forum_posts"]
+        
+        # Skapa matchning för datum om week=True
+        match_stage = {}
+        if week:
+            one_week_ago = datetime.now(timezone.utc) - timedelta(days=7)
+            match_stage = {"created_at": {"$gte": one_week_ago}}
+        
+        pipeline = [
+            {"$match": match_stage},
+            {"$sort": {"likes": -1}},
+            {"$limit": 1}
+        ]
+        
+        result = await posts_coll.aggregate(pipeline).to_list(length=1)
+        if not result:
+            return None
+            
+        post = result[0]
+        return {
+            "id": str(post["_id"]),
+            "title": post.get("title", ""),
+            "author": post.get("author", ""),
+            "likeCount": post.get("likes", 0)
+        }
+    except Exception as e:
+        logger.error(f"Error fetching most liked posts: {str(e)}")
+        raise HTTPException(status_code=500, detail="Kunde inte hämta mest gillade inlägg")
+
+@app.get("/api/forum/mostdisliked")
+async def get_most_disliked_posts(
+    week: bool = Query(False, description="Om true, returnera bara inlägg från senaste veckan"),
+    current_user: User = Depends(get_current_active_user)
+):
+    try:
+        database = await db.get_database()
+        posts_coll = database["forum_posts"]
+        
+        # Skapa matchning för datum om week=True
+        match_stage = {}
+        if week:
+            one_week_ago = datetime.now(timezone.utc) - timedelta(days=7)
+            match_stage = {"created_at": {"$gte": one_week_ago}}
+        
+        pipeline = [
+            {"$match": match_stage},
+            {"$sort": {"dislikes": -1}},
+            {"$limit": 1}
+        ]
+        
+        result = await posts_coll.aggregate(pipeline).to_list(length=1)
+        if not result:
+            return None
+            
+        post = result[0]
+        return {
+            "id": str(post["_id"]),
+            "title": post.get("title", ""),
+            "author": post.get("author", ""),
+            "dislikeCount": post.get("dislikes", 0)
+        }
+    except Exception as e:
+        logger.error(f"Error fetching most disliked posts: {str(e)}")
+        raise HTTPException(status_code=500, detail="Kunde inte hämta mest ogillade inlägg")
 
 #################################################################
 # Error-handlers
@@ -720,9 +867,44 @@ async def general_exception_handler(request: Request, exc: Exception):
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",
-        host="127.0.0.1",
+        host="0.0.0.0",
         port=8000,
         workers=settings.WORKER_COUNT,
         reload=True,
         log_level=settings.LOG_LEVEL.lower(),
     )
+
+#################################################################
+# Hälsokontroll för API
+#################################################################
+@app.get("/api/health", tags=["Health"])
+async def health_check():
+    """
+    Enkel hälsokontroll för att verifiera att API:et fungerar
+    """
+    logger.info("Health check endpoint accessed")
+    print("HEALTH CHECK ACCESSED")  # Explicit console print for debugging
+    
+    db_ok = False
+    try:
+        database = await db.get_database()
+        await database.command("ping")
+        db_ok = True
+        logger.info("Database connection verified successfully")
+    except Exception as e:
+        logger.error(f"Database connection check failed: {e}")
+    
+    response = {
+        "status": "ok",
+        "api_version": settings.VERSION,
+        "timestamp": datetime.now().isoformat(),
+        "environment": settings.ENVIRONMENT,
+        "database_connection": db_ok
+    }
+    logger.info(f"Health check response: {response}")
+    return response
+
+# Lägg till en test-endpoint för att verifiera CORS
+@app.get("/api/test-cors")
+async def test_cors():
+    return {"message": "CORS test successful", "timestamp": datetime.now().isoformat()}

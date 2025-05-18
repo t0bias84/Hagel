@@ -231,14 +231,14 @@ export default function AnalysisList() {
     <div className="container mx-auto p-6 space-y-6">
       {/* Toppsektion */}
       <div className="flex justify-between items-center mb-2">
-        <h1 className="text-2xl font-bold text-gray-800">Analyshistorik</h1>
+        <h1 className="text-2xl font-bold text-gray-50">Analyshistorik</h1>
         <Link
           to="/upload"
           className="
-            px-4 py-2 bg-green-600 text-white rounded-md 
-            hover:bg-green-700 transition-colors
+            px-4 py-2 bg-red-600 text-white rounded-md 
+            hover:bg-red-700 transition-colors
             focus:outline-none focus:ring-2 
-            focus:ring-offset-2 focus:ring-green-500
+            focus:ring-offset-2 focus:ring-red-500
           "
         >
           Ny analys
@@ -354,7 +354,7 @@ export default function AnalysisList() {
             {/* Datum */}
             <button
               onClick={() => handleSort("date")}
-              className="flex items-center gap-1 text-gray-600 hover:text-green-600"
+              className="flex items-center gap-1 text-gray-200 hover:text-red-400"
             >
               <Calendar className="h-4 w-4" />
               <span>Datum</span>
@@ -364,7 +364,7 @@ export default function AnalysisList() {
             {/* Träffar */}
             <button
               onClick={() => handleSort("hits")}
-              className="flex items-center gap-1 text-gray-600 hover:text-green-600"
+              className="flex items-center gap-1 text-gray-200 hover:text-red-400"
             >
               <span>Träffar</span>
               {sortConfig.key === "hits" && <ArrowUpDown className="h-4 w-4" />}
@@ -373,7 +373,7 @@ export default function AnalysisList() {
             {/* Täckning */}
             <button
               onClick={() => handleSort("pattern")}
-              className="flex items-center gap-1 text-gray-600 hover:text-green-600"
+              className="flex items-center gap-1 text-gray-200 hover:text-red-400"
             >
               <span>Täckning</span>
               {sortConfig.key === "pattern" && <ArrowUpDown className="h-4 w-4" />}
@@ -397,7 +397,7 @@ export default function AnalysisList() {
             return (
               <div
                 key={analysis._id}
-                className="flex items-center gap-4 bg-white p-4 rounded shadow-sm hover:shadow-md transition-shadow"
+                className="flex items-center gap-4 bg-military-800 p-4 rounded shadow-sm hover:shadow-md transition-shadow border border-military-600"
               >
                 {/* Länka in i mitten: Info-del (namn, kaliber, datum) */}
                 <Link
@@ -405,13 +405,13 @@ export default function AnalysisList() {
                   className="flex-1 flex items-center gap-4"
                 >
                   <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-gray-800">
+                    <span className="text-base font-semibold text-gray-100">
                       {loadTitle}
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-sm text-gray-100">
                       Kaliber: {shotgun.gauge ?? "??"} • {shotgun.manufacturer ?? ""} {shotgun.model ?? ""}
                     </span>
-                    <span className="text-xs text-gray-400">
+                    <span className="text-sm text-gray-100">
                       {formatDate(analysis.created_at)}
                     </span>
                   </div>

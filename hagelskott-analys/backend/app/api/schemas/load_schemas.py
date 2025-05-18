@@ -91,11 +91,17 @@ class ShotshellLoadBase(BaseModel):
     gauge: str = Field(..., example="12")         # Ex. "12", "20"
     shellLength: float = Field(..., example=70.0) # Ex. 70 mm, 76 mm etc.
 
+    # Gamla fält (bakåtkompatibilitet)
     hullId: Optional[str] = None
     primerId: Optional[str] = None
     powderId: Optional[str] = None
-    powderCharge: Optional[float] = None  # i gram
+    powderWeight: Optional[float] = None  # Nytt fält för krutvikt i gram
     wadId: Optional[str] = None
+    shotWeight: Optional[float] = None    # Nytt fält för hagelvikt i gram
+    shotObject: Optional[Dict[str, Any]] = None  # Nytt fält för hageltyp
+
+    # Nya fält för components array
+    components: Optional[List[Dict[str, Any]]] = None
 
     shotLoads: Optional[List[ShotLoad]] = None  # om det är hagel
     slug: Optional[Dict[str, Any]] = None       # om det är slug
@@ -108,6 +114,47 @@ class ShotshellLoadBase(BaseModel):
 
     # Kom ihåg att ställa in category="shotshell" om du vill
     category: str = Field(default="shotshell", example="shotshell")
+
+    def process_components(self):
+        """Konverterar components array till individuella fält"""
+        if not self.components:
+            return
+        
+        for comp in self.components:
+            comp_type = comp.get("type")
+            comp_id = comp.get("id")
+            comp_weight = comp.get("weight")
+
+            if comp_type == "hull":
+                self.hullId = comp_id
+            elif comp_type == "primer":
+                self.primerId = comp_id
+            elif comp_type == "powder":
+                self.powderId = comp_id
+                self.powderWeight = comp_weight  # Uppdaterat för att använda powderWeight
+            elif comp_type == "wad":
+                self.wadId = comp_id
+            elif comp_type == "shot":
+                if not self.shotLoads:
+                    self.shotLoads = []
+                shot_load = ShotLoad(
+                    material=comp.get("material", "lead"),
+                    weight_g=comp_weight,
+                    shotSize=comp.get("shotSize")
+                )
+                self.shotLoads.append(shot_load)
+                self.shotWeight = comp_weight  # Uppdaterat för att spara hagelvikt
+                self.shotObject = {  # Lägg till shotObject för hageltyp
+                    "name": comp.get("material", "lead"),
+                    "type": "shot",
+                    "material": comp.get("material", "lead"),
+                    "size": comp.get("shotSize")
+                }
+            elif comp_type == "slug":
+                self.slug = {
+                    "modelId": comp_id,
+                    "weight_g": comp_weight
+                }
 
 
 class ShotshellLoadCreate(ShotshellLoadBase):

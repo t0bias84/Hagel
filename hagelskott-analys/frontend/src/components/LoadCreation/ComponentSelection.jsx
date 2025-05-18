@@ -22,7 +22,7 @@ const ComponentCard = ({ component, onClick, isSelected }) => {
       </div>
       <p className="text-sm text-gray-600 mt-1">{component.details}</p>
       {component.height > 0 && (
-        <p className="text-xs text-gray-500 mt-1">Höjd: {component.height} mm</p>
+        <p className="text-xs text-gray-500 mt-1">Height: {component.height} mm</p>
       )}
     </div>
   );
@@ -33,23 +33,23 @@ const ComponentCard = ({ component, onClick, isSelected }) => {
  * Du kan utöka listan med egna.
  */
 const LOAD_PURPOSES = [
-  { id: 'clay', label: 'Lerduvor' },
-  { id: 'dove', label: 'Duvjakt' },
-  { id: 'duck', label: 'Andjakt' },
-  { id: 'roe',  label: 'Rådjursjakt' },
-  { id: 'boar', label: 'Vildsvin' }
+  { id: 'clay', label: 'Clay Dove' },
+  { id: 'dove', label: 'Dove Hunt' },
+  { id: 'duck', label: 'Duck Hunt' },
+  { id: 'roe',  label: 'Roe Hunt' },
+  { id: 'boar', label: 'Boar' }
 ];
 
 /**
  * Olika kategorier (typer) av komponenter som kan finnas i hagelladdning.
  */
 const CATEGORIES = [
-  { name: 'Tändhattar',   type: 'primer', showQuantity: false },
-  { name: 'Krut',         type: 'powder', showQuantity: true  },
-  { name: 'Förladdning',  type: 'wad',    showQuantity: false },
-  { name: 'Hagel',        type: 'shot',   showQuantity: true  },
-  { name: 'Utfyllnad',    type: 'spacer', showQuantity: false },
-  { name: 'Förslutning',  type: 'closure',showQuantity: false },
+  { name: 'Primer',   type: 'primer', showQuantity: false },
+  { name: 'Powder',   type: 'powder', showQuantity: true  },
+  { name: 'Wad',       type: 'wad',    showQuantity: false },
+  { name: 'Shot',      type: 'shot',   showQuantity: true  },
+  { name: 'Spacer',    type: 'spacer', showQuantity: false },
+  { name: 'Closure',   type: 'closure',showQuantity: false },
 ];
 
 /**
@@ -210,7 +210,7 @@ const ComponentSelection = ({ onAddComponent, caliber, shellLength }) => {
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Sök komponenter..."
+            placeholder="Search components..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -220,7 +220,7 @@ const ComponentSelection = ({ onAddComponent, caliber, shellLength }) => {
           <button
             onClick={clearSearch}
             className="text-gray-500 hover:text-gray-800 transition"
-            aria-label="Rensa sökfält"
+            aria-label="Clear search"
           >
             <XCircle className="w-5 h-5" />
           </button>
@@ -229,7 +229,7 @@ const ComponentSelection = ({ onAddComponent, caliber, shellLength }) => {
 
       {/* Användningsområden (filter) */}
       <div>
-        <h3 className="text-sm font-medium text-gray-700 mb-2">Användningsområde</h3>
+        <h3 className="text-sm font-medium text-gray-700 mb-2">Usage area</h3>
         <div className="flex flex-wrap gap-2">
           {LOAD_PURPOSES.map(purpose => (
             <button
@@ -280,7 +280,7 @@ const ComponentSelection = ({ onAddComponent, caliber, shellLength }) => {
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-gray-500">Inga matchande komponenter</p>
+                <p className="text-xs text-gray-500">No matching components</p>
               )}
             </div>
           );
@@ -314,13 +314,13 @@ const ComponentSelection = ({ onAddComponent, caliber, shellLength }) => {
                 onClick={() => setSelectedComponent(null)}
                 className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 transition"
               >
-                Avbryt
+                Cancel
               </button>
               <button
                 onClick={handleAddComponent}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
               >
-                Lägg till
+                Add
               </button>
             </div>
           </div>

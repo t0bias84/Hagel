@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Dict
 from app.db.mongodb import db
 from app.api.routes.auth import get_current_active_user
 
@@ -80,6 +80,39 @@ class PrivacySettings(BaseModel):
     showLoadingData: bool = Field(default=True)
     showForumStats: bool = Field(default=True)
 
+class SocialSettings(BaseModel):
+    allowFriendRequests: bool = True
+    allowMessages: bool = True
+    allowGroupInvites: bool = True
+    showActivity: bool = True
+    blockedUsers: List[str] = Field(default_factory=list)
+    preferredCommunication: str = "both"  # "messages", "comments", "both"
+    notificationPreferences: Dict[str, bool] = Field(
+        default_factory=lambda: {
+            "friendRequests": True,
+            "messages": True,
+            "mentions": True,
+            "loadingComments": True,
+            "groupInvites": True
+        }
+    )
+
+class NotificationSettings(BaseModel):
+    email: bool = True
+    browser: bool = True
+    mobile: bool = False
+    frequency: str = "instant"  # "instant", "daily", "weekly"
+    types: Dict[str, bool] = Field(
+        default_factory=lambda: {
+            "friendRequests": True,
+            "messages": True,
+            "mentions": True,
+            "loadingComments": True,
+            "groupInvites": True,
+            "achievements": True
+        }
+    )
+
 #
 # --- Huvudmodell för user settings ---
 #
@@ -91,7 +124,9 @@ class UserSettings(BaseModel):
     equipment: Equipment = Field(default_factory=Equipment)
     connectedAccounts: ConnectedAccounts = Field(default_factory=ConnectedAccounts)
     achievements: Achievements = Field(default_factory=Achievements)
-    security: SecuritySettings = Field(default_factory=SecuritySettings)   # <-- NYTT
+    security: SecuritySettings = Field(default_factory=SecuritySettings)
+    social: SocialSettings = Field(default_factory=SocialSettings)
+    notifications: NotificationSettings = Field(default_factory=NotificationSettings)
 
     displayName: str = "MinProfil"
     bio: str = "Kort presentation om mig..."

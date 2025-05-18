@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Card,
@@ -13,7 +13,9 @@ import {
   ArrowLeftCircle,
   Edit3,
   Trash2,
-  Flag
+  Flag,
+  Check,
+  Bell
 } from "lucide-react";
 
 import Avatar from "@/components/ui/Avatar";          // Skapa i src/components/ui/Avatar.jsx
@@ -65,6 +67,7 @@ export default function ThreadView() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
 
   // Nytt inlägg
   const [newContent, setNewContent] = useState("");
@@ -73,11 +76,18 @@ export default function ThreadView() {
 
   // Edit-läge
   const [editingPostId, setEditingPostId] = useState(null);
-  const [editingContent, setEditingContent] = useState("");
+  const [editContent, setEditContent] = useState("");
   const [editError, setEditError] = useState(null);
 
   // "Följ tråd" state
   const [isFollowing, setIsFollowing] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportError, setReportError] = useState(null);
+  const [reportSuccess, setReportSuccess] = useState(false);
+
+  const quillRef = useRef();
 
   useEffect(() => {
     fetchThreadData();
@@ -89,27 +99,39 @@ export default function ThreadView() {
 
     try {
       // 1) Hämta trådinformation
+      const token = localStorage.getItem("token");
       const resThread = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/forum/threads/${threadId}`
+        `${import.meta.env.VITE_API_URL}/api/forum/threads/${threadId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (!resThread.ok) {
-        throw new Error("Kunde inte hämta trådinformation.");
+        throw new Error("Could not fetch thread information.");
       }
       const dataThread = await resThread.json();
       setThread(dataThread);
+      setIsFollowing(dataThread.is_following || false);
 
       // 2) Hämta inlägg
       const resPosts = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/forum/threads/${threadId}/posts`
+        `${import.meta.env.VITE_API_URL}/api/forum/threads/${threadId}/posts`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (!resPosts.ok) {
-        throw new Error("Kunde inte hämta trådens inlägg.");
+        throw new Error("Could not fetch replies.");
       }
       const dataPosts = await resPosts.json();
       setPosts(dataPosts);
     } catch (err) {
-      console.error(err);
-      setError(err.message || "Ett oväntat fel uppstod vid hämtning av tråd.");
+      console.error("Failed to fetch thread data:", err);
+      setError(err.message || "An error occurred while fetching thread data.");
     } finally {
       setLoading(false);
     }
@@ -118,49 +140,56 @@ export default function ThreadView() {
   // Uppdatera inläggslistan
   async function reloadPosts() {
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/forum/threads/${threadId}/posts`
+        `${import.meta.env.VITE_API_URL}/api/forum/threads/${threadId}/posts`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (!res.ok) {
-        throw new Error("Kunde inte uppdatera inläggslistan.");
+        throw new Error("Could not update replies.");
       }
       const data = await res.json();
       setPosts(data);
     } catch (err) {
-      console.error("Uppdatering av inlägg misslyckades:", err);
+      console.error("Failed to update replies:", err);
+      setError(err.message || "An error occurred while updating replies.");
     }
   }
 
   // ============= Skapa nytt inlägg ==================
   async function handleCreatePost() {
+    if (!quillRef.current) return;
+
+    const content = quillRef.current.getEditor().root.innerHTML;
+    if (!content.trim()) return;
+
     setCreateError(null);
     setCreatingPost(true);
     try {
       const token = localStorage.getItem("token");
-      // Sätt ex author_id utifrån inloggad user?
-      const body = {
-        content: newContent,
-        author_id: "anonymousUser" // Byt ev. mot inloggad user
-      };
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api/forum/threads/${threadId}/posts`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: token ? `Bearer ${token}` : undefined
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(body)
+          body: JSON.stringify({ content }),
         }
       );
       if (!res.ok) {
-        throw new Error("Kunde inte posta inlägget. Kontrollera om du är inloggad?");
+        throw new Error("Could not post reply.");
       }
-      setNewContent("");
+      quillRef.current.getEditor().setText("");
       await reloadPosts();
     } catch (err) {
       console.error(err);
-      setCreateError(err.message || "Ett fel uppstod vid postande av inlägg.");
+      setCreateError(err.message || "An error occurred while posting reply.");
     } finally {
       setCreatingPost(false);
     }
@@ -169,98 +198,143 @@ export default function ThreadView() {
   // ============= Börja redigera inlägg ==================
   function startEditPost(post) {
     setEditingPostId(post.id);
-    setEditingContent(post.content);
+    setEditContent(post.content);
     setEditError(null);
   }
   function cancelEdit() {
     setEditingPostId(null);
-    setEditingContent("");
+    setEditContent("");
   }
   async function handleSaveEdit(postId) {
     setEditError(null);
     try {
       const token = localStorage.getItem("token");
-      const body = { content: editingContent };
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/forum/threads/${threadId}/posts/${postId}`,
+        `${import.meta.env.VITE_API_URL}/api/forum/posts/${postId}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: token ? `Bearer ${token}` : undefined
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(body)
+          body: JSON.stringify({ content: editContent }),
         }
       );
       if (!res.ok) {
-        throw new Error("Kunde inte uppdatera inlägget.");
+        throw new Error("Could not update reply.");
       }
       setEditingPostId(null);
-      setEditingContent("");
+      setEditContent("");
       await reloadPosts();
     } catch (err) {
       console.error(err);
-      setEditError(err.message || "Ett fel uppstod vid uppdatering av inlägg.");
+      setEditError(err.message || "An error occurred while updating reply.");
     }
   }
 
   // ============= Radera inlägg ==================
   async function handleDeletePost(postId) {
-    const confirmDel = window.confirm("Vill du verkligen radera inlägget?");
+    const confirmDel = window.confirm("Are you sure you want to delete this reply?");
     if (!confirmDel) return;
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/forum/threads/${threadId}/posts/${postId}`,
+        `${import.meta.env.VITE_API_URL}/api/forum/posts/${postId}`,
         {
           method: "DELETE",
           headers: {
-            Authorization: token ? `Bearer ${token}` : undefined
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       if (!res.ok) {
-        throw new Error("Kunde inte radera inlägget.");
+        throw new Error("Could not delete reply.");
       }
       await reloadPosts();
+      setSuccessMsg("Reply deleted!");
     } catch (err) {
       console.error(err);
-      alert("Fel vid radering av inlägg: " + err.message);
+      alert("Failed to delete reply.");
     }
   }
 
   // ============= Reagera (emoji) på inlägg ==================
   function handleReaction(emoji, postId) {
-    console.log("Användaren reagerade med", emoji, "på inlägg", postId);
-    // Ex: anropa endpoint: POST /api/forum/posts/{postId}/react
-    // (ej implementerat i backend-exemplet ovan).
+    console.log("Reaction:", emoji, "on post:", postId);
+    // Implement reaction logic here
   }
 
   // ============= Följ tråd ==================
   async function handleFollowThread() {
-    // Dummy-exempel: toggla en local state
-    // men i verkligheten: POST /api/forum/threads/:id/follow
-    setIsFollowing(!isFollowing);
-    console.log(isFollowing ? "Avfölj" : "Följ", "tråd", threadId);
+    try {
+      const token = localStorage.getItem("token");
+      const endpoint = isFollowing ? "unfollow" : "follow";
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/forum/threads/${threadId}/${endpoint}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) throw new Error(`Could not ${endpoint} thread`);
+
+      setIsFollowing(!isFollowing);
+      setSuccessMsg(isFollowing ? "Unfollowed thread" : "Following thread");
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    }
   }
 
   // ============= Anmäl tråd ==================
   async function handleReportThread() {
-    // dummy: confirm-låda
-    const reason = prompt("Varför anmäler du tråden?");
-    if (!reason) return;
-    // Skicka anmälan: ex. POST /api/forum/threads/:id/report
-    console.log("Anmäler tråd pga:", reason);
-    alert("Tack, anmälan skickad (låtsas).");
+    if (!reportReason.trim()) {
+      setReportError("Please provide a reason for reporting");
+      return;
+    }
+
+    setReportLoading(true);
+    setReportError(null);
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/forum/threads/${threadId}/report`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ reason: reportReason }),
+        }
+      );
+
+      if (!res.ok) throw new Error("Could not submit report");
+
+      setReportSuccess(true);
+      setTimeout(() => {
+        setShowReportModal(false);
+        setReportSuccess(false);
+        setReportReason("");
+      }, 2000);
+    } catch (err) {
+      console.error(err);
+      setReportError(err.message);
+    } finally {
+      setReportLoading(false);
+    }
   }
 
   // =================== Render ===================
   if (loading) {
     return (
-      <div className="flex h-[60vh] justify-center items-center">
-        <div className="flex flex-col items-center gap-2 text-gray-700">
-          <Loader2 className="w-6 h-6 animate-spin text-green-600" />
-          <p>Laddar tråd...</p>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
         </div>
       </div>
     );
@@ -268,8 +342,8 @@ export default function ThreadView() {
 
   if (error) {
     return (
-      <div className="max-w-2xl mx-auto p-4">
-        <Alert variant="destructive">
+      <div className="container mx-auto px-4 py-8">
+        <Alert variant="destructive" className="bg-dark-800 border-red-600">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -282,7 +356,7 @@ export default function ThreadView() {
       <div className="max-w-2xl mx-auto p-4">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>Tråden hittades inte.</AlertDescription>
+          <AlertDescription>Thread not found.</AlertDescription>
         </Alert>
       </div>
     );
@@ -292,178 +366,256 @@ export default function ThreadView() {
   const parsedThreadContent = parseAndFormatContent(thread.content);
 
   return (
-    <div className="max-w-3xl mx-auto p-4 space-y-6">
-
-      {/* Top-del: Banner + titel */}
-      <div className="relative w-full h-32 bg-black bg-opacity-40 bg-center bg-cover"
-           style={{ backgroundImage: 'url("/imgs/forum_bg.jpg")' }}
-      >
-        <div className="absolute inset-0 bg-black bg-opacity-60 flex flex-col items-center justify-center text-white p-4">
-          <h1 className="text-2xl font-bold">{thread.title}</h1>
-          <p className="text-sm mt-1">Skapad av <span className="font-semibold">{thread.author_id}</span></p>
-          <p className="text-xs">Visningar: {thread.views}</p>
-        </div>
-      </div>
-
-      {/* Knapprad: Tillbaka + Följ tråd + Anmäl */}
-      <div className="flex items-center justify-between">
+    <div className="container mx-auto px-4 py-8 text-white">
+      {/* Tillbaka-knapp och trådtitel */}
+      <div className="mb-6 flex items-center justify-between">
         <button
-          onClick={() => navigate("/forum")}
-          className="flex items-center gap-1 text-sm px-3 py-1 rounded hover:bg-gray-100 transition"
+          onClick={() => navigate(-1)}
+          className="flex items-center text-white hover:text-blue-400 transition-colors"
         >
-          <ArrowLeftCircle className="w-4 h-4 text-gray-500" />
-          <span>Tillbaka</span>
+          <ArrowLeftCircle className="w-5 h-5 mr-2" />
+          Back to category
         </button>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleFollowThread}
-            className={`px-3 py-1 rounded text-sm hover:bg-gray-100 transition 
-              ${isFollowing ? "bg-blue-50 text-blue-600" : "bg-gray-50 text-gray-600"}`}
-          >
-            {isFollowing ? "Följer" : "Följ tråd"}
-          </button>
-          <button
-            onClick={handleReportThread}
-            className="px-3 py-1 rounded text-sm text-red-600 hover:text-red-800 hover:bg-red-50 transition flex items-center gap-1"
-          >
-            <Flag className="w-4 h-4" />
-            Anmäl
-          </button>
-        </div>
+        <button
+          onClick={handleFollowThread}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            isFollowing
+              ? "bg-blue-600 text-white hover:bg-blue-700"
+              : "bg-dark-700 text-white hover:bg-blue-600"
+          }`}
+        >
+          {isFollowing ? "Following" : "Follow thread"}
+        </button>
       </div>
 
-      {/* Trådstart: text */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium">Trådstart</CardTitle>
+      {/* Trådtitel */}
+      <Card className="mb-6 bg-dark-900 border-dark-700">
+        <CardHeader className="p-6">
+          <CardTitle className="text-3xl font-bold text-white">
+            {thread?.title}
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div
-            className="forum-post-content text-sm text-gray-800"
-            dangerouslySetInnerHTML={{ __html: parsedThreadContent }}
-          />
-        </CardContent>
       </Card>
 
-      {/* Lista av inlägg */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium">Inlägg ({posts.length})</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {posts.length === 0 ? (
-            <p className="text-sm text-gray-500 italic">Inga inlägg ännu. Var först med att kommentera!</p>
-          ) : (
-            posts.map((post) => {
-              const isEditing = editingPostId === post.id;
-              // Parsad text
-              const parsedPostContent = parseAndFormatContent(post.content);
-
-              return (
-                <div key={post.id} className="p-3 border border-gray-200 rounded">
-                  {/* Avatarrad */}
-                  <div className="flex items-center gap-2 text-xs text-gray-600 mb-1">
-                    <Avatar username={post.author_id} />
-                    <span className="font-medium">{post.author_id}</span>
-                    {post.created_at && (
-                      <span className="ml-auto">
-                        {new Date(post.created_at).toLocaleString("sv-SE")}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Innehåll (edit-läge eller vanlig vy) */}
-                  {isEditing ? (
-                    <>
-                      <MyRichEditor
-                        value={editingContent}
-                        onChange={val => setEditingContent(val)}
-                      />
-                      {editError && (
-                        <p className="text-xs text-red-500 mt-1">{editError}</p>
-                      )}
-                      <div className="flex justify-end gap-2 mt-2">
-                        <button
-                          onClick={cancelEdit}
-                          className="text-sm px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                        >
-                          Avbryt
-                        </button>
-                        <button
-                          onClick={() => handleSaveEdit(post.id)}
-                          className="text-sm px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                        >
-                          Spara
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <div
-                      className="mt-1 text-sm text-gray-800 forum-post-content"
-                      dangerouslySetInnerHTML={{ __html: parsedPostContent }}
-                    />
-                  )}
-
-                  {/* ReactionBar + Edit/Delete */}
-                  <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-                    <ReactionBar onReact={(emoji) => handleReaction(emoji, post.id)} />
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => startEditPost(post)}
-                        className="text-yellow-600 hover:text-yellow-800 flex items-center gap-1"
-                        title="Redigera inlägg"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeletePost(post.id)}
-                        className="text-red-600 hover:text-red-800 flex items-center gap-1"
-                        title="Radera inlägg"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+      {/* Inläggslista */}
+      <div className="space-y-6">
+        {posts.map((post) => (
+          <Card key={post.id} className="bg-dark-900 border-dark-700 hover:border-dark-600 transition-colors">
+            <CardContent className="p-6">
+              {/* Författarinfo */}
+              <div className="flex items-center justify-between mb-6 border-b border-dark-700 pb-4">
+                <div className="flex items-center">
+                  <Avatar
+                    src={post.author?.avatar}
+                    alt={post.author?.username}
+                    className="w-12 h-12 rounded-full bg-dark-700"
+                  />
+                  <div className="ml-4">
+                    <p className="text-lg font-semibold text-white">
+                      {post.author?.username || "Anonymous"}
+                    </p>
+                    <p className="text-sm text-gray-300">
+                      {new Date(post.created_at).toLocaleString()}
+                    </p>
                   </div>
                 </div>
-              );
-            })
-          )}
-        </CardContent>
-      </Card>
+                
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => startEditPost(post)}
+                    className="p-2 text-gray-300 hover:text-yellow-400 transition-colors"
+                    title="Edit"
+                  >
+                    <Edit3 className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => handleDeletePost(post.id)}
+                    className="p-2 text-gray-300 hover:text-red-400 transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => handleReportPost(post.id)}
+                    className="p-2 text-gray-300 hover:text-orange-400 transition-colors"
+                    title="Report"
+                  >
+                    <Flag className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Inläggsinnehåll */}
+              {editingPostId === post.id ? (
+                <div className="space-y-4">
+                  <MyRichEditor
+                    value={editContent}
+                    onChange={setEditContent}
+                    className="bg-dark-800 text-white border-dark-600"
+                  />
+                  {editError && (
+                    <Alert variant="destructive" className="bg-dark-800 border-red-600">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>{editError}</AlertDescription>
+                    </Alert>
+                  )}
+                  <div className="flex justify-end space-x-3">
+                    <button
+                      onClick={cancelEdit}
+                      className="px-4 py-2 text-sm bg-dark-700 text-white rounded-lg hover:bg-dark-600 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => handleSaveEdit(post.id)}
+                      className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className="prose prose-invert max-w-none text-lg leading-relaxed text-gray-100"
+                  dangerouslySetInnerHTML={{
+                    __html: parseAndFormatContent(post.content),
+                  }}
+                />
+              )}
+
+              {/* Reaktioner */}
+              <div className="mt-6 pt-4 border-t border-dark-700">
+                <ReactionBar
+                  reactions={post.reactions}
+                  onReact={(emoji) => handleReaction(emoji, post.id)}
+                  className="text-gray-300"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
       {/* Nytt inlägg */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium">Nytt inlägg</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <Card className="mt-8 bg-dark-900 border-dark-700">
+        <CardContent className="p-6">
+          <h3 className="text-xl font-semibold text-white mb-4">
+            Write a reply
+          </h3>
+          <MyRichEditor
+            value={newContent}
+            onChange={setNewContent}
+            className="bg-dark-800 text-white border-dark-600"
+          />
           {createError && (
-            <Alert variant="destructive" className="mb-4">
+            <Alert variant="destructive" className="mt-4 bg-dark-800 border-red-600">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{createError}</AlertDescription>
             </Alert>
           )}
-
-          <div className="space-y-2">
-            <MyRichEditor
-              value={newContent}
-              onChange={(val) => setNewContent(val)}
-            />
-            <div className="flex justify-end">
-              <button
-                onClick={handleCreatePost}
-                disabled={creatingPost || !newContent.trim()}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition disabled:opacity-60"
-              >
-                {creatingPost && <Loader2 className="w-4 h-4 animate-spin" />}
-                <span>Skicka</span>
-              </button>
-            </div>
+          <div className="mt-4 flex justify-end">
+            <button
+              onClick={handleCreatePost}
+              disabled={creatingPost || !newContent.trim()}
+              className={`
+                px-6 py-2 rounded-lg text-white font-medium
+                ${
+                  creatingPost || !newContent.trim()
+                    ? "bg-dark-600 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
+                }
+                transition-colors
+              `}
+            >
+              {creatingPost ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                "Post reply"
+              )}
+            </button>
           </div>
         </CardContent>
       </Card>
 
+      {/* Success message */}
+      {successMsg && (
+        <Alert className="bg-green-50 text-green-700 border-green-200">
+          <Check className="h-4 w-4" />
+          <AlertDescription>{successMsg}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* Error message */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* Report modal */}
+      {showReportModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>Report Thread</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {reportSuccess ? (
+                <Alert className="bg-green-50 text-green-700 border-green-200">
+                  <Check className="h-4 w-4" />
+                  <AlertDescription>Report submitted successfully</AlertDescription>
+                </Alert>
+              ) : (
+                <>
+                  {reportError && (
+                    <Alert variant="destructive" className="mb-4">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>{reportError}</AlertDescription>
+                    </Alert>
+                  )}
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Reason for reporting
+                      </label>
+                      <textarea
+                        value={reportReason}
+                        onChange={(e) => setReportReason(e.target.value)}
+                        className="w-full px-3 py-2 border rounded-md"
+                        rows={4}
+                        placeholder="Please describe why you are reporting this thread..."
+                      />
+                    </div>
+
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => setShowReportModal(false)}
+                        className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded"
+                        disabled={reportLoading}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleReportThread}
+                        className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                        disabled={reportLoading}
+                      >
+                        {reportLoading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          "Submit Report"
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

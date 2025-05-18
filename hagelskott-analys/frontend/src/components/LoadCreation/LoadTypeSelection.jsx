@@ -1,164 +1,123 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Target, Crosshair, Info, Loader2, AlertCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-
 /**
  * LoadTypeSelection
- * =================
- * Komponent för att välja vilken typ av laddning (hagel, kula m.m.)
- * man vill skapa. Hämtar en lista av laddningstyper från backend
- * (valfritt) och visar en interaktiv grid av kort.
- *
- * När användaren klickar på ett kort, navigerar vi till rätt route
- * (ex. "/load-creation/shotgun").
+ * ================
+ * Shows different types of loads that can be created.
+ * Fetches a list of load types from backend.
+ * 
+ * When the user clicks a card, we navigate to the correct route
+ * for creating that type of load.
  */
-const LoadTypeSelection = () => {
+
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
+import { Loader2, Target, Crosshair, CircleDot } from "lucide-react";
+
+// Example load types (in a real app, fetch from backend)
+const LOAD_TYPES = [
+  {
+    id: "shotshell",
+    title: "Shotgun Load",
+    description: "Create shotshell loads for hunting and sport shooting",
+    icon: Target,
+    route: "/load-creation/shotgun",
+  },
+  {
+    id: "rifle",
+    title: "Rifle Load",
+    description: "Create precise and powerful rifle loads",
+    icon: Crosshair,
+    route: "/load-creation/bullet",
+    disabled: true, // Example: not implemented yet
+  },
+  {
+    id: "pistol",
+    title: "Pistol Load",
+    description: "Create pistol loads for competition and practice",
+    icon: CircleDot,
+    route: "/load-creation/pistol",
+    disabled: true,
+  },
+];
+
+export default function LoadTypeSelection() {
   const navigate = useNavigate();
 
-  // Laddningsstatus och ev. felmeddelande
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  // Exempel: hårdkodade kort för hagel- vs. kul-laddningar
-  // Du kan ersätta detta med server-data om du vill
-  const loadTypeCards = [
-    {
-      id: "shotgun",
-      title: "Hagel",
-      description: "Skapa hagelladdningar för jakt och sportskytte",
-      icon: Target,
-      color: "bg-green-700", // eller t.ex. "bg-military-700"
-      features: [
-        "Stöd för alla kalibrar",
-        "Komplett komponenthantering",
-        "Mönsteranalys (Pattern Analysis)",
-        "Historik & statistik",
-      ],
-      route: "/load-creation/shotgun",
-    },
-    {
-      id: "bullet",
-      title: "Kula",
-      description: "Skapa precisa och kraftfulla kulladdningar",
-      icon: Crosshair,
-      color: "bg-blue-700", // eller t.ex. "bg-military-700"
-      features: [
-        "Alla kalibrar & kultyper",
-        "Avancerad ballistik",
-        "Kronograf-integration",
-        "Laddningshistorik",
-      ],
-      route: "/load-creation/bullet",
-    },
-  ];
+  // Example: loading state if fetching from backend
+  const [loading] = React.useState(false);
 
   /**
-   * useEffect: Exempel på att hämta laddningstyper från en backend-endpoint.
-   * Just nu är funktionen mockad, men du kan aktivera/förändra den om du
-   * verkligen vill hämta data dynamiskt från servern.
+   * When the user clicks a card,
+   * navigate to the correct route for that load type.
    */
-  useEffect(() => {
-    const fetchLoadTypes = async () => {
-      try {
-        setError("");
-        // Exempel: GET /api/loads/types
-        // const response = await fetch("http://localhost:8000/api/loads/types");
-        // if (!response.ok) {
-        //   throw new Error("Kunde inte hämta laddningstyper.");
-        // }
-        // const data = await response.json();
-        // ...uppdatera state med data
-      } catch (err) {
-        setError(
-          err.message || "Ett oväntat fel uppstod vid laddningstyp-hämtning."
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchLoadTypes();
-  }, []);
-
-  /**
-   * handleLoadType
-   * --------------
-   * När användaren klickar på ett kort,
-   * navigerar vi till kortets definierade route.
-   */
-  const handleLoadType = (typeId) => {
-    const selectedCard = loadTypeCards.find((card) => card.id === typeId);
-    if (selectedCard) {
-      navigate(selectedCard.route);
-    } else {
-      setError("Ogiltig laddningstyp vald.");
+  const handleLoadTypeClick = (loadType) => {
+    if (loadType.disabled) {
+      alert("This load type is not yet available.");
+      return;
     }
+    navigate(loadType.route);
   };
 
-  // Visa en enkel spinner/skärm om data laddas
+  // Show a simple spinner/screen if loading data
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-military-900">
-        <Loader2 className="h-12 w-12 animate-spin text-blue-500" />
+      <div className="flex flex-col items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-green-600" />
+        <p className="mt-4 text-gray-600">Loading load types...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-military-900 text-gray-100 p-4">
-      <div className="max-w-5xl mx-auto">
-        {/* Rubrik & introduktion */}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold">Välj laddningstyp</h1>
-          <p className="mt-2 text-gray-400">
-            Skapa dina egna laddningar med full kontroll över komponenter.
-          </p>
-        </div>
+    <div className="container mx-auto px-4 py-12">
+      {/* Header */}
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-50 mb-4">
+          Create New Load
+        </h1>
+        <p className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
+          Design and customize your own loads with precise control over components and specifications.
+        </p>
+      </div>
 
-        {/* Eventuellt felmeddelande */}
-        {error && (
-          <Alert variant="destructive" className="mb-6 max-w-2xl mx-auto">
-            <AlertCircle className="h-5 w-5" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {/* Kortvisning av laddningstyper */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {loadTypeCards.map((card) => {
-            const Icon = card.icon;
-            return (
-              <button
-                key={card.id}
-                className={`
-                  flex flex-col p-6 rounded-lg transition
-                  transform hover:scale-105 focus:outline-none
-                  ${card.color}
-                `}
-                onClick={() => handleLoadType(card.id)}
-              >
-                <div className="flex items-center mb-4 text-white">
-                  <Icon className="h-12 w-12 mr-4" />
-                  <div>
-                    <h2 className="text-2xl font-bold">{card.title}</h2>
-                    <p className="text-sm text-white/90">{card.description}</p>
-                  </div>
-                </div>
-                <ul className="pl-1 text-left text-sm text-white/90 space-y-1">
-                  {card.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-center gap-2">
-                      <Info className="h-4 w-4 text-white/80" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </button>
-            );
-          })}
-        </div>
+      {/* Grid of load type cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        {LOAD_TYPES.map((loadType) => (
+          <Card 
+            key={loadType.id}
+            onClick={() => handleLoadTypeClick(loadType)}
+            className={`cursor-pointer transform transition-all duration-200 hover:scale-[1.02] hover:shadow-lg ${
+              loadType.disabled 
+                ? 'opacity-50 hover:opacity-60' 
+                : 'hover:border-green-500'
+            }`}
+          >
+            <CardHeader>
+              <div className="flex items-center gap-3 mb-2">
+                {loadType.icon && React.createElement(loadType.icon, {
+                  className: "w-6 h-6 text-green-600"
+                })}
+                <CardTitle className="text-xl">{loadType.title}</CardTitle>
+              </div>
+              <CardDescription className="text-gray-700 dark:text-gray-300 text-base">
+                {loadType.description}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                {loadType.id === "shotshell" && "Perfect for clay shooting, hunting, and other shotgun activities."}
+                {loadType.id === "rifle" && "Suitable for precision shooting, hunting, and target practice."}
+                {loadType.id === "pistol" && "Ideal for competition shooting and practice sessions."}
+              </p>
+              {loadType.disabled && (
+                <p className="mt-2 text-sm text-amber-600 dark:text-amber-400">
+                  Coming soon - This load type is not yet available
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );
-};
-
-export default LoadTypeSelection;
+}

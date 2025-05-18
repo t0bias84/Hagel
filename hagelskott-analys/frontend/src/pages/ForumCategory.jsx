@@ -1,31 +1,55 @@
 // src/pages/ForumCategory.jsx
 
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Loader2,
   AlertCircle,
-  ArrowLeft,
-  ChevronRight,
-  FolderPlus,
+  ArrowLeftCircle,
+  MessageSquare,
+  Eye,
+  Clock,
+  Plus,
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { en } from "@/translations/en";
+import { sv } from "@/translations/sv";
 
 /**
  * ForumCategory
  * =============
- * Visar en enskild kategori, ev. underkategorier
- * samt en lista av trådar.
+ * Displays a single category, any subcategories
+ * and a list of threads.
  *
- * Om man vill styra att endast admin kan skapa ny tråd
- * kan man hämta in current_user (med roller) och
- * göra en check innan man visar "Ny tråd"-knappen.
+ * If you want to restrict thread creation to admin only,
+ * you can fetch current_user (with roles) and
+ * check before showing the "New Thread" button.
  */
+
+// Wrapper component for links
+const StyledLink = ({ to, children }) => (
+  <div className="block w-full">
+    <Link 
+      to={to}
+      className="!text-white no-underline hover:!text-dark-accent"
+      style={{ 
+        textDecoration: 'none !important',
+        color: 'white !important'
+      }}
+    >
+      {children}
+    </Link>
+  </div>
+);
+
 export default function ForumCategory() {
-  const { id } = useParams(); // :id = categoryId
+  const { categoryId } = useParams();
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const t = language === 'en' ? en : sv;
 
   const [category, setCategory] = useState(null);
   const [subcategories, setSubcategories] = useState([]);
@@ -50,43 +74,42 @@ export default function ForumCategory() {
           ...(token && { Authorization: `Bearer ${token}` }),
         };
 
-        // 1) Hämta kategori-info
+        // 1) Fetch category info
         const catRes = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/forum/categories/${id}`,
+          `${import.meta.env.VITE_API_URL}/api/forum/categories/${categoryId}`,
           { headers }
         );
         if (!catRes.ok) {
-          throw new Error("Kunde inte hämta kategoriinfo.");
+          throw new Error("Could not fetch category information.");
         }
         const catData = await catRes.json();
         if (!isMounted) return;
         setCategory(catData);
 
-        // 2) Hämta underkategorier (om du har en sådan endpoint)
-        //    Om ej: ta bort detta block!
+        // 2) Fetch subcategories (if you have such an endpoint)
         let subsData = [];
         try {
           const subsRes = await fetch(
-            `${import.meta.env.VITE_API_URL}/api/forum/categories?parent_id=${id}`,
+            `${import.meta.env.VITE_API_URL}/api/forum/categories?parent_id=${categoryId}`,
             { headers }
           );
           if (subsRes.ok) {
             subsData = await subsRes.json();
           }
         } catch (errSubs) {
-          // Om du inte har subkat-endpoint eller den fallerar,
-          // låt bli att sätta subcategories
+          // If you don't have a subcategories endpoint or it fails,
+          // skip setting subcategories
         }
         if (!isMounted) return;
         setSubcategories(subsData);
 
-        // 3) Hämta trådar i denna kategori
+        // 3) Fetch threads in this category
         const threadsRes = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/forum/categories/${id}/threads`,
+          `${import.meta.env.VITE_API_URL}/api/forum/categories/${categoryId}/threads`,
           { headers }
         );
         if (!threadsRes.ok) {
-          throw new Error("Kunde inte hämta trådar.");
+          throw new Error("Could not fetch threads.");
         }
         const threadsData = await threadsRes.json();
         if (!isMounted) return;
@@ -105,7 +128,7 @@ export default function ForumCategory() {
         */
       } catch (err) {
         if (!isMounted) return;
-        setError(err.message || "Ett oväntat fel uppstod.");
+        setError(err.message || "An unexpected error occurred.");
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -116,25 +139,24 @@ export default function ForumCategory() {
     return () => {
       isMounted = false;
     };
-  }, [id]);
+  }, [categoryId]);
 
-  // --- Ev. en funktion för att skapa ny tråd ---
+  // --- Optional function to create new thread ---
   // Om du vill skydda den för admin eller liknande
   const handleCreateThread = () => {
     // Ex: om du vill kolla currentUser?.roles?.includes("admin")
     // if (!currentUser?.roles?.includes("admin")) {
-    //   return alert("Endast admin får skapa ny tråd i denna kategori.");
+    //   return alert("Only admin can create new thread in this category.");
     // }
-    navigate(`/forum/categories/${id}/new-thread`);
+    navigate(`/forum/categories/${categoryId}/new-thread`);
   };
 
   // --- Render-lägen ---
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[50vh]">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-500 mx-auto mb-2" />
-          <p className="text-gray-600">Laddar kategori...</p>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center">
+          <Loader2 className="w-8 h-8 animate-spin text-dark-accent" />
         </div>
       </div>
     );
@@ -142,132 +164,142 @@ export default function ForumCategory() {
 
   if (error) {
     return (
-      <Alert variant="destructive" className="m-6">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
+      <div className="container mx-auto px-4 py-8">
+        <Alert variant="destructive" className="bg-dark-800 border-red-900">
+          <AlertCircle className="h-4 w-4 text-white" />
+          <AlertDescription className="text-white">{error}</AlertDescription>
+        </Alert>
+      </div>
     );
   }
 
   if (!category) {
     return (
-      <Alert variant="destructive" className="m-6">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>Kategorin hittades inte.</AlertDescription>
+      <Alert variant="destructive" className="m-6 bg-dark-800 border-red-900">
+        <AlertCircle className="h-4 w-4 text-white" />
+        <AlertDescription className="text-white">Category not found.</AlertDescription>
       </Alert>
     );
   }
 
-  // --- UI: Visa kategori, underkategorier, trådar ---
+  // --- UI: Show category, subcategories, threads ---
   return (
-    <div className="container mx-auto p-4 max-w-5xl space-y-4">
-      <Card className="shadow">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            {/* Vänster del: Tillbaka + Kategorins titel */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate("/forum")}
-                title="Tillbaka"
-                className="p-2 hover:bg-gray-100 rounded-full"
-              >
-                <ArrowLeft className="h-5 w-5 text-gray-500" />
-              </button>
-              <CardTitle className="text-lg font-semibold">
-                {category.name}
-              </CardTitle>
-            </div>
+    <div className="container mx-auto px-4 py-8 bg-dark-900">
+      {/* Tillbaka-knapp och kategorititel */}
+      <div className="mb-8 flex items-center justify-between">
+        <button
+          onClick={() => navigate("/forum")}
+          className="flex items-center !text-white hover:!text-dark-accent transition-colors"
+        >
+          <ArrowLeftCircle className="w-5 h-5 mr-2" />
+          {t.forum.backToForum}
+        </button>
+        <Link
+          to={`/forum/new?category=${categoryId}`}
+          className="flex items-center px-4 py-2 bg-dark-accent hover:bg-dark-accent/90 !text-white rounded-lg transition-colors"
+        >
+          <Plus className="w-5 h-5 mr-2" />
+          {t.forum.newThread}
+        </Link>
+      </div>
 
-            {/* Höger del: Ny tråd-knapp */}
-            <button
-              onClick={handleCreateThread}
-              className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
-            >
-              <FolderPlus className="h-4 w-4" />
-              Ny tråd
-            </button>
-          </div>
+      {/* Kategorititel */}
+      <Card className="mb-8 !bg-dark-800 !border-dark-700">
+        <CardHeader className="p-6">
+          <CardTitle className="text-3xl font-bold !text-white">
+            {category.name}
+          </CardTitle>
+          {category.description && (
+            <p className="mt-2 text-lg !text-white/90">{category.description}</p>
+          )}
         </CardHeader>
-
-        <CardContent>
-          {/* Kategoribeskrivning */}
-          {category.description ? (
-            <p className="text-gray-700 mb-4">{category.description}</p>
-          ) : (
-            <p className="text-gray-500 mb-4 italic">
-              Ingen beskrivning för denna kategori
-            </p>
-          )}
-
-          {/* Underkategorier (om finns) */}
-          {subcategories?.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-md font-semibold mb-3">Underkategorier</h3>
-              <ul className="space-y-2">
-                {subcategories.map((sub) => (
-                  <li
-                    key={sub._id || sub.id}
-                    onClick={() => navigate(`/forum/category/${sub._id}`)}
-                    className="p-3 rounded-lg border border-gray-100 hover:bg-gray-50 cursor-pointer flex items-center justify-between"
-                  >
-                    <div>
-                      <p className="font-medium text-gray-700">{sub.name}</p>
-                      {sub.description && (
-                        <p className="text-sm text-gray-500">
-                          {sub.description}
-                        </p>
-                      )}
-                      {/* Ex: om du har threadCount/postCount på sub */}
-                      {typeof sub.threadCount === "number" && (
-                        <p className="text-xs text-gray-400 mt-1">
-                          {sub.threadCount} trådar, {sub.postCount} inlägg
-                        </p>
-                      )}
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-gray-400" />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Lista av trådar */}
-          <div>
-            <h3 className="text-md font-semibold mb-3">Trådar</h3>
-            {threads?.length > 0 ? (
-              <ul className="space-y-2">
-                {threads.map((thread) => (
-                  <li
-                    key={thread.id}
-                    onClick={() => navigate(`/forum/thread/${thread.id}`)}
-                    className="p-3 rounded-lg border border-gray-100 hover:bg-gray-50 cursor-pointer"
-                  >
-                    <h4 className="font-semibold text-gray-800">
-                      {thread.title}
-                    </h4>
-                    <p className="text-sm text-gray-500">
-                      {/* Kort förhandsvisning av content */}
-                      {thread.content.length > 120
-                        ? thread.content.slice(0, 120) + "..."
-                        : thread.content}
-                    </p>
-                    {/* Ex: Skapad-datum eller annat */}
-                    {thread.created_at && (
-                      <p className="text-xs text-gray-400 mt-1">
-                        {new Date(thread.created_at).toLocaleString("sv-SE")}
-                      </p>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-gray-500">
-                Inga trådar skapade i denna kategori.
-              </p>
-            )}
-          </div>
-        </CardContent>
       </Card>
+
+      {/* Underkategorier (om finns) */}
+      {subcategories?.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-md font-semibold mb-3 !text-white">{t.forum.subcategories}</h3>
+          <ul className="space-y-2">
+            {subcategories.map((sub) => (
+              <li
+                key={sub._id || sub.id}
+                onClick={() => navigate(`/forum/category/${sub._id}`)}
+                className="p-3 rounded-lg !bg-dark-800 !border-dark-700 hover:!bg-dark-700 cursor-pointer flex items-center justify-between"
+              >
+                <div>
+                  <p className="font-medium !text-white">{sub.name}</p>
+                  {sub.description && (
+                    <p className="text-sm !text-white/90">
+                      {sub.description}
+                    </p>
+                  )}
+                  {typeof sub.threadCount === "number" && (
+                    <p className="text-xs !text-white/80 mt-1">
+                      {sub.threadCount} {t.forum.threadCount}, {sub.postCount} {t.forum.postCount}
+                    </p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Trådlista */}
+      <div className="space-y-4">
+        {threads.map((thread) => (
+          <div key={thread.id}>
+            <StyledLink to={`/forum/thread/${thread.id}`}>
+              <Card className="!bg-dark-800 !border-dark-700 hover:!bg-dark-700/80 transition-all duration-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <h3 className="text-xl font-semibold !text-white">
+                        {thread.title}
+                      </h3>
+                      <p className="!text-white/90 line-clamp-2 mb-4">
+                        {thread.content}
+                      </p>
+                      <div className="flex items-center space-x-6 !text-white/80">
+                        <div className="flex items-center">
+                          <MessageSquare className="w-4 h-4 mr-2 !text-white/80" />
+                          <span className="!text-white/80">{thread.post_count || 0} {t.forum.posts}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Eye className="w-4 h-4 mr-2 !text-white/80" />
+                          <span className="!text-white/80">{thread.view_count || 0} {t.forum.views}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Clock className="w-4 h-4 mr-2 !text-white/80" />
+                          <span className="!text-white/80">
+                            {new Date(thread.last_post_at || thread.created_at).toLocaleString(
+                              language === 'en' ? 'en-US' : 'sv-SE'
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="ml-6 flex flex-col items-end">
+                      <span className="!text-white font-medium">
+                        {thread.author?.username || "Anonymous"}
+                      </span>
+                      <span className="!text-white/80">
+                        {new Date(thread.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </StyledLink>
+          </div>
+        ))}
+
+        {threads.length === 0 && (
+          <div className="text-center p-8 !bg-dark-800 rounded-lg !text-white/80">
+            {t.forum.noThreadsBeFirst}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

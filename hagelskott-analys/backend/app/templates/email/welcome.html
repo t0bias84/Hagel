@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #666;
+        }
+        .language-section {
+            margin-bottom: 30px;
+        }
+        .language-section:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- English Version -->
+        <div class="language-section">
+            <h2>Welcome to {{app_name}}!</h2>
+            <p>Hi {{username}},</p>
+            <p>Thank you for registering with {{app_name}}! We're excited to have you on board.</p>
+            <p>To get started, here are some tips:</p>
+            <ul>
+                <li>Update your profile with your information</li>
+                <li>Explore our forums and discussions</li>
+                <li>Share your experiences</li>
+                <li>Ask questions to our community</li>
+            </ul>
+            <p>If you have any questions or need help, don't hesitate to contact us.</p>
+            <a href="{{profile_url}}" class="button">Update Your Profile</a>
+        </div>
+
+        <!-- Swedish Version -->
+        <div class="language-section">
+            <h2>Välkommen till {{app_name}}!</h2>
+            <p>Hej {{username}},</p>
+            <p>Tack för att du registrerade dig på {{app_name}}! Vi är glada att ha dig med oss.</p>
+            <p>För att komma igång, här är några tips:</p>
+            <ul>
+                <li>Uppdatera din profil med din information</li>
+                <li>Utforska våra forum och diskussioner</li>
+                <li>Dela med dig av dina erfarenheter</li>
+                <li>Ställ frågor till vår community</li>
+            </ul>
+            <p>Om du har några frågor eller behöver hjälp, tveka inte att kontakta oss.</p>
+            <a href="{{profile_url}}" class="button">Uppdatera din profil</a>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated message. Please do not reply to this email.</p>
+            <p>Detta är ett automatiskt genererat meddelande. Vänligen svara inte på detta e-postmeddelande.</p>
+        </div>
+    </div>
+</body>
+</html> 

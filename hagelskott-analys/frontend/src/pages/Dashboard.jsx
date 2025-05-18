@@ -25,38 +25,57 @@ import {
   ThumbsUp,
   ThumbsDown,
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { en } from "@/translations/en";
+import { sv } from "@/translations/sv";
 
 /**
  * Hjälpfunktion för att göra API-anrop med token
  */
 async function fetchWithAuth(endpoint, options = {}) {
   const token = localStorage.getItem("token");
-  if (!token) throw new Error("Ingen token i localStorage.");
+  if (!token) throw new Error("No token in localStorage");
 
-  const url = `${import.meta.env.VITE_API_URL}${endpoint}`;
+  const url = `${import.meta.env.VITE_API_URL || 'http://localhost:8001'}${endpoint}`;
   const headers = {
     ...(options.headers || {}),
     Authorization: `Bearer ${token}`,
   };
 
-  const res = await fetch(url, { ...options, headers });
-  if (!res.ok) {
-    throw new Error(`Fel vid fetch: ${res.status} ${res.statusText}`);
+  try {
+    const res = await fetch(url, { ...options, headers });
+    if (!res.ok) {
+      if (res.status === 404) {
+        return null; // Returnera null för 404-fel
+      }
+      throw new Error(`Fetch error: ${res.status} ${res.statusText}`);
+    }
+    return res.json();
+  } catch (error) {
+    console.error(`Error fetching ${endpoint}:`, error);
+    return null;
   }
-  return res.json();
 }
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const t = language === 'en' ? en : sv;
 
   // ---------- States ----------
   const [user, setUser] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [recentForumPosts, setRecentForumPosts] = useState([]);
-  const [recentActivity, setRecentActivity] = useState(null);
+  const [recentActivity, setRecentActivity] = useState({
+    totalAnalyses: 0,
+    averageAccuracy: 0,
+    timeline: []
+  });
   const [myLoadsStats, setMyLoadsStats] = useState({ loadCount: 0, totalViews: 0 });
+  const [recentLoads, setRecentLoads] = useState([]);
+  const [isLoadingRecentLoads, setIsLoadingRecentLoads] = useState(true);
 
-  // Nya states för “heta diskussioner” & “mest gillade/hatade”
+  // Nya states för "heta diskussioner" & "mest gillade/hatade"
   const [topDiscussions, setTopDiscussions] = useState([]);
   const [mostLikedPost, setMostLikedPost] = useState(null);
   const [mostDislikedPost, setMostDislikedPost] = useState(null);
@@ -75,7 +94,7 @@ export default function Dashboard() {
     "Hej #, du rockar!",
     "Hallå där, #! Fantastiskt att se dig!",
     "Äntligen är du här, # – du är bäst!",
-    "Glad att du loggat in, #. Du imponerar varje dag!",
+    "Glad to see you logged in, #. You impress every day!",
     "Hallå #! Hoppas du har en underbar dag!",
     "Välkommen tillbaka, #! Dina laddningar är legend!",
     "Tjena #! Du gör världen lite bättre!",
@@ -169,14 +188,16 @@ export default function Dashboard() {
     (async () => {
       try {
         setIsLoadingMyLoads(true);
-        // Byt ut endpoint till vad du faktiskt använder
         const stats = await fetchWithAuth("/api/loads/mine/stats");
-        setMyLoadsStats({
-          loadCount: stats.loadCount || 0,
-          totalViews: stats.totalViews || 0,
-        });
+        if (stats) {
+          setMyLoadsStats({
+            loadCount: stats.loadCount || 0,
+            totalViews: stats.totalViews || 0,
+          });
+        }
       } catch (err) {
         console.error("Error fetching my loads stats:", err);
+        setMyLoadsStats({ loadCount: 0, totalViews: 0 });
       } finally {
         setIsLoadingMyLoads(false);
       }
@@ -188,23 +209,38 @@ export default function Dashboard() {
     (async () => {
       try {
         setIsLoadingHot(true);
-        // Exempel: Du kan ha olika endpoints:
-        //   /api/forum/hot   -> top 10 (sorterat på popularitet)
-        //   /api/forum/mostliked?week=true
-        //   /api/forum/mostdisliked?week=true
         const [hot, liked, disliked] = await Promise.all([
           fetchWithAuth("/api/forum/hot"),
           fetchWithAuth("/api/forum/mostliked?week=true"),
           fetchWithAuth("/api/forum/mostdisliked?week=true"),
         ]);
 
-        setTopDiscussions(hot);           // antas ge en array med top 10
-        setMostLikedPost(liked || null);  // antas ge ett inlägg
-        setMostDislikedPost(disliked || null);
+        setTopDiscussions(hot || []);
+        setMostLikedPost(liked);
+        setMostDislikedPost(disliked);
       } catch (error) {
         console.error("Error fetching hot/liked/disliked:", error);
+        setTopDiscussions([]);
+        setMostLikedPost(null);
+        setMostDislikedPost(null);
       } finally {
         setIsLoadingHot(false);
+      }
+    })();
+  }, []);
+
+  // ---------- Hämta senaste laddningar ----------
+  useEffect(() => {
+    (async () => {
+      try {
+        setIsLoadingRecentLoads(true);
+        const data = await fetchWithAuth("/api/loads?sort=-createdAt&limit=5");
+        setRecentLoads(data || []);
+      } catch (error) {
+        console.error("Error fetching recent loads:", error);
+        setRecentLoads([]);
+      } finally {
+        setIsLoadingRecentLoads(false);
       }
     })();
   }, []);
@@ -228,343 +264,219 @@ export default function Dashboard() {
   const unreadNotificationsCount = notifications.filter((n) => !n.read).length;
 
   // Hälsning med user-name insatt
-  const greetingText = randomGreeting.replace("#", user?.name || "Kära Användare");
+  const greetingText = randomGreeting.replace("#", user?.name || t.common.welcome);
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="min-h-screen bg-dark-900 text-dark-50 p-6">
+      {/* Välkomsthälsning */}
+      <h1 className="text-2xl font-bold mb-8 text-dark-50">{greetingText}</h1>
 
-      {/* ---------- TOPBAR ---------- */}
-      <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow">
-        <h1 className="text-2xl font-bold text-gray-800">
-          {isLoadingUser ? "Laddar..." : greetingText}
-        </h1>
-
-        <div className="flex items-center gap-4">
-          {/* Notisknapp */}
-          <div className="relative">
-            <button className="p-2 hover:bg-gray-100 rounded-full">
-              <Bell className="h-5 w-5 text-gray-700" />
-              {unreadNotificationsCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                  {unreadNotificationsCount}
-                </span>
-              )}
-            </button>
-          </div>
-
-          {/* Userinfo */}
-          {!isLoadingUser && user && (
-            <div className="flex items-center gap-3">
-              <img
-                src={user.avatar || "/api/placeholder/32/32"}
-                alt="User avatar"
-                className="w-8 h-8 rounded-full object-cover"
-              />
-              <div className="hidden md:block text-right">
-                <p className="text-sm font-medium text-gray-700">
-                  {user.name || "Okänd"}
-                </p>
-                <p className="text-xs text-gray-400">
-                  {user.role || "Användare"}
-                </p>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="p-2 hover:bg-gray-100 rounded-full"
-                aria-label="Logga ut"
-              >
-                <LogOut className="h-5 w-5 text-gray-500" />
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ---------- MAIN CONTENT ---------- */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {/* ----- Vänster+Mitten 2 spalter ----- */}
-        <div className="lg:col-span-2 space-y-6">
-
-          {/* Stat Cards-rad */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-            {/* Totala analyser */}
-            <Card>
-              <CardContent className="pt-5 pb-6 px-4">
-                {isLoadingActivity ? (
-                  <p>Laddar...</p>
-                ) : (
-                  <div className="flex items-center">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Target className="h-6 w-6 text-blue-600" />
-                    </div>
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Totala analyser</p>
-                      <p className="text-2xl font-semibold text-gray-800">
-                        {recentActivity?.totalAnalyses ?? 0}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Snittresultat */}
-            <Card>
-              <CardContent className="pt-5 pb-6 px-4">
-                {isLoadingActivity ? (
-                  <p>Laddar...</p>
-                ) : (
-                  <div className="flex items-center">
-                    <div className="p-2 bg-green-100 rounded-lg">
-                      <CrosshairIcon className="h-6 w-6 text-green-600" />
-                    </div>
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Snittresultat</p>
-                      <p className="text-2xl font-semibold text-gray-800">
-                        {recentActivity?.averageAccuracy ?? 0}%
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Mina laddningar */}
-            <Card>
-              <CardContent className="pt-5 pb-6 px-4">
-                {isLoadingMyLoads ? (
-                  <p>Laddar...</p>
-                ) : (
-                  <div className="flex items-center">
-                    <div className="p-2 bg-purple-100 rounded-lg">
-                      <Flame className="h-6 w-6 text-purple-600" />
-                    </div>
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Mina laddningar</p>
-                      <p className="text-2xl font-semibold text-gray-800">
-                        {myLoadsStats.loadCount}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Totala visningar */}
-            <Card>
-              <CardContent className="pt-5 pb-6 px-4">
-                {isLoadingMyLoads ? (
-                  <p>Laddar...</p>
-                ) : (
-                  <div className="flex items-center">
-                    <div className="p-2 bg-pink-100 rounded-lg">
-                      <UserPlus className="h-6 w-6 text-pink-600" />
-                    </div>
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">Totala visningar</p>
-                      <p className="text-2xl font-semibold text-gray-800">
-                        {myLoadsStats.totalViews}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Linjediagram (aktivitet) */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Aktivitetsöversikt</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoadingActivity ? (
-                <div className="h-[300px] flex items-center justify-center text-gray-500">
-                  <p>Laddar diagram...</p>
-                </div>
-              ) : (
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={recentActivity?.timeline || []}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis yAxisId="left" />
-                      <YAxis yAxisId="right" orientation="right" />
-                      <Tooltip />
-                      <Line
-                        yAxisId="left"
-                        type="monotone"
-                        dataKey="shots"
-                        stroke="#3b82f6"
-                        name="Antal skott"
-                      />
-                      <Line
-                        yAxisId="right"
-                        type="monotone"
-                        dataKey="accuracy"
-                        stroke="#10b981"
-                        name="Träffsäkerhet"
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* ----- Höger spalt ----- */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-6">
-
           {/* Notifikationer */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Notifikationer</CardTitle>
+          <Card className="bg-dark-800 border-dark-700">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-dark-50 font-bold">
+                {t.dashboard.notifications.title}
+                {unreadNotificationsCount > 0 && (
+                  <span className="ml-2 px-2 py-1 text-xs rounded-full bg-dark-accent text-dark-50">
+                    {unreadNotificationsCount}
+                  </span>
+                )}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               {isLoadingNotifications ? (
-                <p className="text-sm text-gray-500">Laddar notifikationer...</p>
-              ) : notifications.length > 0 ? (
-                <div className="space-y-3">
-                  {notifications.map((notif) => (
-                    <div
-                      key={notif.id}
-                      className={`
-                        p-3 rounded-md
-                        ${notif.read ? "bg-gray-50" : "bg-blue-50"}
-                      `}
+                <p className="text-dark-200">{t.common.loading}</p>
+              ) : notifications.length === 0 ? (
+                <p className="text-dark-200">
+                  {t.dashboard.notifications.empty}
+                </p>
+              ) : (
+                <ul className="space-y-4">
+                  {notifications.map((notification) => (
+                    <li
+                      key={notification.id}
+                      className={`p-3 rounded-lg ${
+                        notification.read
+                          ? "bg-dark-700/50"
+                          : "bg-dark-600"
+                      }`}
                     >
-                      <p className="text-sm font-medium text-gray-700">{notif.message}</p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {notif.createdAt}
+                      <p className="text-sm text-dark-50">
+                        {notification.message}
                       </p>
+                      <p className="text-xs text-dark-200 mt-1">
+                        {new Date(notification.timestamp).toLocaleString()}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Senast publicerade laddningar */}
+          <Card className="bg-dark-800 border-dark-700">
+            <CardHeader>
+              <CardTitle className="text-dark-50">Senast publicerade laddningar</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoadingRecentLoads ? (
+                <p className="text-dark-200">{t.common.loading}</p>
+              ) : recentLoads.length === 0 ? (
+                <p className="text-dark-200">Inga laddningar att visa</p>
+              ) : (
+                <div className="space-y-4">
+                  {recentLoads.map((load) => (
+                    <div
+                      key={load._id}
+                      className="p-4 bg-dark-700/50 rounded-lg cursor-pointer hover:bg-dark-600 transition-colors"
+                      onClick={() => navigate(`/loads/${load._id}`)}
+                    >
+                      <h3 className="font-medium text-dark-50 hover:text-dark-accent">
+                        {load.name}
+                      </h3>
+                      <div className="flex items-center gap-4 mt-2 text-xs text-dark-300">
+                        <span>Av {load.author?.username || 'Okänd'}</span>
+                        <span>{load.views || 0} visningar</span>
+                        <span>{new Date(load.createdAt).toLocaleDateString()}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <p className="text-sm text-gray-500">Inga notifikationer</p>
               )}
             </CardContent>
           </Card>
 
           {/* Senaste forum-inlägg */}
-          <Card>
+          <Card className="bg-dark-800 border-dark-700">
             <CardHeader>
-              <CardTitle>Senaste inlägg</CardTitle>
+              <CardTitle className="text-dark-50">{t.dashboard.recentPosts}</CardTitle>
             </CardHeader>
             <CardContent>
               {isLoadingForum ? (
-                <p className="text-sm text-gray-500">Laddar forum-inlägg...</p>
-              ) : recentForumPosts.length > 0 ? (
-                <div className="space-y-3">
+                <p className="text-dark-200">{t.common.loading}</p>
+              ) : recentForumPosts.length === 0 ? (
+                <p className="text-dark-200">{t.common?.noResults || 'No posts to show'}</p>
+              ) : (
+                <div className="space-y-4">
                   {recentForumPosts.map((post) => (
                     <div
                       key={post.id}
+                      className="p-4 bg-dark-700/50 rounded-lg cursor-pointer hover:bg-dark-600 transition-colors"
                       onClick={() => navigate(`/forum/post/${post.id}`)}
-                      className="
-                        cursor-pointer border-b border-gray-100
-                        pb-2 last:border-none last:pb-0
-                      "
                     >
-                      <p className="font-medium text-gray-700 hover:text-blue-600">
+                      <h3 className="font-medium text-dark-50 hover:text-dark-accent">
                         {post.title}
+                      </h3>
+                      <p className="text-sm text-dark-200 mt-1">
+                        {post.excerpt}
                       </p>
-                      <div className="flex justify-between mt-1">
-                        <p className="text-xs text-gray-500">av {post.author}</p>
-                        <p className="text-xs text-gray-400">{post.createdAt}</p>
+                      <div className="flex items-center gap-4 mt-2 text-xs text-dark-300">
+                        <span>{post.author}</span>
+                        <span>{post.replies} svar</span>
+                        <span>{post.views} visningar</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="space-y-6">
+          {/* Heta diskussioner */}
+          <Card className="bg-dark-800 border-dark-700">
+            <CardHeader>
+              <CardTitle className="text-dark-50">{t.dashboard.hotDiscussions}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoadingHot ? (
+                <p className="text-dark-200">{t.common.loading}</p>
+              ) : topDiscussions.length > 0 ? (
+                <div className="space-y-4">
+                  {topDiscussions.slice(0, 5).map((discussion) => (
+                    <div
+                      key={discussion.id}
+                      className="p-3 bg-dark-700/50 rounded-lg hover:bg-dark-600 transition-colors cursor-pointer"
+                      onClick={() => navigate(`/forum/post/${discussion.id}`)}
+                    >
+                      <h3 className="font-medium text-dark-50">
+                        {discussion.title}
+                      </h3>
+                      <div className="flex items-center gap-4 mt-2 text-sm text-dark-300">
+                        <span>{discussion.replies} svar</span>
+                        <span>{discussion.views} visningar</span>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">Inga foruminlägg</p>
+                <p className="text-sm text-dark-200">{t.common?.noResults || 'No liked posts'}</p>
               )}
             </CardContent>
           </Card>
 
-          {/* Heta diskussioner (Topp 10) */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Hetaste diskussioner</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoadingHot ? (
-                <p className="text-sm text-gray-500">Laddar heta diskussioner...</p>
-              ) : topDiscussions.length > 0 ? (
-                <div className="space-y-3">
-                  {topDiscussions.map((thread) => (
-                    <div
-                      key={thread.id}
-                      onClick={() => navigate(`/forum/threads/${thread.id}`)}
-                      className="
-                        cursor-pointer border-b border-gray-100
-                        pb-2 last:border-none last:pb-0
-                      "
-                    >
-                      <p className="font-medium text-gray-700 hover:text-blue-600">
-                        {thread.title}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {thread.postCount} inlägg • {thread.likeCount} gillningar
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-gray-500">Inga heta diskussioner</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Mest gillade / mest hatade */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
+          {/* Mest gillat/ogillat */}
+          <div className="grid grid-cols-1 gap-4">
+            <Card className="bg-dark-800 border-dark-700">
               <CardHeader>
-                <CardTitle>Mest gillat (veckan)</CardTitle>
+                <CardTitle className="text-dark-50">Topp 5 mest gillade denna vecka</CardTitle>
               </CardHeader>
               <CardContent>
                 {isLoadingHot ? (
-                  <p className="text-sm text-gray-500">Laddar...</p>
+                  <p className="text-dark-200">{t.common.loading}</p>
                 ) : mostLikedPost ? (
-                  <div
-                    className="cursor-pointer"
-                    onClick={() => navigate(`/forum/post/${mostLikedPost.id}`)}
-                  >
-                    <p className="font-medium text-gray-700 hover:text-blue-600">
-                      {mostLikedPost.title}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {mostLikedPost.likeCount} gillningar • av {mostLikedPost.author}
-                    </p>
+                  <div className="space-y-3">
+                    {mostLikedPost.slice(0, 5).map(post => (
+                      <div
+                        key={post.id}
+                        className="cursor-pointer hover:bg-dark-600 p-3 rounded-lg transition-colors bg-dark-700/50"
+                        onClick={() => navigate(`/forum/post/${post.id}`)}
+                      >
+                        <p className="font-medium text-dark-50">
+                          {post.title}
+                        </p>
+                        <p className="text-xs text-dark-200 mt-1">
+                          {post.likeCount} "gillar" • av {post.author}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500">Ingen data</p>
+                  <p className="text-sm text-dark-200">{t.common?.noResults || 'No liked posts'}</p>
                 )}
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-dark-800 border-dark-700">
               <CardHeader>
-                <CardTitle>Mest hatat (veckan)</CardTitle>
+                <CardTitle className="text-dark-50">Topp 5 mest ogillade denna vecka</CardTitle>
               </CardHeader>
               <CardContent>
                 {isLoadingHot ? (
-                  <p className="text-sm text-gray-500">Laddar...</p>
+                  <p className="text-dark-200">{t.common.loading}</p>
                 ) : mostDislikedPost ? (
-                  <div
-                    className="cursor-pointer"
-                    onClick={() => navigate(`/forum/post/${mostDislikedPost.id}`)}
-                  >
-                    <p className="font-medium text-gray-700 hover:text-blue-600">
-                      {mostDislikedPost.title}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {mostDislikedPost.dislikeCount} “ogillar” • av {mostDislikedPost.author}
-                    </p>
+                  <div className="space-y-3">
+                    {mostDislikedPost.slice(0, 5).map(post => (
+                      <div
+                        key={post.id}
+                        className="cursor-pointer hover:bg-dark-600 p-3 rounded-lg transition-colors bg-dark-700/50"
+                        onClick={() => navigate(`/forum/post/${post.id}`)}
+                      >
+                        <p className="font-medium text-dark-50">
+                          {post.title}
+                        </p>
+                        <p className="text-xs text-dark-200 mt-1">
+                          {post.dislikeCount} "ogillar" • av {post.author}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500">Ingen data</p>
+                  <p className="text-sm text-dark-200">{t.common?.noResults || 'No disliked posts'}</p>
                 )}
               </CardContent>
             </Card>
