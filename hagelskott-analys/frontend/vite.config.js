@@ -3,11 +3,8 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 
 export default defineConfig({
-  plugins: [
-    react({
-      fastRefresh: true,
-    }),
-  ],
+  plugins: [react()],
+  base: '/Hagel/',
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
