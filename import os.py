@@ -216,7 +216,7 @@ Ett program för att analysera hagelskottsmönster och spara resultat.
 ### Med Docker
 Starta hela stacken:
 ```bash
-docker-compose up --build
+docker compose -f docker/docker-compose.yml up --build
 ```
 """
     
