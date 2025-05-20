@@ -1,4 +1,11 @@
 import os
+import argparse
+
+"""Usage: python search_in_files.py [projektkatalog]
+
+Om ingen katalog anges används standardvägen
+"C:/Users/tjans/Documents/Hagel/hagelskott-analys".
+"""
 
 # Ange vilka sökord vi vill leta efter
 SEARCH_TERMS = [
@@ -24,8 +31,24 @@ def search_in_file(file_path, search_terms):
     return matches
 
 def main():
-    # Byt ut till den katalog du vill söka i, t.ex. "C:/Users/tjans/Documents/Hagel/hagelskott-analys"
-    project_dir = r"C:/Users/tjans/Documents/Hagel/hagelskott-analys"
+    """Sök igenom filer efter angivna sökord."""
+
+    parser = argparse.ArgumentParser(
+        description=(
+            "Sök igenom ett projekt efter förekomster av specifika termer."
+        )
+    )
+    parser.add_argument(
+        "project_dir",
+        nargs="?",
+        default=r"C:/Users/tjans/Documents/Hagel/hagelskott-analys",
+        help=(
+            "Sökväg till projektkatalogen.\n"
+            "Om ingen anges används standardvägen ovan."
+        ),
+    )
+    args = parser.parse_args()
+    project_dir = args.project_dir
 
     for root, dirs, files in os.walk(project_dir):
         for filename in files:
