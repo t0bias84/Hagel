@@ -51,12 +51,11 @@ export function yardToMeter(yd) {
   // 3) Beräkna velocity(d)
   //////////////////////////
   // Exponentiell avtagning: v(d) = muzzle * exp(-k*d)
-  export function getVelocityAtDistance(dYd, muzzle_fps, shotSize="4") {
-    const dragC = DRAG_MAP[shotSize] ?? DRAG_MAP.default;
-    // dYd = yard, dragC ~ 0.02 => dX i yard => v(d) = muzzle * e^(-dragC * dYd)
-    const v = muzzle_fps * Math.exp(-dragC * dYd);
-    return v;
-  }
+export function getVelocityAtDistance(dYd, muzzle_fps, shotSize="4") {
+  const dragC = DRAG_MAP[shotSize] ?? DRAG_MAP.default;
+  const dist_m = dYd * 0.9144;
+  return muzzle_fps * Math.exp(-dragC * (dist_m / 50));
+}
   
   /////////////////////////////
   // 4) Beräkna penetration
