@@ -40,7 +40,8 @@ Ett program för att analysera hagelskottsmönster och spara resultat.
    ```
 
 ### Med Docker
-Starta hela stacken:
-```bash
-docker-compose up --build
-```
+1. Gå till katalogen `docker` (eller använd `docker-compose -f docker/docker-compose.yml`).
+2. Starta hela stacken:
+   ```bash
+   docker-compose up --build
+   ```
