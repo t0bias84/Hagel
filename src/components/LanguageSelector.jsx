@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage } from '../../hagelskott-analys/frontend/src/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 
 export function LanguageSelector() {
