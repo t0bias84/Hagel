@@ -153,7 +153,7 @@ async def get_penetration_flex_params(
         #    - v i m/s
         #    - m i kg (ex. hagelvikt = shotLoadGram / pelletCount)
         #    - pelletCount => t.ex. stål #2 => ~125 hagel i 28 g (ex.)
-        #    - penetration => pen_in = 0.05 * diameter_in * v_fps^1.0 * matFactor (ex.)
+        #    - penetration => pen_in = 0.0025 * diameter_in * v_fps^1.0 * matFactor (ex.)
 
         # minimal pelletCount => (ex. stål #2 har densitet + storlek):
         #   Du kan lägga en shotCalculator etc. 
@@ -212,7 +212,7 @@ async def get_penetration_flex_params(
         dragC = 0.02 + 0.001*(float(shotSize.strip()) if shotSize.strip().isdigit() else 3)
 
         # BETA + exponent => forensiskt inspirerad
-        BETA = 0.05
+        BETA = 0.0025
         EXPO = 1.0
 
         results = []
@@ -248,6 +248,8 @@ async def get_penetration_flex_params(
 
             # penetration
             pen_in = BETA * diameter_in * (v_fps**EXPO) * matF
+            # Se till att penetration inte blir orimligt stor eller negativ
+            pen_in = max(0.0, min(pen_in, 10.0))
 
             results.append({
                 "distance_yd": dist_yd,
