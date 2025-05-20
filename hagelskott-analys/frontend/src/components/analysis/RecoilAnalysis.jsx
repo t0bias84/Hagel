@@ -69,9 +69,10 @@ const recoilReferences = {
 const RecoilVisualizer = ({ results }) => {
   if (!results) return null;
 
-  const recoilEnergy = (results.recoilEnergy * 1.35582).toFixed(2);
-  const recoilVelocity = (results.recoilVelocity * 0.3048).toFixed(2);
-  const recoilImpulse = (results.recoilImpulse * 4.44822).toFixed(2);
+  // Backend already returns values in SI units
+  const recoilEnergy = results.recoilEnergy.toFixed(2);
+  const recoilVelocity = results.recoilVelocity.toFixed(2);
+  const recoilImpulse = results.recoilImpulse.toFixed(2);
 
   // Skapa data för energimätaren
   const energyData = [{
@@ -196,7 +197,8 @@ export default function RecoilAnalysis({ loadData }) {
           shot_weight: parseFloat(loadData.shotWeight),
           powder_weight: parseFloat(loadData.powderWeight),
           gun_weight: parseFloat(gunWeight),
-          muzzle_velocity: parseFloat(muzzleVelocity) * 3.28084 // Konvertera m/s till fps
+          // Backend expects muzzle velocity in m/s
+          muzzle_velocity: parseFloat(muzzleVelocity)
         }),
       });
 
