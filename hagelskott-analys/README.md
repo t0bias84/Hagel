@@ -13,6 +13,10 @@ Ett program för att analysera hagelskottsmönster och spara resultat.
 - Välj LTS-versionen
 - Starta om datorn efter installationen
 
+### Konfiguration
+Kopiera `.env.example` till `.env` i både `backend` och `frontend` och fyll i egna värden.
+
+
 ### Backend
 1. Skapa virtual environment:
    ```bash
