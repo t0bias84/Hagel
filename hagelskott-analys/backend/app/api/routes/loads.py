@@ -361,20 +361,58 @@ async def list_loads(
     mine: bool = Query(False),
     current_user: User = Depends(get_current_active_user),
 ):
-    query = {}
+    match_query = {}
     if category:
-        query["category"] = category
+        match_query["category"] = category
     if search:
-        query["$or"] = [
+        match_query["$or"] = [
             {"name": {"$regex": search, "$options": "i"}},
             {"description": {"$regex": search, "$options": "i"}},
         ]
     if mine:
-        query["ownerId"] = str(current_user.id)
+        match_query["ownerId"] = str(current_user.id)
 
     database = await db.get_database()
     loads_coll = database["loads"]
-    cursor = loads_coll.find(query).limit(limit)
+
+    pipeline = [
+        {"$match": match_query},
+        {"$limit": limit},
+        {
+            "$addFields": {
+                "ownerObjectId": {"$toObjectId": "$ownerId"}
+            }
+        },
+        {
+            "$lookup": {
+                "from": "users",
+                "localField": "ownerObjectId",
+                "foreignField": "_id",
+                "as": "ownerInfo"
+            }
+        },
+        {
+            "$unwind": {
+                "path": "$ownerInfo",
+                "preserveNullAndEmptyArrays": True
+            }
+        },
+        {
+            "$addFields": {
+                "ownerName": {
+                    "$ifNull": ["$ownerInfo.displayName", "$ownerInfo.username", "Okänd användare"]
+                }
+            }
+        },
+        {
+            "$project": {
+                "ownerInfo": 0,
+                "ownerObjectId": 0
+            }
+        }
+    ]
+
+    cursor = loads_coll.aggregate(pipeline)
     results = await cursor.to_list(length=limit)
 
     for ld in results:

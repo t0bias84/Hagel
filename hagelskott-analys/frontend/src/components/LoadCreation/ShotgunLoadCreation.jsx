@@ -1,20 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Loader2, AlertCircle, Save } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import HoverTooltip from "./form/HoverTooltip";
+import CollapsibleSection from "./form/CollapsibleSection";
+import GroupedComponents from "./form/GroupedComponents";
 
-const manufacturerColors = {
-  alliant: "bg-red-900",
-  hodgdon: "bg-blue-900",
-  vihtavuori: "bg-green-900",
-  federal: "bg-indigo-900",
-  cci: "bg-purple-900",
-  cheddite: "bg-yellow-900",
-  baschieri: "bg-orange-900",
-  fiocchi: "bg-pink-900",
-  remington: "bg-teal-900",
-  claybuster: "bg-gray-800",
-  unknown: "bg-military-800",
-};
 const tagSuggestions = [
   "duvjakt",
   "gåsjakt",
@@ -29,119 +19,6 @@ function gramsToGrains(g) {
 }
 function grainsToGrams(gr) {
   return gr / 15.432;
-}
-
-/** Tooltip nere i hörnet */
-function HoverTooltip({ comp }) {
-  if (!comp) return null;
-  return (
-    <div className="fixed bottom-4 right-4 w-64 bg-military-800 border border-military-600 text-gray-100 p-2 rounded shadow-lg text-xs z-50">
-      <h3 className="font-semibold text-sm mb-1">{comp.name}</h3>
-      {comp.manufacturer && <p className="text-[10px] text-gray-200 mb-1">{comp.manufacturer}</p>}
-      {comp.description && <p className="mb-1">{comp.description}</p>}
-      {comp.properties && (
-        <div className="space-y-1">
-          {Object.entries(comp.properties).map(([k, v]) => (
-            <div key={k}>
-              <span className="font-medium">{k}: </span>
-              <span>{JSON.stringify(v)}</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function CollapsibleSection({
-  title,
-  isOpen,
-  onToggle,
-  selectedText,
-  selected = false,
-  children,
-  locked = false,
-  lockedText = "",
-}) {
-  const bg = selected ? "bg-green-900" : "bg-military-800";
-  return (
-    <div className={`${bg} p-3 rounded mb-3 transition-colors`}>
-      <div className="flex items-center justify-between mb-2">
-        <div>
-          <h2 className="text-sm font-semibold text-gray-100">{title}</h2>
-          {selectedText && <p className="text-xs text-gray-200 mt-1">{selectedText}</p>}
-        </div>
-        {locked ? (
-          <p className="text-[10px] text-gray-400">{lockedText}</p>
-        ) : (
-          <button onClick={onToggle} className="text-xs text-gray-300 hover:text-gray-100">
-            {isOpen ? "Dölj" : "Visa"}
-          </button>
-        )}
-      </div>
-      {isOpen && !locked && <div>{children}</div>}
-    </div>
-  );
-}
-
-/** Kort för komponenter i en grid */
-function SmallComponentCard({ comp, onSelect, onHover }) {
-  const makerKey = (comp.manufacturer || "unknown").split(" ")[0].toLowerCase();
-  const colorClass = manufacturerColors[makerKey] || manufacturerColors.unknown;
-
-  return (
-    <button
-      onClick={() => onSelect(comp)}
-      onMouseEnter={() => onHover(comp)}
-      onMouseLeave={() => onHover(null)}
-      className={`
-        rounded border border-military-600 px-2 py-1 text-left text-xs
-        hover:bg-military-600 transition-colors
-        ${colorClass}
-      `}
-    >
-      <p className="font-medium text-gray-100 truncate">{comp.name}</p>
-      {comp.manufacturer && <p className="text-[10px] text-gray-200">{comp.manufacturer}</p>}
-    </button>
-  );
-}
-
-function GroupedComponents({ comps, onSelect, onHover }) {
-  if (!comps || comps.length === 0) {
-    return <p className="text-xs text-gray-400">Inga komponenter hittades.</p>;
-  }
-  const groups = {};
-  comps.forEach((c) => {
-    const maker = (c.manufacturer || "Okänd").toLowerCase();
-    if (!groups[maker]) groups[maker] = [];
-    groups[maker].push(c);
-  });
-  const sortedMakers = Object.keys(groups).sort();
-
-  return (
-    <div className="space-y-4">
-      {sortedMakers.map((maker) => {
-        const compsInGroup = groups[maker];
-        return (
-          <div key={maker}>
-            <p className="text-xs font-bold text-gray-300 mb-2 capitalize">
-              {maker === "okänd" ? "Okänd tillverkare" : maker}
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-              {compsInGroup.map((comp) => (
-                <SmallComponentCard
-                  key={comp._id}
-                  comp={comp}
-                  onSelect={onSelect}
-                  onHover={onHover}
-                />
-              ))}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
 }
 
 export default function ShotgunLoadCreation() {

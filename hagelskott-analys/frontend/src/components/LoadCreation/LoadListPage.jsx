@@ -1,5 +1,5 @@
 // Fil: LoadListPage.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Loader2,
@@ -115,50 +115,17 @@ export default function LoadListPage() {
           throw new Error("Kunde inte hämta laddningar.");
         }
         const data = await resp.json();
-        console.log("Laddningsdata från API:", data);
-        data.forEach((load, index) => {
-          console.log(`Load ${index + 1}:`, {
-            name: load.name,
-            powder: load.powderObject,
-            powderWeight: load.powderWeight,
-            shot: load.shotObject,
-            shotWeight: load.shotWeight
-          });
-        });
-
-        // Hämta användarinformation för varje laddning
-        const loadsWithUsers = await Promise.all(
-          data.map(async (ld) => {
-            if (!ld.ownerId) return ld;
-            try {
-              const userResp = await fetch(`${import.meta.env.VITE_API_URL}/api/users/profile/${ld.ownerId}`, {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              });
-              if (userResp.ok) {
-                const userData = await userResp.json();
-                return { ...ld, ownerName: userData.displayName || userData.username };
-              }
-              // Om profilen inte hittas, använd ownerId som namn
-              return { ...ld, ownerName: `Användare ${ld.ownerId.substring(0, 8)}...` };
-            } catch (err) {
-              console.error("Kunde inte hämta användarinfo:", err);
-              return { ...ld, ownerName: `Användare ${ld.ownerId.substring(0, 8)}...` };
-            }
-          })
-        );
 
         // Samla unika taggar
         const tagSet = new Set();
-        loadsWithUsers.forEach((ld) => {
+        data.forEach((ld) => {
           if (ld.tags && Array.isArray(ld.tags)) {
             ld.tags.forEach((tag) => tagSet.add(tag));
           }
         });
 
         setAllTags(Array.from(tagSet));
-        setLoads(loadsWithUsers);
+        setLoads(data);
       } catch (err) {
         setError(err.message || "Ett oväntat fel inträffade.");
       } finally {
@@ -169,7 +136,7 @@ export default function LoadListPage() {
   }, []);
 
   // 2) Filtrering & Sortering
-  function getFilteredLoads() {
+  const finalLoads = useMemo(() => {
     let filtered = [...loads];
 
     // Flik: mine / favorites / official / all / top
@@ -238,9 +205,7 @@ export default function LoadListPage() {
     }
 
     return filtered;
-  }
-
-  const finalLoads = getFilteredLoads();
+  }, [loads, activeTab, currentUser, favorites, selectedGauge, tagFilter, sortField]);
 
   // 3) Radera laddning
   const handleDelete = async (loadId) => {
