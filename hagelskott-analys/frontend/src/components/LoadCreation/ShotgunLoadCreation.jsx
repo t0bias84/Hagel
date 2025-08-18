@@ -4,6 +4,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import HoverTooltip from "./form/HoverTooltip";
 import CollapsibleSection from "./form/CollapsibleSection";
 import GroupedComponents from "./form/GroupedComponents";
+import { getComponents } from "@/services/componentsService";
+import { saveShotshellLoad } from "@/services/loadsService";
 
 const tagSuggestions = [
   "duvjakt",
@@ -101,22 +103,19 @@ export default function ShotgunLoadCreation() {
 
   /** Hämta /api/components */
   useEffect(() => {
-    setLoading(true);
-    setError("");
-    (async () => {
+    const fetchAllComponents = async () => {
       try {
-        const resp = await fetch("http://localhost:8000/api/components");
-        if (!resp.ok) {
-          throw new Error("Kunde inte hämta komponenter.");
-        }
-        const data = await resp.json();
+        setLoading(true);
+        setError("");
+        const data = await getComponents();
         setComponents(data);
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
-    })();
+    };
+    fetchAllComponents();
   }, []);
 
   // -- Filter-funktioner (kolla gauge, length mm) --
@@ -443,23 +442,8 @@ export default function ShotgunLoadCreation() {
         tags: tags
       };
 
-      // Skicka till API
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("Du måste vara inloggad för att spara laddningar.");
-
-      const resp = await fetch("http://localhost:8000/api/loads/shotshell", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(doc),
-      });
-
-      if (!resp.ok) {
-        const errorData = await resp.json();
-        throw new Error(errorData.detail || "Kunde inte spara hagelladdningen.");
-      }
+      // Skicka till API via service
+      await saveShotshellLoad(doc);
 
       alert("Laddning sparad!");
 
