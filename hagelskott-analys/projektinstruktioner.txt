@@ -254,5 +254,3 @@ QuizStartPage.jsx (välj kategori, starta quiz).
 QuizRunner.jsx (visar frågor, låter användaren välja svar).
 QuizResult.jsx (visar sammanfattning).
 QuizAdminPage.jsx (admin CRUD på frågor).
-
-OpenAI API key: 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
