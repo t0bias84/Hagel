@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Loader2, AlertCircle, Save } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import HoverTooltip from "./form/HoverTooltip";
@@ -6,6 +6,7 @@ import CollapsibleSection from "./form/CollapsibleSection";
 import GroupedComponents from "./form/GroupedComponents";
 import { getComponents } from "@/services/componentsService";
 import { saveShotshellLoad } from "@/services/loadsService";
+import { useLoadCreationStore } from "@/store/loadCreationStore";
 
 const tagSuggestions = [
   "duvjakt",
@@ -28,78 +29,22 @@ export default function ShotgunLoadCreation() {
   const [loading, setLoading] = useState(false);
   const [hoverComp, setHoverComp] = useState(null);
 
-  // (1) Kaliber & hylslängd
-  const [caliber, setCaliber] = useState("12");
-  const [shellLength, setShellLength] = useState("70");
+  const {
+    // State
+    caliber, shellLength, allComponents, openSections,
+    selectedHull, hullHasPrimer, overridePrimer, selectedPrimer,
+    selectedPowder, powderChargeValue, powderChargeUnit,
+    selectedWad, shotType, selectedShot, selectedSlug,
+    slugWeightValue, slugWeightUnit, duplexA, duplexAvalue, duplexAunit,
+    duplexB, duplexBvalue, duplexBunit, shotWeightValue, shotWeightUnit,
+    useFiller, fillerPosition, fillerQuantity, crimpType,
+    loadName, loadPurpose, tags, newTag,
+    // Actions
+    setField, toggleSection, setAllComponents, selectHull,
+    selectPrimer, selectPowder, selectWad, selectShot, selectSlug,
+    setDuplexA, setDuplexB, handleShotTypeChange, toggleTag, addTag, resetForm
+  } = useLoadCreationStore();
 
-  // Alla komponenter
-  const [components, setComponents] = useState([]);
-
-  // Collapsible states
-  const [openSections, setOpenSections] = useState({
-    hull: true,
-    primer: false,
-    powder: false,
-    wad: false,
-    shot: false,
-    filler: true,
-    crimp: true,
-    naming: true,
-    recoil: false,
-  });
-
-  // Hylsa
-  const [selectedHull, setSelectedHull] = useState(null);
-  const [hullHasPrimer, setHullHasPrimer] = useState(false);
-  const [overridePrimer, setOverridePrimer] = useState(false);
-  const [selectedPrimer, setSelectedPrimer] = useState(null);
-
-  // Krut
-  const [selectedPowder, setSelectedPowder] = useState(null);
-  const [powderChargeValue, setPowderChargeValue] = useState("");
-  const [powderChargeUnit, setPowderChargeUnit] = useState("g");
-
-  // Wad
-  const [selectedWad, setSelectedWad] = useState(null);
-
-  // Single/dubbel/slug
-  const [shotType, setShotType] = useState("lead");
-  const [selectedShot, setSelectedShot] = useState(null);
-
-  // Slug
-  const [selectedSlug, setSelectedSlug] = useState(null);
-  const [slugWeightValue, setSlugWeightValue] = useState("");
-  const [slugWeightUnit, setSlugWeightUnit] = useState("g");
-
-  // Duplex
-  const [duplexA, setDuplexA] = useState(null);
-  const [duplexAvalue, setDuplexAvalue] = useState("");
-  const [duplexAunit, setDuplexAunit] = useState("g");
-  const [duplexB, setDuplexB] = useState(null);
-  const [duplexBvalue, setDuplexBvalue] = useState("");
-  const [duplexBunit, setDuplexBunit] = useState("g");
-
-  // Single shot
-  const [shotWeightValue, setShotWeightValue] = useState("");
-  const [shotWeightUnit, setShotWeightUnit] = useState("g");
-
-  // Filler
-  const [useFiller, setUseFiller] = useState(false);
-  const [fillerPosition, setFillerPosition] = useState("underWad");
-  const [fillerQuantity, setFillerQuantity] = useState("");
-
-  // Crimp
-  const [crimpType, setCrimpType] = useState("star");
-
-  // Namn/syfte/taggar
-  const [loadName, setLoadName] = useState("");
-  const [loadPurpose, setLoadPurpose] = useState("");
-  const [tags, setTags] = useState([]);
-  const [newTag, setNewTag] = useState("");
-
-  // Vapenvikt
-  const [gunWeight, setGunWeight] = useState("");
-  const [muzzleVelocity, setMuzzleVelocity] = useState("");
 
   /** Hämta /api/components */
   useEffect(() => {
@@ -108,7 +53,7 @@ export default function ShotgunLoadCreation() {
         setLoading(true);
         setError("");
         const data = await getComponents();
-        setComponents(data);
+        setAllComponents(data);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -116,81 +61,44 @@ export default function ShotgunLoadCreation() {
       }
     };
     fetchAllComponents();
-  }, []);
+  }, [setAllComponents]);
 
   // -- Filter-funktioner (kolla gauge, length mm) --
-  function isGaugeMatch(compGauge, selectedGauge) {
-    const normalize = (s) => s.replace(" ga", "").trim();
-    return normalize(compGauge || "") === normalize(selectedGauge);
-  }
-  function isLengthMatch(compLengthMm, userShellLength) {
-    const desired = parseFloat(userShellLength);
-    if (!compLengthMm) return false;
-    const rounded = Math.round(compLengthMm);
-    return Math.abs(rounded - desired) <= 1;
-  }
+  const { hulls, primers, powders, wads, shotsFiltered, slugsFiltered } = useMemo(() => {
+    const isGaugeMatch = (compGauge, selectedGauge) => {
+        const normalize = (s) => String(s).replace(" ga", "").trim();
+        return normalize(compGauge || "") === normalize(selectedGauge);
+    };
+    const isLengthMatch = (compLengthMm, userShellLength) => {
+        const desired = parseFloat(userShellLength);
+        if (!compLengthMm) return false;
+        const rounded = Math.round(compLengthMm);
+        return Math.abs(rounded - desired) <= 1;
+    };
 
-  // Hylsor
-  const hulls = components.filter((c) => {
-    if (c.type !== "hull") return false;
-    const g = c.properties?.gauge;
-    let lengthMm = c.properties?.length_mm;
-    if (!lengthMm && c.properties?.length_in) {
-      lengthMm = c.properties.length_in * 25.4;
-    }
-    return isGaugeMatch(g, caliber) && isLengthMatch(lengthMm, shellLength);
-  });
-  // Primers
-  const primers = components.filter((c) => c.type === "primer");
-  // Krut
-  const powders = components.filter((c) => c.type === "powder");
-  // Wad
-  const wads = components.filter((c) => {
-    if (c.type !== "wad") return false;
-    return isGaugeMatch(c.properties?.gauge || "", caliber);
-  });
-  // Shots
-  const shotsFiltered = components.filter((c) => c.type === "shot");
-  const slugsFiltered = components.filter((c) => c.type === "slug");
+    const hulls = allComponents.filter((c) => {
+        if (c.type !== "hull") return false;
+        const g = c.properties?.gauge;
+        let lengthMm = c.properties?.length_mm;
+        if (!lengthMm && c.properties?.length_in) {
+            lengthMm = c.properties.length_in * 25.4;
+        }
+        return isGaugeMatch(g, caliber) && isLengthMatch(lengthMm, shellLength);
+    });
+    const primers = allComponents.filter((c) => c.type === "primer");
+    const powders = allComponents.filter((c) => c.type === "powder");
+    const wads = allComponents.filter((c) => {
+        if (c.type !== "wad") return false;
+        return isGaugeMatch(c.properties?.gauge || "", caliber);
+    });
+    const shotsFiltered = allComponents.filter((c) => c.type === "shot");
+    const slugsFiltered = allComponents.filter((c) => c.type === "slug");
 
-  /** Välj hylsa */
-  function selectHull(hull) {
-    setSelectedHull(hull);
-    // Om hylsan definierar t.ex. "primer" i properties => inbyggd
-    const hasPrimerStr = hull.properties?.primer || "";
-    if (hasPrimerStr.trim().length > 0) {
-      setHullHasPrimer(true);
-      // Sätt en "fejk" selectedPrimer:
-      setSelectedPrimer({
-        _id: null, // EJ 24 hex, expansionskoden hittar den inte => OK
-        name: `Inbyggd primer: ${hasPrimerStr}`,
-        manufacturer: hull.manufacturer,
-      });
-      setOverridePrimer(false);
-      setOpenSections((prev) => ({ ...prev, hull: false, primer: false, powder: true }));
-    } else {
-      setHullHasPrimer(false);
-      setSelectedPrimer(null);
-      setOverridePrimer(false);
-      setOpenSections((prev) => ({ ...prev, hull: false, primer: true }));
-    }
-  }
+    return { hulls, primers, powders, wads, shotsFiltered, slugsFiltered };
+  }, [allComponents, caliber, shellLength]);
 
-  /** Välj primer */
-  function selectPrimerComp(p) {
-    setSelectedPrimer(p);
-    setOpenSections((prev) => ({ ...prev, primer: false, powder: true }));
-  }
 
-  /** Välj krut */
-  function selectPowderComp(p) {
-    setSelectedPowder(p);
-    setOpenSections((prev) => ({ ...prev, powder: false, wad: true }));
-  }
   /** Krutmängd */
-  function handlePowderValueChange(val) {
-    setPowderChargeValue(val);
-  }
   function handlePowderUnitChange(newUnit) {
     if (newUnit === powderChargeUnit) return;
     let oldVal = parseFloat(powderChargeValue) || 0;
@@ -200,44 +108,15 @@ export default function ShotgunLoadCreation() {
     } else if (newUnit === "g" && powderChargeUnit === "gr") {
       converted = grainsToGrams(oldVal);
     }
-    setPowderChargeValue(converted.toFixed(2));
-    setPowderChargeUnit(newUnit);
+    setField('powderChargeValue', converted.toFixed(2));
+    setField('powderChargeUnit', newUnit);
   }
   const powderLabel = selectedPowder
     ? `Krut vald: ${selectedPowder.name} (${powderChargeValue || "?"} ${powderChargeUnit})`
     : "";
 
-  /** Välj wad */
-  function selectWadComp(w) {
-    setSelectedWad(w);
-    setOpenSections((prev) => ({ ...prev, wad: false, shot: true }));
-  }
-
-  /** Shot/slug/duplex val */
-  function handleShotTypeChange(val) {
-    setShotType(val);
-    setSelectedShot(null);
-    setSelectedSlug(null);
-    setSlugWeightValue("");
-    setSlugWeightUnit("g");
-    setDuplexA(null);
-    setDuplexB(null);
-    setDuplexAvalue("");
-    setDuplexBvalue("");
-    setDuplexAunit("g");
-    setDuplexBunit("g");
-    setShotWeightValue("");
-    setShotWeightUnit("g");
-  }
 
   /** Slug */
-  function selectSlugModel(s) {
-    setSelectedSlug(s);
-    setOpenSections((prev) => ({ ...prev, shot: false }));
-  }
-  function handleSlugWeightChange(val) {
-    setSlugWeightValue(val);
-  }
   function handleSlugWeightUnitChange(newUnit) {
     if (newUnit === slugWeightUnit) return;
     let oldVal = parseFloat(slugWeightValue) || 0;
@@ -247,20 +126,11 @@ export default function ShotgunLoadCreation() {
     } else if (newUnit === "g" && slugWeightUnit === "gr") {
       converted = grainsToGrams(oldVal);
     }
-    setSlugWeightValue(converted.toFixed(2));
-    setSlugWeightUnit(newUnit);
+    setField('slugWeightValue', converted.toFixed(2));
+    setField('slugWeightUnit', newUnit);
   }
 
   /** Duplex */
-  function selectDuplexAcomp(c) {
-    setDuplexA(c);
-  }
-  function selectDuplexBcomp(c) {
-    setDuplexB(c);
-  }
-  function handleDuplexAvalueChange(v) {
-    setDuplexAvalue(v);
-  }
   function handleDuplexAunitChange(newUnit) {
     if (newUnit === duplexAunit) return;
     let oldVal = parseFloat(duplexAvalue) || 0;
@@ -270,11 +140,8 @@ export default function ShotgunLoadCreation() {
     } else if (newUnit === "g" && duplexAunit === "gr") {
       converted = grainsToGrams(oldVal);
     }
-    setDuplexAvalue(converted.toFixed(2));
-    setDuplexAunit(newUnit);
-  }
-  function handleDuplexBvalueChange(v) {
-    setDuplexBvalue(v);
+    setField('duplexAvalue', converted.toFixed(2));
+    setField('duplexAunit', newUnit);
   }
   function handleDuplexBunitChange(newUnit) {
     if (newUnit === duplexBunit) return;
@@ -285,18 +152,11 @@ export default function ShotgunLoadCreation() {
     } else if (newUnit === "g" && duplexBunit === "gr") {
       converted = grainsToGrams(oldVal);
     }
-    setDuplexBvalue(converted.toFixed(2));
-    setDuplexBunit(newUnit);
+    setField('duplexBvalue', converted.toFixed(2));
+    setField('duplexBunit', newUnit);
   }
 
   /** Single shot */
-  function selectShotModel(s) {
-    setSelectedShot(s);
-    setOpenSections((prev) => ({ ...prev, shot: false }));
-  }
-  function handleShotWeightValue(val) {
-    setShotWeightValue(val);
-  }
   function handleShotWeightUnitChange(newUnit) {
     if (newUnit === shotWeightUnit) return;
     let oldVal = parseFloat(shotWeightValue) || 0;
@@ -306,27 +166,11 @@ export default function ShotgunLoadCreation() {
     } else if (newUnit === "g" && shotWeightUnit === "gr") {
       converted = grainsToGrams(oldVal);
     }
-    setShotWeightValue(converted.toFixed(2));
-    setShotWeightUnit(newUnit);
+    setField('shotWeightValue', converted.toFixed(2));
+    setField('shotWeightUnit', newUnit);
   }
 
-  /** Taggar */
-  function toggleTag(t) {
-    if (tags.includes(t)) {
-      setTags((prev) => prev.filter((x) => x !== t));
-    } else {
-      setTags((prev) => [...prev, t]);
-    }
-  }
-  function addTag() {
-    if (!newTag.trim()) return;
-    if (!tags.includes(newTag.trim())) {
-      setTags((prev) => [...prev, newTag.trim()]);
-    }
-    setNewTag("");
-  }
-
-  function isShotSectionComplete() {
+  const isShotSectionComplete = useMemo(() => {
     if (shotType === "slug") {
       return selectedSlug && slugWeightValue;
     } else if (shotType === "duplex") {
@@ -334,7 +178,7 @@ export default function ShotgunLoadCreation() {
     } else {
       return selectedShot && shotWeightValue;
     }
-  }
+  }, [shotType, selectedSlug, slugWeightValue, duplexA, duplexB, duplexAvalue, duplexBvalue, selectedShot, shotWeightValue]);
 
   /** Spara laddning */
   async function handleSaveLoad() {
@@ -342,96 +186,23 @@ export default function ShotgunLoadCreation() {
       setError("");
       setLoading(true);
       
-      // Grundläggande validering
       if (!loadName.trim()) throw new Error("Du måste ange ett namn på laddningen.");
       if (!selectedHull?._id) throw new Error("Du måste välja en giltig hylsa.");
-      if (!selectedPrimer?._id && !hullHasPrimer) throw new Error("Du måste välja en giltig tändhatt.");
-      if (!selectedPowder?._id) throw new Error("Du måste välja ett giltigt krut.");
-      if (!powderChargeValue) throw new Error("Du måste ange krutmängd.");
-      if (!selectedWad?._id) throw new Error("Du måste välja en giltig förladdning.");
 
-      // Validera hagel/slug baserat på typ
-      if (shotType === "slug") {
-        if (!selectedSlug?._id) throw new Error("Du måste välja en giltig slug.");
-        if (!slugWeightValue) throw new Error("Du måste ange slugvikt.");
-      } else if (shotType === "duplex") {
-        if (!duplexA?._id || !duplexB?._id) throw new Error("Du måste välja giltiga hageltyper för duplex.");
-        if (!duplexAvalue || !duplexBvalue) throw new Error("Du måste ange vikt för båda hageltyperna.");
-      } else {
-        if (!selectedShot?._id) throw new Error("Du måste välja en giltig hageltyp.");
-        if (!shotWeightValue) throw new Error("Du måste ange hagelvikt.");
+      const components = [{ id: selectedHull._id, type: "hull" }];
+      if (selectedPrimer?._id) components.push({ id: selectedPrimer._id, type: "primer" });
+      if (selectedPowder?._id) components.push({ id: selectedPowder._id, type: "powder", weight: parseFloat(powderChargeValue) });
+      if (selectedWad?._id) components.push({ id: selectedWad._id, type: "wad" });
+
+      if (shotType === "slug" && selectedSlug?._id) {
+          components.push({ id: selectedSlug._id, type: "slug", weight: parseFloat(slugWeightValue) });
+      } else if (shotType === "duplex" && duplexA?._id && duplexB?._id) {
+          components.push({ id: duplexA._id, type: "shot", weight: parseFloat(duplexAvalue) });
+          components.push({ id: duplexB._id, type: "shot", weight: parseFloat(duplexBvalue) });
+      } else if (selectedShot?._id) {
+          components.push({ id: selectedShot._id, type: "shot", weight: parseFloat(shotWeightValue) });
       }
 
-      // Bygg components array med bara validerade komponenter
-      const components = [];
-
-      // Lägg till hylsa
-      components.push({
-        id: selectedHull._id,
-        name: selectedHull.name,
-        type: "hull",
-        weight: selectedHull.weight || 0
-      });
-
-      // Lägg till tändhatt om den inte är inbyggd
-      if (!hullHasPrimer || overridePrimer) {
-        components.push({
-          id: selectedPrimer._id,
-          name: selectedPrimer.name,
-          type: "primer",
-          weight: selectedPrimer.weight || 0
-        });
-      }
-
-      // Lägg till krut med angiven vikt
-      components.push({
-        id: selectedPowder._id,
-        name: selectedPowder.name,
-        type: "powder",
-        weight: parseFloat(powderChargeValue)
-      });
-
-      // Lägg till förladdning
-      components.push({
-        id: selectedWad._id,
-        name: selectedWad.name,
-        type: "wad",
-        weight: selectedWad.weight || 0
-      });
-
-      // Lägg till hagel/slug baserat på typ
-      if (shotType === "slug") {
-        components.push({
-          id: selectedSlug._id,
-          name: selectedSlug.name,
-          type: "slug",
-          weight: parseFloat(slugWeightValue)
-        });
-      } else if (shotType === "duplex") {
-        components.push(
-          {
-            id: duplexA._id,
-            name: duplexA.name,
-            type: "shot",
-            weight: parseFloat(duplexAvalue)
-          },
-          {
-            id: duplexB._id,
-            name: duplexB.name,
-            type: "shot",
-            weight: parseFloat(duplexBvalue)
-          }
-        );
-      } else {
-        components.push({
-          id: selectedShot._id,
-          name: selectedShot.name,
-          type: "shot",
-          weight: parseFloat(shotWeightValue)
-        });
-      }
-
-      // Bygg docs med validerade komponenter
       const doc = {
         name: loadName.trim(),
         description: loadPurpose.trim(),
@@ -439,57 +210,14 @@ export default function ShotgunLoadCreation() {
         gauge: caliber,
         shellLength: parseFloat(shellLength),
         components: components,
-        tags: tags
+        tags: tags,
+        crimp: { type: crimpType },
       };
 
-      // Skicka till API via service
       await saveShotshellLoad(doc);
-
       alert("Laddning sparad!");
+      resetForm();
 
-      // Återställ formuläret
-      setLoadName("");
-      setLoadPurpose("");
-      setCaliber("12");
-      setShellLength("70");
-      setSelectedHull(null);
-      setHullHasPrimer(false);
-      setSelectedPrimer(null);
-      setOverridePrimer(false);
-      setSelectedPowder(null);
-      setPowderChargeValue("");
-      setPowderChargeUnit("g");
-      setSelectedWad(null);
-      setShotType("lead");
-      setSelectedShot(null);
-      setSelectedSlug(null);
-      setSlugWeightValue("");
-      setSlugWeightUnit("g");
-      setDuplexA(null);
-      setDuplexB(null);
-      setDuplexAvalue("");
-      setDuplexBvalue("");
-      setDuplexAunit("g");
-      setDuplexBunit("g");
-      setShotWeightValue("");
-      setShotWeightUnit("g");
-      setUseFiller(false);
-      setFillerPosition("underWad");
-      setFillerQuantity("");
-      setCrimpType("star");
-      setTags([]);
-      setNewTag("");
-      setOpenSections({
-        hull: true,
-        primer: false,
-        powder: false,
-        wad: false,
-        shot: false,
-        filler: true,
-        crimp: true,
-        naming: true,
-        recoil: false,
-      });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -517,7 +245,7 @@ export default function ShotgunLoadCreation() {
         <CollapsibleSection
           title="(1) Kaliber & Hylslängd"
           isOpen={openSections.hull}
-          onToggle={() => setOpenSections((prev) => ({ ...prev, hull: !prev.hull }))}
+          onToggle={() => toggleSection('hull')}
           selected={!!selectedHull}
           selectedText={selectedHull ? `Hylsa vald: ${selectedHull.name}` : ""}
         >
@@ -527,9 +255,8 @@ export default function ShotgunLoadCreation() {
               <select
                 className="w-full rounded bg-military-700 border-military-600 p-2 text-gray-100"
                 value={caliber}
-                onChange={(e) => setCaliber(e.target.value)}
+                onChange={(e) => setField('caliber', e.target.value)}
               >
-                <option value="10">10 ga</option>
                 <option value="12">12 ga</option>
                 <option value="16">16 ga</option>
                 <option value="20">20 ga</option>
@@ -542,7 +269,7 @@ export default function ShotgunLoadCreation() {
               <select
                 className="w-full rounded bg-military-700 border-military-600 p-2 text-gray-100"
                 value={shellLength}
-                onChange={(e) => setShellLength(e.target.value)}
+                onChange={(e) => setField('shellLength', e.target.value)}
               >
                 <option value="65">65 mm</option>
                 <option value="70">70 mm</option>
@@ -561,7 +288,7 @@ export default function ShotgunLoadCreation() {
         <CollapsibleSection
           title="(2) Tändhatt"
           isOpen={openSections.primer}
-          onToggle={() => setOpenSections((p) => ({ ...p, primer: !p.primer }))}
+          onToggle={() => toggleSection('primer')}
           selected={!!selectedPrimer}
           selectedText={
             hullHasPrimer && !overridePrimer
@@ -577,18 +304,16 @@ export default function ShotgunLoadCreation() {
                 type="checkbox"
                 checked={overridePrimer}
                 onChange={(e) => {
-                  setOverridePrimer(e.target.checked);
-                  if (!e.target.checked) {
-                    if (selectedHull) {
+                  setField('overridePrimer', e.target.checked);
+                  if (!e.target.checked && selectedHull) {
                       const pStr = selectedHull.properties?.primer || "";
-                      setSelectedPrimer({
-                        _id: null,
+                      selectPrimer({
+                        _id: `inHull:${selectedHull._id}`,
                         name: `Inbyggd primer: ${pStr}`,
                         manufacturer: selectedHull.manufacturer,
                       });
-                    }
                   } else {
-                    setSelectedPrimer(null);
+                    setField('selectedPrimer', null);
                   }
                 }}
               />
@@ -596,7 +321,7 @@ export default function ShotgunLoadCreation() {
             </label>
           )}
           {(!hullHasPrimer || overridePrimer) && (
-            <GroupedComponents comps={primers} onSelect={selectPrimerComp} onHover={setHoverComp} />
+            <GroupedComponents comps={primers} onSelect={selectPrimer} onHover={setHoverComp} />
           )}
         </CollapsibleSection>
 
@@ -604,7 +329,7 @@ export default function ShotgunLoadCreation() {
         <CollapsibleSection
           title="(3) Krut"
           isOpen={openSections.powder}
-          onToggle={() => setOpenSections((p) => ({ ...p, powder: !p.powder }))}
+          onToggle={() => toggleSection('powder')}
           selected={!!selectedPowder}
           selectedText={powderLabel}
         >
@@ -618,7 +343,7 @@ export default function ShotgunLoadCreation() {
                 className="w-full rounded bg-military-700 border-2 border-white p-2 text-gray-100 text-xs"
                 placeholder="ex: 1.65"
                 value={powderChargeValue}
-                onChange={(e) => handlePowderValueChange(e.target.value)}
+                onChange={(e) => setField('powderChargeValue', e.target.value)}
               />
             </div>
             <div>
@@ -635,7 +360,7 @@ export default function ShotgunLoadCreation() {
           </div>
           <GroupedComponents
             comps={powders}
-            onSelect={selectPowderComp}
+            onSelect={selectPowder}
             onHover={setHoverComp}
           />
         </CollapsibleSection>
@@ -644,13 +369,13 @@ export default function ShotgunLoadCreation() {
         <CollapsibleSection
           title="(4) Förladdning (Wad)"
           isOpen={openSections.wad}
-          onToggle={() => setOpenSections((p) => ({ ...p, wad: !p.wad }))}
+          onToggle={() => toggleSection('wad')}
           selected={!!selectedWad}
           selectedText={selectedWad ? selectedWad.name : ""}
         >
           <GroupedComponents
             comps={wads}
-            onSelect={selectWadComp}
+            onSelect={selectWad}
             onHover={setHoverComp}
           />
         </CollapsibleSection>
@@ -659,9 +384,9 @@ export default function ShotgunLoadCreation() {
         <CollapsibleSection
           title="(5) Hagel / Slug"
           isOpen={openSections.shot}
-          onToggle={() => setOpenSections((p) => ({ ...p, shot: !p.shot }))}
-          selected={isShotSectionComplete()}
-          selectedText={isShotSectionComplete() ? "Hagel / Slug klart" : ""}
+          onToggle={() => toggleSection('shot')}
+          selected={isShotSectionComplete}
+          selectedText={isShotSectionComplete ? "Hagel / Slug klart" : ""}
         >
           <label className="block text-[10px] font-medium text-gray-300 mb-1">
             Typ
@@ -694,7 +419,7 @@ export default function ShotgunLoadCreation() {
                       className="w-full rounded bg-military-700 border-2 border-white p-2 text-gray-100 text-xs"
                       placeholder="28"
                       value={slugWeightValue}
-                      onChange={(e) => handleSlugWeightChange(e.target.value)}
+                      onChange={(e) => setField('slugWeightValue', e.target.value)}
                     />
                   </div>
                   <div>
@@ -712,7 +437,7 @@ export default function ShotgunLoadCreation() {
               </div>
               <GroupedComponents
                 comps={slugsFiltered}
-                onSelect={selectSlugModel}
+                onSelect={selectSlug}
                 onHover={setHoverComp}
               />
               {selectedSlug && (
@@ -739,7 +464,7 @@ export default function ShotgunLoadCreation() {
                     className="w-20 rounded bg-military-700 border-2 border-white p-1 text-gray-100 text-xs"
                     placeholder="14"
                     value={duplexAvalue}
-                    onChange={(e) => handleDuplexAvalueChange(e.target.value)}
+                    onChange={(e) => setField('duplexAvalue', e.target.value)}
                   />
                   <select
                     value={duplexAunit}
@@ -752,7 +477,7 @@ export default function ShotgunLoadCreation() {
                 </div>
                 <GroupedComponents
                   comps={shotsFiltered}
-                  onSelect={selectDuplexAcomp}
+                  onSelect={setDuplexA}
                   onHover={setHoverComp}
                 />
               </div>
@@ -765,7 +490,7 @@ export default function ShotgunLoadCreation() {
                     className="w-20 rounded bg-military-700 border-2 border-white p-1 text-gray-100 text-xs"
                     placeholder="14"
                     value={duplexBvalue}
-                    onChange={(e) => handleDuplexBvalueChange(e.target.value)}
+                    onChange={(e) => setField('duplexBvalue', e.target.value)}
                   />
                   <select
                     value={duplexBunit}
@@ -778,7 +503,7 @@ export default function ShotgunLoadCreation() {
                 </div>
                 <GroupedComponents
                   comps={shotsFiltered}
-                  onSelect={selectDuplexBcomp}
+                  onSelect={setDuplexB}
                   onHover={setHoverComp}
                 />
               </div>
@@ -802,7 +527,7 @@ export default function ShotgunLoadCreation() {
                       className="w-full rounded bg-military-700 border-2 border-white p-1 text-gray-100 text-xs"
                       placeholder="28"
                       value={shotWeightValue}
-                      onChange={(e) => handleShotWeightValue(e.target.value)}
+                      onChange={(e) => setField('shotWeightValue', e.target.value)}
                     />
                   </div>
                   <div>
@@ -825,7 +550,7 @@ export default function ShotgunLoadCreation() {
                   const mat = (c.properties?.material || "").toLowerCase();
                   return mat === shotType;
                 })}
-                onSelect={selectShotModel}
+                onSelect={selectShot}
                 onHover={setHoverComp}
               />
               {selectedShot && (
@@ -843,14 +568,14 @@ export default function ShotgunLoadCreation() {
         <CollapsibleSection
           title="(6) Filler / Buffer"
           isOpen={openSections.filler}
-          onToggle={() => setOpenSections((p) => ({ ...p, filler: !p.filler }))}
+          onToggle={() => toggleSection('filler')}
         >
           <label className="inline-flex items-center mb-2 text-xs">
             <input
               type="checkbox"
               className="mr-2"
               checked={useFiller}
-              onChange={(e) => setUseFiller(e.target.checked)}
+              onChange={(e) => setField('useFiller', e.target.checked)}
             />
             <span className="text-gray-200">Använd filler/buffer?</span>
           </label>
@@ -861,7 +586,7 @@ export default function ShotgunLoadCreation() {
                 <select
                   className="w-full rounded bg-military-700 border-military-600 p-2 text-gray-100 text-xs"
                   value={fillerPosition}
-                  onChange={(e) => setFillerPosition(e.target.value)}
+                  onChange={(e) => setField('fillerPosition', e.target.value)}
                 >
                   <option value="underWad">Under förladdning</option>
                   <option value="inWad">I förladdning</option>
@@ -875,7 +600,7 @@ export default function ShotgunLoadCreation() {
                   placeholder="Ex: 1g plastkulor"
                   className="w-full rounded bg-military-700 border-military-600 p-2 text-gray-100 text-xs"
                   value={fillerQuantity}
-                  onChange={(e) => setFillerQuantity(e.target.value)}
+                  onChange={(e) => setField('fillerQuantity', e.target.value)}
                 />
               </div>
             </div>
@@ -886,12 +611,12 @@ export default function ShotgunLoadCreation() {
         <CollapsibleSection
           title="(7) Crimp"
           isOpen={openSections.crimp}
-          onToggle={() => setOpenSections((p) => ({ ...p, crimp: !p.crimp }))}
+          onToggle={() => toggleSection('crimp')}
         >
           <select
             className="w-full rounded bg-military-700 border-military-600 p-2 text-gray-100 text-xs"
             value={crimpType}
-            onChange={(e) => setCrimpType(e.target.value)}
+            onChange={(e) => setField('crimpType', e.target.value)}
           >
             <option value="star">Stjärncrimp</option>
             <option value="roll">Rullcrimp (overshotcard)</option>
@@ -902,7 +627,7 @@ export default function ShotgunLoadCreation() {
         <CollapsibleSection
           title="(8) Namn & Övrigt att notera"
           isOpen={openSections.naming}
-          onToggle={() => setOpenSections((p) => ({ ...p, naming: !p.naming }))}
+          onToggle={() => toggleSection('naming')}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <div>
@@ -911,7 +636,7 @@ export default function ShotgunLoadCreation() {
                 type="text"
                 className="w-full rounded bg-military-700 border-military-600 p-2 text-gray-100 text-xs"
                 value={loadName}
-                onChange={(e) => setLoadName(e.target.value)}
+                onChange={(e) => setField('loadName', e.target.value)}
               />
             </div>
             <div>
@@ -920,7 +645,7 @@ export default function ShotgunLoadCreation() {
                 type="text"
                 className="w-full rounded bg-military-700 border-military-600 p-2 text-gray-100 text-xs"
                 value={loadPurpose}
-                onChange={(e) => setLoadPurpose(e.target.value)}
+                onChange={(e) => setField('loadPurpose', e.target.value)}
               />
             </div>
           </div>
@@ -968,7 +693,7 @@ export default function ShotgunLoadCreation() {
                 className="w-full rounded bg-military-700 border-military-600 p-2 text-gray-100 text-xs"
                 placeholder="Lägg till ny tagg..."
                 value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
+                onChange={(e) => setField('newTag', e.target.value)}
               />
               <button
                 onClick={addTag}
