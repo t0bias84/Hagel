@@ -18,6 +18,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { en } from "@/translations/en";
 import { sv } from "@/translations/sv";
+import LoadCard from "./LoadCard";
 
 /**
  * LoadListPage
@@ -445,120 +446,21 @@ export default function LoadListPage() {
         </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {finalLoads.map((ld, index) => (
-            <div
-              key={ld._id}
-              className={`bg-military-800 rounded-lg shadow-lg overflow-hidden ${
-                favorites.has(ld._id) ? "border border-yellow-500" : ""
-              }`}
-            >
-              <div className="p-4">
-                {/* Om det är topplistan, visa placering */}
-                {activeTab === "top" && (
-                  <div className="absolute top-2 right-2 w-8 h-8 rounded-full bg-red-700 flex items-center justify-center text-white font-bold">
-                    {index + 1}
-                  </div>
-                )}
-                
-                <div className="flex justify-between items-start mb-2">
-                  <h2 className="text-base font-bold text-white">
-                    <button 
-                      onClick={() => navigate(`/loads/${ld._id}`)}
-                      className="hover:text-red-400 transition-colors text-left"
-                    >
-                      {ld.name}
-                    </button>
-                  </h2>
-                  <button
-                    onClick={() => toggleFavorite(ld._id)}
-                    className="text-yellow-500 hover:text-yellow-400"
-                  >
-                    {favorites.has(ld._id) ? "★" : "☆"}
-                  </button>
-                </div>
-                
-                <div className="text-sm text-gray-300 mb-4">
-                  {ld.ownerName && <p>{t.loads.display.createdBy} {ld.ownerName}</p>}
-                  {ld.tags && ld.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {ld.tags.map((tag, idx) => (
-                        <span key={idx} className="px-2 py-1 bg-military-700 rounded-full text-xs">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {/* Laddningsinformation */}
-                  <div className="mt-3 space-y-1">
-                    <p>{t.loads.components.hull}: {ld.hullObject?.name || t.loads.display.noHull}</p>
-                    <p>{t.loads.components.primer}: {getPrimerDisplay(ld)}</p>
-                    <p>{t.loads.components.powder}: {ld.powderObject?.name || t.loads.display.noPowder} {ld.powderWeight ? `(${ld.powderWeight} gr)` : ""}</p>
-                    <p>{t.loads.components.wad}: {ld.wadObject?.name || t.loads.display.noWad}</p>
-                    <p>{t.loads.components.shotType}: {ld.shotObject?.name || ld.shotLoads?.[0]?.material || t.loads.display.noShot} {ld.shotWeight ? `(${ld.shotWeight} gr)` : ""}</p>
-                    {ld.description && (
-                      <p className="mt-2 text-gray-400">{ld.description}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {currentUser && ld.ownerId === currentUser.id && (
-                    <>
-                      <button
-                        onClick={() => handleEdit(ld._id)}
-                        className="p-2 bg-military-700 hover:bg-military-600 rounded-full"
-                        title={t.loads.actions.edit}
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(ld._id)}
-                        className="p-2 bg-military-700 hover:bg-military-600 rounded-full"
-                        title={t.loads.actions.delete}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </>
-                  )}
-                  <button
-                    onClick={() => handleShare(ld)}
-                    className="p-2 bg-military-700 hover:bg-military-600 rounded-full"
-                    title={t.loads.actions.share}
-                  >
-                    <Share2 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleForumPost(ld)}
-                    className="p-2 bg-military-700 hover:bg-military-600 rounded-full"
-                    title={t.loads.actions.createForumPost}
-                  >
-                    <MessageSquarePlus className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handlePatternAnalysis(ld)}
-                    className="p-2 bg-military-700 hover:bg-military-600 rounded-full"
-                    title={t.loads.actions.patternAnalysis}
-                  >
-                    <ArrowRightCircle className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handlePenetrationAnalysis(ld)}
-                    className="p-2 bg-military-700 hover:bg-military-600 rounded-full"
-                    title={t.loads.actions.penetrationAnalysis}
-                  >
-                    <ArrowUpCircle className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleRecoilAnalysis(ld)}
-                    className="p-2 bg-military-700 hover:bg-military-600 rounded-full"
-                    title={t.loads.actions.recoilAnalysis}
-                  >
-                    <Zap className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
+          {finalLoads.map((load) => (
+            <LoadCard
+              key={load._id}
+              load={load}
+              currentUser={currentUser}
+              isFavorite={favorites.has(load._id)}
+              onToggleFavorite={toggleFavorite}
+              onDelete={handleDelete}
+              onEdit={handleEdit}
+              onShare={handleShare}
+              onGoToForum={handleForumPost}
+              onGoToPattern={handlePatternAnalysis}
+              onGoToPenetration={handlePenetrationAnalysis}
+              onGoToRecoil={handleRecoilAnalysis}
+            />
           ))}
         </div>
       )}
