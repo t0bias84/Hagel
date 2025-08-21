@@ -79,7 +79,7 @@ from app.api.routes.social import router as social_router
 # Övriga routrar
 from app.api.routes.loads import router as loads_router
 from app.api.routes.components import router as components_router
-from app.api.routes import analysis, auth, users
+from app.api.routes import analysis, auth, users, inventory
 from app.api.routes.auth import get_current_active_user, User, create_test_users
 from app.api.routes import quiz as quiz_router
 from app.api.routes import admin
@@ -272,6 +272,14 @@ app.include_router(
     admin.router,
     prefix="/api/admin",
     tags=["admin"],
+    dependencies=[Depends(get_current_active_user)]
+)
+
+# Inventory
+app.include_router(
+    inventory.router,
+    prefix="/api/inventory",
+    tags=["inventory"],
     dependencies=[Depends(get_current_active_user)]
 )
 
