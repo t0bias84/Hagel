@@ -13,7 +13,8 @@ import {
   Zap,
   Users,
   Home,
-  PlusCircle
+  PlusCircle,
+  Package
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -64,6 +65,7 @@ export default function Sidebar({
   const extraItems = [
     { name: t.navigation?.loads || "My Loads", path: "/loads", icon: Eye },
     { name: t.navigation?.components || "Components", path: "/upload-components", icon: Plus },
+    { name: "Inventory", path: "/inventory", icon: Package },
     { name: t.navigation?.forum || "Forum", path: "/forum", icon: MessageSquare },
     { name: t.navigation?.quiz || "Quiz", path: "/quiz", icon: ClipboardCheck }
   ];

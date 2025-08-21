@@ -66,6 +66,7 @@ const RecoilAnalysisSelectionPage = lazy(() => import("./pages/RecoilAnalysisSel
 // === Importera vår nya ComponentEditPage för att kunna redigera komponenter ===
 import ComponentEditPage from "./pages/ComponentEditPage";
 import ProfilePage from "./pages/ProfilePage";
+import InventoryPage from "./pages/InventoryPage";
 
 // === NYTT: Lazy-ladda PenetrationTestPage (som du själv skapar) ===
 const PenetrationTestPage = lazy(() => import("./pages/PenetrationTestPage/PenetrationTestPage"));
@@ -166,6 +167,18 @@ const AppWithLanguage = () => {
             <ProtectedRoute>
               <Layout>
                 <Dashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Inventory */}
+        <Route
+          path="/inventory"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <InventoryPage />
               </Layout>
             </ProtectedRoute>
           }
