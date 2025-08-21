@@ -42,6 +42,7 @@ import QuizResultPage from "./pages/QuizResultPage";
 // Language context och Auth context
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 // === Import av QUIZ-sidor direkt ===
 // (Redan gjort ovan)
@@ -441,7 +442,9 @@ function App() {
       <Router>
         <LanguageProvider>
           <AuthProvider>
-            <AppWithLanguage />
+            <ThemeProvider>
+              <AppWithLanguage />
+            </ThemeProvider>
           </AuthProvider>
         </LanguageProvider>
       </Router>
