@@ -12,6 +12,8 @@ import io
 from app.core.config import settings
 from app.db.mongodb import db
 from app.api.routes.auth import get_current_active_user, User, UserInDB
+from app.api.schemas.load_schemas import ShotshellLoadResponse
+from app.api.routes.loads import expand_components_in_loads
 from pydantic import BaseModel, EmailStr, Field
 
 # Konfigurera logging
@@ -466,6 +468,36 @@ async def get_user_profile_by_id(user_id: str):
     except Exception as e:
         logger.error(f"Error in get_user_profile_by_id: {str(e)}")
         return UserProfile(**default_profile)
+
+
+@router.get("/{user_id}/loads", response_model=List[ShotshellLoadResponse])
+async def get_user_loads(user_id: str):
+    """
+    Hämta alla publika laddningar för en specifik användare.
+    """
+    if not ObjectId.is_valid(user_id):
+        raise HTTPException(status_code=400, detail="Ogiltigt användar-ID-format")
+
+    try:
+        database = await db.get_database()
+        loads_coll = database["loads"]
+
+        # Hämta alla publika laddningar för användaren
+        loads = await loads_coll.find({
+            "ownerId": user_id,
+            "isPublic": True
+        }).to_list(length=100) # Begränsa antalet för att undvika överbelastning
+
+        # Expandera komponenter och konvertera _id
+        for load in loads:
+            load["_id"] = str(load["_id"])
+
+        await expand_components_in_loads(loads)
+
+        return loads
+    except Exception as e:
+        logger.error(f"Error fetching user loads: {str(e)}")
+        raise HTTPException(status_code=500, detail="Kunde inte hämta användarens laddningar")
 
 
 @router.get("/", response_model=List[User])

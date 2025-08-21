@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   Trash2,
   Edit3,
@@ -70,7 +70,12 @@ export default function LoadCard({
 
         {/* Meta Info */}
         <div className="text-xs text-gray-400 mb-4">
-          <p>av {load.ownerName || 'Okänd'}</p>
+          <p>
+            av{' '}
+            <Link to={`/profile/${load.ownerId}`} className="hover:text-white hover:underline">
+              {load.ownerName || 'Okänd'}
+            </Link>
+          </p>
           {load.tags && load.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
               {load.tags.map((tag) => (
