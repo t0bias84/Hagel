@@ -13,6 +13,8 @@ import { useNavigate } from "react-router-dom";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { fieldDefinitions } from "@/config/fieldDefinitions";
+import { getComponents, createComponent, deleteComponent } from "@/services/componentsService";
+import ComponentCard from "@/components/ComponentCard";
 
 export default function ComponentsPage() {
   const navigate = useNavigate();
@@ -65,15 +67,7 @@ export default function ComponentsPage() {
     try {
       setLoading(true);
       setError(null);
-
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8000/api/components", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Could not fetch components");
-
-      const data = await res.json();
-      // Sortera
+      const data = await getComponents();
       data.sort((a, b) => a.name.localeCompare(b.name));
       setComponents(data);
     } catch (err) {
@@ -114,22 +108,12 @@ export default function ComponentsPage() {
       formData.append("description", newComponent.description);
       formData.append("caliber", newComponent.caliber);
       formData.append("category", newComponent.category);
-
-      // Skicka med "properties" i JSON
       formData.append("properties", JSON.stringify(newComponent.properties || {}));
-
-      // Ev. bild
       if (newComponent.image) {
         formData.append("file", newComponent.image);
       }
 
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8000/api/components", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-      if (!res.ok) throw new Error("Kunde inte spara komponenten");
+      await createComponent(formData);
 
       // Hämta lista igen
       await fetchComponents();
@@ -156,12 +140,7 @@ export default function ComponentsPage() {
   const handleDelete = async (id) => {
     if (!window.confirm("Vill du verkligen ta bort?")) return;
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:8000/api/components/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Kunde inte ta bort komponenten");
+      await deleteComponent(id);
       setComponents((prev) => prev.filter((c) => c._id !== id));
     } catch (err) {
       setError(err.message);
@@ -452,66 +431,33 @@ export default function ComponentsPage() {
         )}
 
         {/* Lista av befintliga komponenter */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {Object.entries(groupedTypes).map(([category, types]) => (
-            types.map(type => {
-              const typeComponents = filteredComponents.filter(comp => comp.type === type.id);
-              if (typeComponents.length === 0) return null;
-              
-              return (
-                <div key={type.id} className="bg-military-800 rounded-lg p-3">
-                  <h3 className="text-sm font-semibold mb-2 text-gray-300">{type.name}</h3>
-                  <div className="space-y-2">
-                    {typeComponents.map((comp) => (
-                      <div
-                        key={comp._id}
-                        className="bg-military-700 rounded p-2 hover:bg-military-600 transition-colors"
-                      >
-                        <div className="flex items-start gap-2">
-                          {comp.image?.url ? (
-                            <img
-                              src={comp.image.url}
-                              alt={comp.name}
-                              className="w-12 h-12 rounded object-cover"
-                            />
-                          ) : (
-                            <div className="w-12 h-12 bg-military-600 rounded flex items-center justify-center">
-                              <Camera className="w-6 h-6 text-gray-400" />
-                            </div>
-                          )}
+            <div key={category}>
+              <h2 className="text-lg font-bold text-red-400 mb-4">{category}</h2>
+              <div className="space-y-4">
+                {types.map(type => {
+                  const typeComponents = filteredComponents.filter(comp => comp.type === type.id);
+                  if (typeComponents.length === 0) return null;
 
-                          <div className="flex-1 min-w-0">
-                            <div className="flex justify-between items-start">
-                              <h4 className="text-sm font-medium truncate">{comp.name}</h4>
-                              <div className="flex gap-1">
-                                <button
-                                  onClick={() => handleEdit(comp._id)}
-                                  className="text-blue-400 p-1 hover:text-blue-300"
-                                >
-                                  <Edit className="w-3 h-3" />
-                                </button>
-                                <button
-                                  onClick={() => handleDelete(comp._id)}
-                                  className="text-red-400 p-1 hover:text-red-300"
-                                >
-                                  <Trash2 className="w-3 h-3" />
-                                </button>
-                              </div>
-                            </div>
-                            <p className="text-xs text-gray-400 truncate">{comp.manufacturer || "—"}</p>
-                            {comp.caliber && (
-                              <span className="inline-block mt-1 px-1.5 py-0.5 text-[10px] bg-military-600 rounded">
-                                {comp.caliber}
-                              </span>
-                            )}
-                          </div>
-                        </div>
+                  return (
+                    <div key={type.id}>
+                      <h3 className="text-md font-semibold mb-3 text-gray-300">{type.name}</h3>
+                      <div className="space-y-3">
+                        {typeComponents.map((comp) => (
+                          <ComponentCard
+                            key={comp._id}
+                            component={comp}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                          />
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           ))}
         </div>
 

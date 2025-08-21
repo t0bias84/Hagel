@@ -18,7 +18,8 @@ import {
   ftLbsToJoule
 } from "./penetrationUtils";
 
-import { getPelletCount } from "@/utils/shotCalculator"; 
+import { getPelletCount } from "@/utils/shotCalculator";
+import { getPenetrationData } from "@/services/loadsService";
 // shotCalculator => beräknar pellets ~ ex. baserat på densitet, storlek, grams
 
 export default function PenetrationTestPage() {
@@ -39,15 +40,17 @@ export default function PenetrationTestPage() {
   const [shotLoad, setShotLoad] = useState(28);
   const [pelletCount, setPelletCount] = useState(0);
   const [useMetric, setUseMetric] = useState(false);
+  const [visibleLines, setVisibleLines] = useState({
+    penetration: true,
+    velocity: true,
+    energy: false,
+  });
 
   // Data
   const [dataPoints, setDataPoints] = useState([]);
   const [lethalObj, setLethalObj] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Sätt denna = false om du vill anropa servern.
-  const LOCAL_MODE = true;
 
   // 1. Hämta alla laddningar
   useEffect(() => {
@@ -106,67 +109,28 @@ export default function PenetrationTestPage() {
         setDataPoints([]);
         setLethalObj({});
 
-        if(LOCAL_MODE) {
-          // Lokalt: generera
-          const muzzle_fps = parseFloat(muzzle) || 1200;
-          const arr = computePenetrationShots(
-            muzzle_fps, shotSize, shotType,
-            60, // maxDist yard
-            2   // steg
-          );
-          // Nu addera energi för "per hagel" och "total"
-          const final = arr.map(row => {
-            // per hagel => row.energy_ftlbs
-            // Här i koden har row.energy_ftlbs ~ i "approximateEnergy"
-            const e = row.energy_ftlbs;
-            const tot = e * pelletCount;
-            return {
-              ...row,
-              energy_pellet_ftlbs: e,
-              total_energy_ftlbs: tot
-            };
-          });
-          setDataPoints(final);
-          // lethal
-          const lethal = getAllLethalDistances(final);
-          setLethalObj(lethal);
-        } else {
-          // Avancerat: anropa server
-          const muzzle_fps = parseFloat(muzzle) || 1300;
-          const qs = new URLSearchParams({
-            muzzle: muzzle_fps.toString(),
-            shotSize: shotSize.trim(),
-            shotType: shotType.trim().toLowerCase(),
-            shotLoadGram: shotLoad.toString()
-          });
-          const token = localStorage.getItem("token") || "";
-          const url = `${import.meta.env.VITE_API_URL}/api/loads/penetration-flex-params?${qs.toString()}`;
-          console.log("GET", url);
+        const params = {
+          muzzle: parseFloat(muzzle) || 1300,
+          shotSize: shotSize.trim(),
+          shotType: shotType.trim().toLowerCase(),
+          shotLoadGram: shotLoad,
+        };
 
-          const resp = await fetch(url, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          if(!resp.ok) {
-            throw new Error("HTTP " + resp.status + " - kunde ej hämta ballistik");
-          }
-          const json = await resp.json();
-          const raw = json.dataPoints || [];
-          // Samma operation: append totalEnergy
-          const final = raw.map(row => {
-            const e = row.energy_pellet_ftlbs ?? 0;
-            const tot = e * pelletCount;
+        const json = await getPenetrationData(params);
+        const raw = json.dataPoints || [];
+
+        const final = raw.map(row => {
+            const e_j = row.energy_per_hagel_j ?? 0;
+            const tot_j = e_j * pelletCount;
             return {
-              distance_yd: row.distance_yd,
-              velocity_fps: row.velocity_fps,
-              penetration_in: row.penetration_in,
-              energy_pellet_ftlbs: e,
-              total_energy_ftlbs: tot
+                ...row,
+                total_energy_j: tot_j,
             };
-          });
-          setDataPoints(final);
-          const lethal = getAllLethalDistances(final);
-          setLethalObj(lethal);
-        }
+        });
+
+        setDataPoints(final);
+        const lethal = getAllLethalDistances(final);
+        setLethalObj(lethal);
       } catch(err) {
         console.error(err);
         setError(err.message || "Något gick fel");
@@ -242,11 +206,14 @@ export default function PenetrationTestPage() {
           {/* Muzzle */}
           <div>
             <label className="block text-xs text-gray-300 mb-1">
-              Muzzle (fps)
+              Muzzle Velocity: <span className="font-bold text-white">{muzzle} fps</span>
             </label>
             <input
-              type="number"
-              className="w-full bg-military-800 border border-military-600 rounded px-2 py-1 text-sm"
+              type="range"
+              min="900"
+              max="1700"
+              step="10"
+              className="w-full h-2 bg-military-600 rounded-lg appearance-none cursor-pointer"
               value={muzzle}
               onChange={(e) => setMuzzle(e.target.value)}
             />
@@ -306,6 +273,20 @@ export default function PenetrationTestPage() {
             Antal hagel (ber): <strong>{pelletCount}</strong>
           </div>
         </div>
+        <div className="mt-3 flex items-center gap-4 text-xs text-gray-300">
+            <span className="font-semibold">Visa i graf:</span>
+            {Object.keys(visibleLines).map((key) => (
+                <label key={key} className="inline-flex items-center">
+                    <input
+                        type="checkbox"
+                        className="mr-1"
+                        checked={visibleLines[key]}
+                        onChange={() => setVisibleLines(prev => ({...prev, [key]: !prev[key]}))}
+                    />
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                </label>
+            ))}
+        </div>
       </div>
 
       {/* Dödlig-avstånd */}
@@ -337,6 +318,7 @@ export default function PenetrationTestPage() {
           dataPoints={dataPoints}
           lethalObj={lethalObj}
           useMetric={useMetric}
+          visibleLines={visibleLines}
         />
       </div>
 
