@@ -114,3 +114,97 @@ async def test_create_shotshell_load(client, auth_headers):
     assert data["powderWeight"] == 1.5
     assert len(data["shotLoads"]) == 1
     assert data["shotLoads"][0]["weight_g"] == 28.0
+
+@pytest.mark.asyncio
+async def test_list_loads(client, auth_headers, test_user):
+    """
+    Test listing all loads.
+    """
+    # Create a couple of loads to list
+    database = await db.get_database()
+    await database["loads"].insert_one({
+        "name": "Load A",
+        "ownerId": str(test_user["_id"]),
+        "gauge": "12",
+        "shellLength": 70.0,
+    })
+    await database["loads"].insert_one({
+        "name": "Load B",
+        "ownerId": str(test_user["_id"]),
+        "gauge": "20",
+        "shellLength": 76.0,
+    })
+
+    response = client.get("/api/loads/", headers=auth_headers)
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 2
+    # Check that the aggregation pipeline correctly added the owner's name
+    assert data[0]["ownerName"] == "testuser"
+    assert data[1]["ownerName"] == "testuser"
+
+@pytest.mark.asyncio
+async def test_get_single_load(client, auth_headers, test_user):
+    """
+    Test fetching a single load by its ID.
+    """
+    database = await db.get_database()
+    result = await database["loads"].insert_one({
+        "name": "Detailed Load",
+        "ownerId": str(test_user["_id"]),
+        "gauge": "12",
+    })
+    load_id = str(result.inserted_id)
+
+    response = client.get(f"/api/loads/{load_id}", headers=auth_headers)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["name"] == "Detailed Load"
+    assert data["_id"] == load_id
+
+@pytest.mark.asyncio
+async def test_update_load(client, auth_headers, test_user):
+    """
+    Test updating an existing load.
+    """
+    database = await db.get_database()
+    result = await database["loads"].insert_one({
+        "name": "Old Name",
+        "description": "Old description",
+        "ownerId": str(test_user["_id"]),
+    })
+    load_id = str(result.inserted_id)
+
+    update_data = {
+        "name": "New Name",
+        "description": "New description",
+        "isPublic": True,
+    }
+
+    response = client.put(f"/api/loads/{load_id}", headers=auth_headers, json=update_data)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["name"] == "New Name"
+    assert data["description"] == "New description"
+    assert data["isPublic"] is True
+
+@pytest.mark.asyncio
+async def test_delete_load(client, auth_headers, test_user):
+    """
+    Test deleting an existing load.
+    """
+    database = await db.get_database()
+    result = await database["loads"].insert_one({
+        "name": "To Be Deleted",
+        "ownerId": str(test_user["_id"]),
+    })
+    load_id = str(result.inserted_id)
+
+    # Delete the load
+    delete_response = client.delete(f"/api/loads/{load_id}", headers=auth_headers)
+    assert delete_response.status_code == 200
+    assert delete_response.json()["message"] == "Laddningen har tagits bort"
+
+    # Verify it's gone
+    get_response = client.get(f"/api/loads/{load_id}", headers=auth_headers)
+    assert get_response.status_code == 404
