@@ -63,6 +63,10 @@ const initialState = {
   loadPurpose: "",
   tags: [],
   newTag: "",
+
+  // UI state
+  isLoading: false,
+  error: null,
 };
 
 export const useLoadCreationStore = create((set, get) => ({
@@ -70,6 +74,8 @@ export const useLoadCreationStore = create((set, get) => ({
 
   // Actions
   setField: (field, value) => set({ [field]: value }),
+  setLoading: (isLoading) => set({ isLoading }),
+  setError: (error) => set({ error }),
 
   toggleSection: (section) => set((state) => ({
     openSections: { ...state.openSections, [section]: !state.openSections[section] }

@@ -7,6 +7,7 @@ import GroupedComponents from "./form/GroupedComponents";
 import { getComponents } from "@/services/componentsService";
 import { saveShotshellLoad } from "@/services/loadsService";
 import { useLoadCreationStore } from "@/store/loadCreationStore";
+import { useToast } from "@/hooks/use-toast";
 
 const tagSuggestions = [
   "duvjakt",
@@ -25,8 +26,7 @@ function grainsToGrams(gr) {
 }
 
 export default function ShotgunLoadCreation() {
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
   const [hoverComp, setHoverComp] = useState(null);
 
   const {
@@ -39,10 +39,12 @@ export default function ShotgunLoadCreation() {
     duplexB, duplexBvalue, duplexBunit, shotWeightValue, shotWeightUnit,
     useFiller, fillerPosition, fillerQuantity, crimpType,
     loadName, loadPurpose, tags, newTag,
+    isLoading, error,
     // Actions
     setField, toggleSection, setAllComponents, selectHull,
     selectPrimer, selectPowder, selectWad, selectShot, selectSlug,
-    setDuplexA, setDuplexB, handleShotTypeChange, toggleTag, addTag, resetForm
+    setDuplexA, setDuplexB, handleShotTypeChange, toggleTag, addTag, resetForm,
+    setLoading, setError
   } = useLoadCreationStore();
 
 
@@ -51,7 +53,7 @@ export default function ShotgunLoadCreation() {
     const fetchAllComponents = async () => {
       try {
         setLoading(true);
-        setError("");
+        setError(null);
         const data = await getComponents();
         setAllComponents(data);
       } catch (err) {
@@ -61,7 +63,7 @@ export default function ShotgunLoadCreation() {
       }
     };
     fetchAllComponents();
-  }, [setAllComponents]);
+  }, [setAllComponents, setLoading, setError]);
 
   // -- Filter-funktioner (kolla gauge, length mm) --
   const { hulls, primers, powders, wads, shotsFiltered, slugsFiltered } = useMemo(() => {
@@ -183,7 +185,7 @@ export default function ShotgunLoadCreation() {
   /** Spara laddning */
   async function handleSaveLoad() {
     try {
-      setError("");
+      setError(null);
       setLoading(true);
       
       if (!loadName.trim()) throw new Error("Du måste ange ett namn på laddningen.");
@@ -215,11 +217,19 @@ export default function ShotgunLoadCreation() {
       };
 
       await saveShotshellLoad(doc);
-      alert("Laddning sparad!");
+      toast({
+        title: "Success!",
+        description: "Din laddning har sparats.",
+      });
       resetForm();
 
     } catch (err) {
-      setError(err.message);
+      setError(err.message); // Still set the error for the Alert component
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: err.message,
+      });
     } finally {
       setLoading(false);
     }
@@ -231,9 +241,10 @@ export default function ShotgunLoadCreation() {
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold">Skapa Hagelladdning</h1>
-          {loading && <Loader2 className="h-5 w-5 animate-spin text-gray-300" />}
+          {isLoading && <Loader2 className="h-5 w-5 animate-spin text-gray-300" />}
         </div>
 
+        {/* The error alert can remain as an alternative display for critical errors */}
         {error && (
           <Alert variant="destructive" className="mb-4">
             <AlertCircle className="h-4 w-4" />
@@ -709,14 +720,14 @@ export default function ShotgunLoadCreation() {
         <div className="flex justify-end mt-2 mb-4">
           <button
             onClick={handleSaveLoad}
-            disabled={loading}
+            disabled={isLoading}
             className={`
               flex items-center gap-2 px-4 py-2 rounded shadow 
               bg-blue-600 hover:bg-blue-500 text-sm
-              ${loading ? "opacity-60 cursor-not-allowed" : ""}
+              ${isLoading ? "opacity-60 cursor-not-allowed" : ""}
             `}
           >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             <span>Spara laddning</span>
           </button>
         </div>

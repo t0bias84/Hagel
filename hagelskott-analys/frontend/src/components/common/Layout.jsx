@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import Logo from "./Logo";
 import Sidebar from "./Sidebar";
 import ChatManager from '../chat/ChatManager';
+import { Toaster } from "@/components/ui/toaster";
 
 /**
  * ModernLayout
@@ -82,6 +83,7 @@ const ModernLayout = ({ children }) => {
       </main>
       
       <ChatManager />
+      <Toaster />
     </div>
   );
 };
