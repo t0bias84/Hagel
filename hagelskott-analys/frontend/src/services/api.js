@@ -45,4 +45,8 @@ export const previewHits = (id, params) => {
   return api.post(`/analysis/results/${id}/preview_hits`, params);
 };
 
+export const getPublicAnalyses = (filters) => {
+  return api.get('/analysis/public', { params: filters });
+};
+
 export default api;

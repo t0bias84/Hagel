@@ -13,6 +13,7 @@ export const en = {
     createLoad: "Create new load",
     patternAnalysis: "Pattern Analysis",
     patternComparison: "Compare Patterns",
+    publicAnalyses: "Community Loads",
     penetrationAnalysis: "Penetration Test",
     recoilAnalysis: "Recoil Analysis",
     viewLoads: "View loads"

@@ -69,6 +69,7 @@ import ComponentEditPage from "./pages/ComponentEditPage";
 // === NYTT: Lazy-ladda PenetrationTestPage (som du själv skapar) ===
 const PenetrationTestPage = lazy(() => import("./pages/PenetrationTestPage/PenetrationTestPage"));
 const ComparisonPage = lazy(() => import("./pages/ComparisonPage"));
+const PublicAnalysesPage = lazy(() => import("./pages/PublicAnalysesPage"));
 
 // Admin routes
 import UserManagement from "./components/admin/UserManagement";
@@ -156,6 +157,15 @@ const AppWithLanguage = () => {
               </Helmet>
               <ResetPasswordPage />
             </>
+          }
+        />
+
+        <Route
+          path="/public-analyses"
+          element={
+            <Layout>
+              <PublicAnalysesPage />
+            </Layout>
           }
         />
 

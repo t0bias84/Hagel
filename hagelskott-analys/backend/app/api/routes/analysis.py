@@ -82,6 +82,7 @@ class ExtendedShotMetadata(ShotMetadata):
     conditions: Optional[Dict[str, Optional[str]]] = None
     shotgun: Optional[Dict[str, Optional[str]]] = None
     ammunition: Optional[Dict[str, Optional[str]]] = None
+    is_public: bool = False
 
 
 @router.post("/upload", response_model=ShotAnalysisResult)
@@ -135,6 +136,7 @@ async def upload_shot_image(
             "timestamp": datetime.utcnow(),
             "user_id": str(user.id),
             "username": user.username,
+            "is_public": metadata.is_public,
             "metadata": metadata.dict(),
             "analysis_results": analysis_results,
             "image_dimensions": {
@@ -228,7 +230,7 @@ async def calculate_recoil(
 
 
 @router.get("/results/{shot_id}", response_model=ShotAnalysisResult)
-async def get_shot_results(shot_id: str):
+async def get_shot_results(shot_id: str, user: UserInDB = Depends(get_current_active_user)):
     """
     Hämtar ett sparat skott (analysis) via _id.
     Returnerar 'analysis_results', 'metadata', 'image_path' etc.
@@ -320,8 +322,65 @@ async def get_all_results(
         raise HTTPException(500, "Kunde inte hämta listan av resultat.")
 
 
+@router.get("/public", response_model=List[ShotAnalysisResult])
+async def get_public_results(
+    limit: int = Query(10, ge=1, le=100),
+    skip: int = Query(0, ge=0),
+    sort_by: str = Query("analysis_results.pattern_score", regex="^(timestamp|analysis_results.pattern_score|analysis_results.hit_count)$"),
+    sort_order: int = Query(-1, ge=-1, le=1),
+    filter_params: AnalysisFilter = Depends()
+):
+    """
+    Hämtar publika resultat med filter.
+    """
+    try:
+        db_conn = await db.get_database()
+        shots_coll = db_conn["shots"]
+        q: Dict[str, Any] = {"is_public": True}
+
+        # Apply same filters as get_all_results
+        if filter_params.start_date or filter_params.end_date:
+            q["timestamp"] = {}
+            if filter_params.start_date:
+                q["timestamp"]["$gte"] = filter_params.start_date
+            if filter_params.end_date:
+                q["timestamp"]["$lte"] = filter_params.end_date
+
+        if filter_params.min_hits is not None or filter_params.max_hits is not None:
+            q.setdefault("analysis_results.hit_count", {})
+            if filter_params.min_hits is not None:
+                q["analysis_results.hit_count"]["$gte"] = filter_params.min_hits
+            if filter_params.max_hits is not None:
+                q["analysis_results.hit_count"]["$lte"] = filter_params.max_hits
+
+        if filter_params.ammunition_type:
+            q["metadata.ammunition.type"] = filter_params.ammunition_type
+
+        if filter_params.gun_manufacturer:
+            q["metadata.shotgun.manufacturer"] = filter_params.gun_manufacturer
+
+        if filter_params.gun_model:
+            q["metadata.shotgun.model"] = filter_params.gun_model
+
+        cursor = shots_coll.find(q)\
+            .sort(sort_by, sort_order)\
+            .skip(skip)\
+            .limit(limit)
+
+        results = []
+        async for doc in cursor:
+            doc["_id"] = str(doc["_id"])
+            results.append(doc)
+
+        return results
+
+    except Exception as e:
+        logger.error(f"Error in get_public_results => {e}", exc_info=True)
+        raise HTTPException(500, "Could not fetch public results.")
+
+
 @router.delete("/results/{shot_id}")
-async def delete_shot_result(shot_id: str):
+async def delete_shot_result(shot_id: str, user: UserInDB = Depends(get_current_active_user)):
     """
     Raderar en analys från DB.
     """
@@ -341,7 +400,7 @@ async def delete_shot_result(shot_id: str):
 
 
 @router.post("/compare")
-async def compare_shots(shot_ids: List[str] = Body(...)):
+async def compare_shots(shot_ids: List[str] = Body(...), user: UserInDB = Depends(get_current_active_user)):
     """
     Jämför flera analyser – ex. skillnader i hit_count, spread, pattern_similarity.
     Body: [ "shotId1", "shotId2", ... ] (minst 2 st).
@@ -395,7 +454,7 @@ class HitsUpdateModel(BaseModel):
     removedHits: Optional[List[Dict[str, float]]] = None
 
 @router.patch("/results/{shot_id}/hits")
-async def update_hits(shot_id: str, update_data: HitsUpdateModel):
+async def update_hits(shot_id: str, update_data: HitsUpdateModel, user: UserInDB = Depends(get_current_active_user)):
     """
     Lägg till / ta bort hagelträffar i 'analysis_results.individual_pellets',
     sedan re-beräkna stats (spread, density, centroid m.m.) "offline".
@@ -496,7 +555,7 @@ class RingUpdateModel(BaseModel):
     radiusPx: float
 
 @router.patch("/results/{shot_id}/ring")
-async def update_ring(shot_id: str, ring_data: RingUpdateModel):
+async def update_ring(shot_id: str, ring_data: RingUpdateModel, user: UserInDB = Depends(get_current_active_user)):
     """
     Uppdaterar ring i 'analysis_results.ring'.
     """
@@ -546,7 +605,7 @@ class PreviewHitsRequest(BaseModel):
     min_circularity: float
 
 @router.post("/results/{shot_id}/preview_hits", response_model=List[Dict[str, float]])
-async def preview_hits(shot_id: str, body: PreviewHitsRequest):
+async def preview_hits(shot_id: str, body: PreviewHitsRequest, user: UserInDB = Depends(get_current_active_user)):
     """
     Previews detected hits with given parameters without performing a full analysis.
     """
@@ -591,7 +650,7 @@ class ReAnalyzeModel(BaseModel):
     min_circularity: float
 
 @router.patch("/results/{shot_id}/reanalyze")
-async def reanalyze_shot(shot_id: str, body: ReAnalyzeModel):
+async def reanalyze_shot(shot_id: str, body: ReAnalyzeModel, user: UserInDB = Depends(get_current_active_user)):
     """
     Ladda doc->image_path => re-run PatternAnalyzer med nya granulära parametrar.
     Spara nya 'analysis_results'.

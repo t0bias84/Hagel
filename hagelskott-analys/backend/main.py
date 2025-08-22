@@ -233,7 +233,6 @@ app.include_router(
     analysis.router,
     prefix="/api/analysis",
     tags=["analysis"],
-    dependencies=[Depends(get_current_active_user)],
 )
 
 # Auth

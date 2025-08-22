@@ -75,6 +75,7 @@ export default function ShotUploadForm() {
   const [preview, setPreview] = useState(null);
 
   // UI state
+  const [isPublic, setIsPublic] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingInitialData, setIsFetchingInitialData] = useState(true);
   const [error, setError] = useState(null);
@@ -242,6 +243,7 @@ export default function ShotUploadForm() {
           wind_direction: windDirection || undefined,
           notes: weatherNotes || undefined,
         },
+        is_public: isPublic,
       };
 
       try {
@@ -508,7 +510,19 @@ export default function ShotUploadForm() {
           </CardContent>
         </Card>
 
-        <div className="flex justify-end">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="is-public-checkbox"
+              checked={isPublic}
+              onChange={(e) => setIsPublic(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <Label htmlFor="is-public-checkbox" className="text-sm font-medium text-foreground">
+              Make this analysis public
+            </Label>
+          </div>
           <Button type="submit" disabled={isLoading || !imageFile} size="lg">
             {isLoading ? (
               <>

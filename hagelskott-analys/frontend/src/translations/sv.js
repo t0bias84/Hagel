@@ -13,6 +13,7 @@ export const sv = {
     createLoad: "Skapa ny laddning",
     patternAnalysis: "Mönsteranalys",
     patternComparison: "Jämför Mönster",
+    publicAnalyses: "Publika Laddningar",
     penetrationAnalysis: "Penetrationstest",
     recoilAnalysis: "Rekylanalys",
     viewLoads: "Visa laddningar"

@@ -59,6 +59,7 @@ export default function Sidebar({
   const analysisItems = [
     { name: t.navigation?.patternAnalysis || "Pattern Analysis", path: "/analysis", icon: BarChart2 },
     { name: t.navigation?.patternComparison || "Compare Patterns", path: "/compare", icon: GitCompare },
+    { name: t.navigation?.publicAnalyses || "Community Loads", path: "/public-analyses", icon: Users },
     { name: t.navigation?.penetrationAnalysis || "Penetration Test", path: "/penetration-test", icon: Target },
     { name: t.navigation?.recoilAnalysis || "Recoil Analysis", path: "/analysis/recoil", icon: Zap }
   ];
