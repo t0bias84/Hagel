@@ -42,21 +42,32 @@ export default function ComponentsPage() {
     properties: {},
   });
 
-  // Exempeltyper
-  const componentTypes = [
-    { id: "primer", name: "Tändhattar", category: "Ammunition" },
-    { id: "powder", name: "Krut", category: "Ammunition" },
-    { id: "wad", name: "Förladdning", category: "Ammunition" },
-    { id: "shot", name: "Hagel", category: "Ammunition" },
-    { id: "hull", name: "Hylsor", category: "Ammunition" },
-    { id: "firearm", name: "Vapen", category: "Utrustning" },
-  ];
+  // Dynamically generate component types from fieldDefinitions
+  const componentTypes = useMemo(() => {
+    const types = Object.entries(fieldDefinitions).map(([id, def]) => ({
+      id: id,
+      name: def.label,
+      category: def.category,
+    }));
+    // Add any types not in fieldDefinitions, like consumables
+    types.push({ id: "cleaning-fluid", name: "Rengöringsvätska", category: "consumables" });
+    types.push({ id: "patches", name: "Rengöringslappar", category: "consumables" });
+    return types;
+  }, []); // Empty dependency array means this runs only once
 
-  // Gruppera typer efter category
+  // Group types by category with user-friendly labels
   const groupedTypes = useMemo(() => {
+    const categoryLabels = {
+      ammunition: "Ammunitionskomponenter",
+      firearm: "Vapen & Vapendelar",
+      tool: "Handladdningsverktyg",
+      consumables: "Rengöring & Förbrukning"
+    };
+
     return componentTypes.reduce((acc, t) => {
-      if (!acc[t.category]) acc[t.category] = [];
-      acc[t.category].push(t);
+      const categoryLabel = categoryLabels[t.category] || t.category;
+      if (!acc[categoryLabel]) acc[categoryLabel] = [];
+      acc[categoryLabel].push(t);
       return acc;
     }, {});
   }, [componentTypes]);
