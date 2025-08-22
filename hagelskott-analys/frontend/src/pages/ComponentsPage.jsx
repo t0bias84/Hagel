@@ -18,6 +18,7 @@ export default function ComponentsPage() {
   const navigate = useNavigate();
 
   const [components, setComponents] = useState([]);
+  const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -60,22 +61,31 @@ export default function ComponentsPage() {
     }, {});
   }, [componentTypes]);
 
-  // ================== Hämtar komponenter ==================
-  const fetchComponents = async () => {
+  // ================== Data Fetching ==================
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      setError(null);
-
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8000/api/components", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Could not fetch components");
+      const headers = { Authorization: `Bearer ${token}` };
 
-      const data = await res.json();
-      // Sortera
-      data.sort((a, b) => a.name.localeCompare(b.name));
-      setComponents(data);
+      // Hämta både komponenter och inventory parallellt
+      const [compRes, invRes] = await Promise.all([
+        fetch("http://localhost:8000/api/components", { headers }),
+        fetch("http://localhost:8000/api/inventory", { headers }),
+      ]);
+
+      if (!compRes.ok) throw new Error("Could not fetch components");
+      if (!invRes.ok) throw new Error("Could not fetch inventory");
+
+      const compData = await compRes.json();
+      const invData = await invRes.json();
+
+      compData.sort((a, b) => a.name.localeCompare(b.name));
+
+      setComponents(compData);
+      setInventory(invData);
+
     } catch (err) {
       setError(err.message);
     } finally {
@@ -84,7 +94,7 @@ export default function ComponentsPage() {
   };
 
   useEffect(() => {
-    fetchComponents();
+    fetchData();
   }, []);
 
   // ================== Bilduppladdning ==================
@@ -132,7 +142,7 @@ export default function ComponentsPage() {
       if (!res.ok) throw new Error("Kunde inte spara komponenten");
 
       // Hämta lista igen
-      await fetchComponents();
+      await fetchData();
       setShowAddForm(false);
 
       // Nollställ formulär
@@ -152,9 +162,60 @@ export default function ComponentsPage() {
     }
   };
 
+  // ================== Inventory Actions ==================
+  const handleAddToInventory = async (componentId) => {
+    const quantity = prompt("Ange antal att lägga till i inventory:", "1");
+    if (quantity === null || isNaN(parseFloat(quantity)) || parseFloat(quantity) <= 0) {
+      return; // Avbryt om användaren inte anger ett giltigt tal
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:8000/api/inventory", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          component_id: componentId,
+          quantity: parseFloat(quantity),
+          unit: "pieces" // Or get from component if available
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.detail || "Kunde inte lägga till i inventory");
+      }
+
+      // Hämta all data igen för att uppdatera UI
+      await fetchData();
+
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleDeleteInventoryItem = async (inventoryItemId) => {
+    if (!window.confirm("Ta bort från inventory?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:8000/api/inventory/${inventoryItemId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Kunde inte ta bort från inventory");
+      await fetchData(); // Refresh
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+
   // ================== Radera ==================
   const handleDelete = async (id) => {
-    if (!window.confirm("Vill du verkligen ta bort?")) return;
+    if (!window.confirm("Vill du verkligen ta bort denna custom-komponent permanent?")) return;
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`http://localhost:8000/api/components/${id}`, {
@@ -174,6 +235,13 @@ export default function ComponentsPage() {
   };
 
   // ================== Filtrering + sök ==================
+  const inventoryMap = useMemo(() => {
+    return inventory.reduce((acc, item) => {
+      acc[item.component_id] = item;
+      return acc;
+    }, {});
+  }, [inventory]);
+
   const filteredComponents = useMemo(() => {
     return components.filter((comp) => {
       if (selectedType !== "all" && comp.type !== selectedType) {
@@ -182,7 +250,7 @@ export default function ComponentsPage() {
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
         const bigString =
-          (comp.name + comp.manufacturer + comp.description).toLowerCase();
+          (comp.name + comp.manufacturer + comp.description + (comp.aliases?.join(' ') || '')).toLowerCase();
         return bigString.includes(term);
       }
       return true;
@@ -213,6 +281,31 @@ export default function ComponentsPage() {
             <Plus className="h-4 w-4" />
             Ny komponent
           </button>
+        </div>
+
+        {/* Inventory Display */}
+        <div className="bg-military-800 rounded-lg p-4 mb-6">
+          <h2 className="text-xl font-semibold mb-3">Mitt Inventory</h2>
+          {inventory.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {inventory.map(item => {
+                const component = components.find(c => c._id === item.component_id);
+                return (
+                  <div key={item.id} className="bg-military-700 rounded p-2 flex justify-between items-center">
+                    <div>
+                      <p className="font-medium text-sm">{component ? component.name : "Okänd komponent"}</p>
+                      <p className="text-xs text-gray-400">{item.quantity} {item.unit}</p>
+                    </div>
+                    <button onClick={() => handleDeleteInventoryItem(item.id)} className="text-red-400 hover:text-red-300 p-1">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <p className="text-gray-400 text-sm">Ditt inventory är tomt. Lägg till komponenter från listan nedan.</p>
+          )}
         </div>
 
         {/* Felmeddelande */}
@@ -485,22 +578,40 @@ export default function ComponentsPage() {
                               <h4 className="text-sm font-medium truncate">{comp.name}</h4>
                               <div className="flex gap-1">
                                 <button
+                                  onClick={() => handleAddToInventory(comp._id)}
+                                  className="text-green-400 p-1 hover:text-green-300"
+                                  title="Lägg till i inventory"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                </button>
+                                <button
                                   onClick={() => handleEdit(comp._id)}
                                   className="text-blue-400 p-1 hover:text-blue-300"
+                                  disabled={!comp.owner_id}
+                                  title={comp.owner_id ? "Redigera custom-komponent" : "Kan ej redigera global komponent"}
                                 >
                                   <Edit className="w-3 h-3" />
                                 </button>
                                 <button
                                   onClick={() => handleDelete(comp._id)}
                                   className="text-red-400 p-1 hover:text-red-300"
+                                  disabled={!comp.owner_id}
+                                  title={comp.owner_id ? "Radera custom-komponent" : "Kan ej radera global komponent"}
                                 >
                                   <Trash2 className="w-3 h-3" />
                                 </button>
                               </div>
                             </div>
                             <p className="text-xs text-gray-400 truncate">{comp.manufacturer || "—"}</p>
-                            {comp.caliber && (
-                              <span className="inline-block mt-1 px-1.5 py-0.5 text-[10px] bg-military-600 rounded">
+
+                            <div className="flex items-center gap-2 mt-1">
+                              {inventoryMap[comp._id] && (
+                                <span className="inline-block px-1.5 py-0.5 text-[10px] bg-blue-600 rounded">
+                                  I lager: {inventoryMap[comp._id].quantity}
+                                </span>
+                              )}
+                              {comp.caliber && (
+                              <span className="inline-block px-1.5 py-0.5 text-[10px] bg-military-600 rounded">
                                 {comp.caliber}
                               </span>
                             )}

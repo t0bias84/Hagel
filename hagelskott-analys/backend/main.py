@@ -79,6 +79,7 @@ from app.api.routes.social import router as social_router
 # Övriga routrar
 from app.api.routes.loads import router as loads_router
 from app.api.routes.components import router as components_router
+from app.api.routes.inventory import router as inventory_router
 from app.api.routes import analysis, auth, users
 from app.api.routes.auth import get_current_active_user, User, create_test_users
 from app.api.routes import quiz as quiz_router
@@ -219,6 +220,13 @@ app.include_router(
     components_router,
     prefix="/api/components",
     tags=["Components"]
+)
+
+# Inventory
+app.include_router(
+    inventory_router,
+    prefix="/api/inventory",
+    tags=["Inventory"]
 )
 
 # Loads

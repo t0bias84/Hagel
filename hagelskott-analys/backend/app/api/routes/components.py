@@ -6,7 +6,8 @@ from fastapi import (
     Query,
     File,
     Form,
-    UploadFile
+    UploadFile,
+    Depends
 )
 from typing import List, Optional, Dict, Any
 from bson import ObjectId
@@ -15,6 +16,8 @@ import os
 import json
 
 from app.db.mongodb import db  # Din MongoDB-hanterare
+from app.api.routes.auth import get_current_active_user
+from app.models.user import User
 
 router = APIRouter()
 
@@ -45,41 +48,51 @@ async def list_components(
     limit: Optional[int] = Query(
         None,
         description="Max antal komponenter att returnera. Lämna tomt för att hämta alla."
-    )
+    ),
+    current_user: User = Depends(get_current_active_user)
 ):
     """
-    Listar komponenter från databasen. Du kan filtrera på:
-      - category (ex. 'Ammunition')
-      - ctype (ex. 'powder', 'primer', 'wad')
-      - manufacturer (ex. 'Hodgdon', 'Cheddite')
-      - search (söker i name och description)
-    Om du anger ?limit=50 returneras max 50 st.
-    Lämnar du limit tomt returneras (nästan) alla.
+    Listar komponenter från databasen. Inloggade användare ser globala komponenter
+    plus sina egna custom-komponenter.
     """
-    query = {}
+    filter_query = {}
     if category:
-        query["category"] = category
+        filter_query["category"] = category
     if ctype:
-        query["type"] = ctype
+        filter_query["type"] = ctype
     if manufacturer:
-        query["manufacturer"] = manufacturer
+        filter_query["manufacturer"] = manufacturer
     if search:
-        query["$or"] = [
+        filter_query["$or"] = [
             {"name": {"$regex": search, "$options": "i"}},
-            {"description": {"$regex": search, "$options": "i"}}
+            {"description": {"$regex": search, "$options": "i"}},
+            {"aliases": {"$regex": search, "$options": "i"}}
         ]
+
+    # Lägg till logik för att visa globala OCH användarens egna komponenter
+    owner_query = {
+        "$or": [
+            {"owner_id": None},
+            {"owner_id": ObjectId(current_user.id)}
+        ]
+    }
+
+    # Kombinera filter och ägarskaps-query
+    final_query = {"$and": [filter_query, owner_query]} if filter_query else owner_query
 
     database = await db.get_database()
     collection = database["components"]
 
-    # Om limit är satt → använd den, annars en stor siffra för att hämta alla
     length_to_fetch = limit if limit is not None else 1_000_000
 
-    cursor = collection.find(query)
+    cursor = collection.find(final_query)
     results = await cursor.to_list(length=length_to_fetch)
 
     for comp in results:
         comp["_id"] = str(comp["_id"])
+        if 'owner_id' in comp:
+            comp['owner_id'] = str(comp['owner_id'])
+
     return results
 
 
@@ -98,7 +111,7 @@ async def get_component(component_id: str):
     return doc
 
 
-@router.post("/")
+@router.post("/", description="Skapa en ny custom-komponent som ägs av den inloggade användaren.")
 async def create_component(
     name: str = Form(...),
     type: str = Form(...),
@@ -106,8 +119,10 @@ async def create_component(
     description: str = Form(""),
     caliber: str = Form(""),
     category: str = Form(""),
+    aliases: Optional[List[str]] = Form(None),
     properties: Optional[str] = Form(None),
-    file: UploadFile = File(None)
+    file: UploadFile = File(None),
+    current_user: User = Depends(get_current_active_user)
 ):
     comp_data = {
         "name": name,
@@ -116,6 +131,8 @@ async def create_component(
         "description": description,
         "caliber": caliber,
         "category": category,
+        "aliases": aliases or [],
+        "owner_id": ObjectId(current_user.id) # Sätt ägaren!
     }
 
     if properties:
@@ -132,11 +149,15 @@ async def create_component(
     database = await db.get_database()
     coll = database["components"]
     result = await coll.insert_one(comp_data)
-    comp_data["_id"] = str(result.inserted_id)
-    return comp_data
+
+    # Returnera det skapade dokumentet
+    created_doc = await coll.find_one({"_id": result.inserted_id})
+    created_doc["_id"] = str(created_doc["_id"])
+    created_doc["owner_id"] = str(created_doc["owner_id"])
+    return created_doc
 
 
-@router.put("/{component_id}")
+@router.put("/{component_id}", description="Uppdatera en custom-komponent. Användare kan bara uppdatera sina egna komponenter.")
 async def update_component(
     component_id: str,
     name: Optional[str] = Form(None),
@@ -145,25 +166,22 @@ async def update_component(
     description: Optional[str] = Form(None),
     caliber: Optional[str] = Form(None),
     category: Optional[str] = Form(None),
+    aliases: Optional[List[str]] = Form(None),
     properties: Optional[str] = Form(None),
-    file: UploadFile = File(None)
+    file: UploadFile = File(None),
+    current_user: User = Depends(get_current_active_user)
 ):
     if not ObjectId.is_valid(component_id):
         raise HTTPException(400, detail="Felaktigt ID-format")
 
     update_data = {}
-    if name is not None:
-        update_data["name"] = name
-    if type is not None:
-        update_data["type"] = type
-    if manufacturer is not None:
-        update_data["manufacturer"] = manufacturer
-    if description is not None:
-        update_data["description"] = description
-    if caliber is not None:
-        update_data["caliber"] = caliber
-    if category is not None:
-        update_data["category"] = category
+    if name is not None: update_data["name"] = name
+    if type is not None: update_data["type"] = type
+    if manufacturer is not None: update_data["manufacturer"] = manufacturer
+    if description is not None: update_data["description"] = description
+    if caliber is not None: update_data["caliber"] = caliber
+    if category is not None: update_data["category"] = category
+    if aliases is not None: update_data["aliases"] = aliases
 
     if properties:
         try:
@@ -181,26 +199,46 @@ async def update_component(
 
     database = await db.get_database()
     coll = database["components"]
+
+    # Hitta komponenten först för att verifiera ägarskap
+    component_to_update = await coll.find_one({"_id": ObjectId(component_id)})
+    if not component_to_update:
+        raise HTTPException(404, detail="Komponent saknas")
+
+    if 'owner_id' not in component_to_update or str(component_to_update['owner_id']) != current_user.id:
+        raise HTTPException(403, detail="Du har inte behörighet att uppdatera denna komponent")
+
     result = await coll.update_one({"_id": ObjectId(component_id)}, {"$set": update_data})
-    if result.matched_count == 0:
-        raise HTTPException(404, detail="Komponent saknas (ingen match)")
 
     updated = await coll.find_one({"_id": ObjectId(component_id)})
     updated["_id"] = str(updated["_id"])
+    updated["owner_id"] = str(updated["owner_id"])
     return updated
 
 
-@router.delete("/{component_id}")
-async def delete_component(component_id: str):
+@router.delete("/{component_id}", description="Radera en custom-komponent. Användare kan bara radera sina egna komponenter.")
+async def delete_component(
+    component_id: str,
+    current_user: User = Depends(get_current_active_user)
+):
     if not ObjectId.is_valid(component_id):
         raise HTTPException(400, detail="Felaktigt ID-format")
 
     database = await db.get_database()
     coll = database["components"]
+
+    # Verifiera ägarskap innan radering
+    component_to_delete = await coll.find_one({"_id": ObjectId(component_id)})
+    if not component_to_delete:
+        raise HTTPException(404, detail="Komponent ej funnen")
+
+    if 'owner_id' not in component_to_delete or str(component_to_delete['owner_id']) != current_user.id:
+        raise HTTPException(403, detail="Du har inte behörighet att radera denna komponent")
+
     result = await coll.delete_one({"_id": ObjectId(component_id)})
 
     if result.deleted_count == 0:
-        raise HTTPException(404, detail="Komponent ej funnen / redan raderad")
+        raise HTTPException(500, detail="Kunde inte radera komponenten trots verifierat ägarskap")
 
     return {"message": "Komponent raderad"}
 
