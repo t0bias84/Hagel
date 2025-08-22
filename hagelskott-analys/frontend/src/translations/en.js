@@ -12,6 +12,7 @@ export const en = {
     logout: "Logout",
     createLoad: "Create new load",
     patternAnalysis: "Pattern Analysis",
+    patternComparison: "Compare Patterns",
     penetrationAnalysis: "Penetration Test",
     recoilAnalysis: "Recoil Analysis",
     viewLoads: "View loads"

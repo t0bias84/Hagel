@@ -68,6 +68,7 @@ import ComponentEditPage from "./pages/ComponentEditPage";
 
 // === NYTT: Lazy-ladda PenetrationTestPage (som du själv skapar) ===
 const PenetrationTestPage = lazy(() => import("./pages/PenetrationTestPage/PenetrationTestPage"));
+const ComparisonPage = lazy(() => import("./pages/ComparisonPage"));
 
 // Admin routes
 import UserManagement from "./components/admin/UserManagement";
@@ -357,6 +358,16 @@ const AppWithLanguage = () => {
             <ProtectedRoute>
               <Layout>
                 <ShotAnalysisContainer />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/compare"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ComparisonPage />
               </Layout>
             </ProtectedRoute>
           }

@@ -3,8 +3,6 @@ import numpy as np
 from typing import Dict, List, Tuple, Optional
 import logging
 from dataclasses import dataclass
-from scipy.spatial import ConvexHull
-from sklearn.cluster import DBSCAN
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -40,13 +38,15 @@ class PatternAnalyzer:
     def analyze_shot_pattern(
         self,
         image: np.ndarray,
-        sensitivity: float = 0.5,
-        pix_per_cm: float = 1.0
+        pix_per_cm: float = 1.0,
+        min_area: float = 5.0,
+        max_area: float = 100.0,
+        min_circularity: float = 0.6
     ) -> Dict:
         """
         Huvudmetod:
-         1) Justerar thresholds utifrån 'sensitivity'
-         2) Om 'pix_per_cm' != 1 => skalar distanser => "riktigare" cm
+         - Använder nu direkta parametrar för blob detection.
+         - 'sensitivity' är borttagen till förmån för min_area, max_area, etc.
         """
 
         try:
@@ -54,14 +54,7 @@ class PatternAnalyzer:
                 logger.warning("Tom/ogiltig bild => return empty.")
                 return self._create_empty_analysis()
 
-            logger.info(f"[PatternAnalyzer] Start: sensitivity={sensitivity:.2f}, px/cm={pix_per_cm:.2f}")
-
-            # Justera param beroende på 'sensitivity'
-            self.min_shot_area = self.base_min_shot_area * (1.0 - 0.5 * sensitivity)
-            self.max_shot_area = self.base_max_shot_area
-            self.min_circularity = self.base_min_circularity - 0.1 * (sensitivity - 0.5)
-            if self.min_circularity < 0:
-                self.min_circularity = 0
+            logger.info(f"[PatternAnalyzer] Start: pix/cm={pix_per_cm:.2f}, min_area={min_area}, max_area={max_area}, min_circ={min_circularity}")
 
             # 1) Förbehandling
             gray = self._to_grayscale(image)
@@ -70,21 +63,13 @@ class PatternAnalyzer:
             # 2) Hitta ring (valfritt)
             ring_info = self._detect_ring(denoised)
 
-            # 3) Tröska + morph
-            adaptive_bin = cv2.adaptiveThreshold(
-                denoised, 255,
-                cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV,
-                11, 2
+            # 3) Hitta träffar med den nya hjälpfunktionen
+            valid_hits = self._detect_hits(
+                denoised,
+                min_area=min_area,
+                max_area=max_area,
+                min_circularity=min_circularity
             )
-            kernel = np.ones((3,3), np.uint8)
-            opened = cv2.morphologyEx(adaptive_bin, cv2.MORPH_OPEN, kernel)
-            closed = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, kernel)
-
-            # 4) findContours
-            contours, _ = cv2.findContours(closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-            # 5) Filtrera
-            valid_hits = self._filter_hits(contours)
             if not valid_hits:
                 empty_analysis = self._create_empty_analysis()
                 if ring_info:
@@ -126,6 +111,10 @@ class PatternAnalyzer:
                 "image_dimensions": {"width": width, "height": height},
                 "ring": ring_info if ring_info else {},
             }
+
+            # Beräkna Pattern Score
+            analysis_results["pattern_score"] = self._calculate_pattern_score(analysis_results)
+
             return analysis_results
 
         except Exception as e:
@@ -161,22 +150,62 @@ class PatternAnalyzer:
             }
         return {}
 
-    def _filter_hits(self, contours: List[np.ndarray]) -> List[Point]:
-        valid = []
-        for cnt in contours:
-            area = float(cv2.contourArea(cnt))
-            if self.min_shot_area <= area <= self.max_shot_area:
-                perimeter = float(cv2.arcLength(cnt, True))
-                circ = 0.0
-                if perimeter > 0:
-                    circ = float((4.0 * np.pi * area) / (perimeter ** 2))
-                if circ > self.min_circularity:
-                    M = cv2.moments(cnt)
-                    if M["m00"] != 0:
-                        cx = int(M["m10"] / M["m00"])
-                        cy = int(M["m01"] / M["m00"])
-                        valid.append(Point(cx, cy))
-        return valid
+    def preview_hits(
+        self,
+        image: np.ndarray,
+        min_area: float,
+        max_area: float,
+        min_circularity: float
+    ) -> List[Point]:
+        """
+        Public method to get a preview of detected hits without a full analysis.
+        """
+        gray = self._to_grayscale(image)
+        denoised = cv2.fastNlMeansDenoising(gray, h=10)
+        return self._detect_hits(denoised, min_area, max_area, min_circularity)
+
+    def _detect_hits(
+        self,
+        gray_image: np.ndarray,
+        min_area: float,
+        max_area: float,
+        min_circularity: float
+    ) -> List[Point]:
+        """
+        Encapsulates the logic for detecting hits using SimpleBlobDetector.
+        """
+        # Tröska + morph
+        adaptive_bin = cv2.adaptiveThreshold(
+            gray_image, 255,
+            cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV,
+            11, 2
+        )
+        kernel = np.ones((3,3), np.uint8)
+        opened = cv2.morphologyEx(adaptive_bin, cv2.MORPH_OPEN, kernel)
+        closed = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, kernel)
+
+        # Blob Detection
+        params = cv2.SimpleBlobDetector_Params()
+
+        params.filterByArea = True
+        params.minArea = min_area
+        params.maxArea = max_area
+
+        params.filterByCircularity = True
+        params.minCircularity = min_circularity
+
+        params.filterByConvexity = True
+        params.minConvexity = 0.85
+
+        params.filterByInertia = True
+        params.minInertiaRatio = 0.1
+
+        detector = cv2.SimpleBlobDetector_create(params)
+
+        inverted_image = cv2.bitwise_not(closed)
+        keypoints = detector.detect(inverted_image)
+
+        return [Point(kp.pt[0], kp.pt[1]) for kp in keypoints]
 
     def _calculate_pattern_center(
         self,
@@ -344,6 +373,64 @@ class PatternAnalyzer:
                 "distance": float(dists[i])
             })
         return ret
+
+    def _calculate_pattern_score(self, analysis_results: Dict) -> float:
+        """
+        Beräknar ett "Pattern Score" (0-100) baserat på analysresultaten.
+        Viktning:
+        - 40% Spridning (spread)
+        - 30% Centrering (avstånd från centrum)
+        - 20% Densitet i kärnan (inner zone)
+        - 10% Jämnhet (distribution)
+        """
+        if not analysis_results or analysis_results["hit_count"] == 0:
+            return 0.0
+
+        # --- 1. Spridnings-score (lägre är bättre) ---
+        # Normalisera: spread på 0 -> 100p, spread på 200 -> 0p
+        max_spread = 200.0  # Justerbar parameter
+        spread = analysis_results.get("spread", max_spread)
+        spread_score = max(0, 100 * (1 - (spread / max_spread)))
+
+        # --- 2. Centrerings-score (närmare mitten är bättre) ---
+        centroid = analysis_results.get("centroid", {"x": 50, "y": 50})
+        # Avstånd från bildens mitt (50, 50)
+        dist_from_center = np.sqrt((centroid["x"] - 50)**2 + (centroid["y"] - 50)**2)
+        # Normalisera: dist 0 -> 100p, dist 25 -> 0p (25% av bilden)
+        max_dist = 25.0
+        centering_score = max(0, 100 * (1 - (dist_from_center / max_dist)))
+
+        # --- 3. Densitet-score (högre i "inner" zon är bättre) ---
+        inner_zone_perc = analysis_results.get("zone_analysis", {}).get("inner", {}).get("percentage", 0)
+        # Normalisera: 50% i innersta zonen ger max poäng
+        target_perc = 50.0
+        density_score = min(100, 100 * (inner_zone_perc / target_perc))
+
+        # --- 4. Jämnhets-score (jämnare fördelning är bättre) ---
+        distribution = analysis_results.get("distribution", {})
+        counts = [dist.get("count", 0) for dist in distribution.values()]
+        total_hits = sum(counts)
+        if total_hits > 0:
+            percentages = [c / total_hits for c in counts]
+            # Perfekt fördelning = [0.25, 0.25, 0.25, 0.25]. Varians = 0.
+            # Max varians för 4 element (1, 0, 0, 0) är 0.1875
+            variance = np.var(percentages)
+            max_variance = 0.1875
+            evenness_score = max(0, 100 * (1 - (variance / max_variance)))
+        else:
+            evenness_score = 0
+
+
+        # --- Total Score (viktad) ---
+        total_score = (
+            spread_score * 0.40 +
+            centering_score * 0.30 +
+            density_score * 0.20 +
+            evenness_score * 0.10
+        )
+
+        return round(total_score, 2)
+
 
     def _create_empty_analysis(self) -> Dict:
         return {

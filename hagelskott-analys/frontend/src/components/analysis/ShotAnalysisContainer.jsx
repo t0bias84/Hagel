@@ -17,7 +17,8 @@ import {
   Info,
   List as ListIcon,
   Eye,
-  EyeOff
+  EyeOff,
+  BrainCircuit
 } from "lucide-react";
 
 import ShotPatternVisualization from "./ShotPatternVisualization";
@@ -40,8 +41,12 @@ export default function ShotAnalysisContainer() {
   const [showHitsList, setShowHitsList] = useState(false);
   const [hideHits, setHideHits] = useState(false);
 
-  // Känslighet + pixPerCm
-  const [sensitivity, setSensitivity] = useState(0.5);
+  // Nya granulära kontroller för blob detection
+  const [minArea, setMinArea] = useState(5.0);
+  const [maxArea, setMaxArea] = useState(100.0);
+  const [minCircularity, setMinCircularity] = useState(0.6);
+  const [previewHits, setPreviewHits] = useState([]);
+
   const [pixPerCm, setPixPerCm] = useState(1.0);
 
   const [refreshKey, setRefreshKey] = useState(0);
@@ -240,45 +245,56 @@ export default function ShotAnalysisContainer() {
     }
   },[analysisData, baseUrl, fetchAnalysisData]);
 
-  // EX: reAnalyze
-  const handleReAnalyze = useCallback(async()=>{
+  const handleReAnalyze = useCallback(async () => {
     if (!analysisData?._id) return;
-    if (sensitivity<=0 || pixPerCm<=0) {
-      setError("Ange giltiga värden (> 0) för Känslighet och Pixlar/cm.");
-      return;
-    }
-    setLoading(true); // Indicate re-analysis is in progress
+    setLoading(true);
     setError(null);
     try {
-      const token= localStorage.getItem("token");
-      if (!token) {
-        throw new Error("Ingen autentiseringstoken. Kan ej omanalysera.");
-      }
-      const patchUrl= `${baseUrl}/api/analysis/results/${analysisData._id}/reanalyze`;
-      const resp= await fetch(patchUrl,{
-        method:"PATCH",
-        headers:{
-          Authorization:`Bearer ${token}`,
-          "Content-Type":"application/json"
-        },
-        body: JSON.stringify({ sensitivity, pixPerCm })
-      });
-      if(!resp.ok){
-        const errData= await resp.json().catch(()=>{});
-        throw new Error(errData?.detail|| `Omanalys fel: ${resp.status}`);
-      }
-      const updatedDoc= await resp.json();
-      const formatted= formatAnalysisData(updatedDoc);
+      const params = {
+        pixPerCm,
+        min_area: minArea,
+        max_area: maxArea,
+        min_circularity: minCircularity,
+      };
+      const updatedDoc = await reanalyzeShot(analysisData._id, params);
+      const formatted = formatAnalysisData(updatedDoc.data);
       setAnalysisData(formatted);
-      setRawData(updatedDoc);
-      console.log("reAnalyze OK =>", updatedDoc);
-    } catch(err){
+      setRawData(updatedDoc.data);
+      setPreviewHits([]); // Clear preview hits after successful re-analysis
+    } catch (err) {
       console.error("Re-analyze error:", err);
       setError(`Omanalys misslyckades: ${err.message}`);
     } finally {
-      setLoading(false); // Ensure loading state is reset
+      setLoading(false);
     }
-  },[analysisData, baseUrl, formatAnalysisData, sensitivity, pixPerCm]);
+  }, [analysisData, pixPerCm, minArea, maxArea, minCircularity, formatAnalysisData]);
+
+  const handlePreview = useCallback(async () => {
+    if (!analysisData?._id) return;
+    try {
+      const params = {
+        min_area: minArea,
+        max_area: maxArea,
+        min_circularity: minCircularity,
+      };
+      const response = await previewHits(analysisData._id, params);
+      setPreviewHits(response.data);
+    } catch (err) {
+      console.error("Preview error:", err);
+      // Don't set a blocking error, just log it
+    }
+  }, [analysisData, minArea, maxArea, minCircularity]);
+
+  // Trigger preview when slider values change (with a debounce)
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      handlePreview();
+    }, 500); // 500ms debounce
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [minArea, maxArea, minCircularity, handlePreview]);
 
   // "KALIBRERA 10 CM": user anger "pixeldist" -> pixPerCm = pixeldist / 10
   const [calibrateMode, setCalibrateMode] = useState(false);
@@ -439,12 +455,12 @@ export default function ShotAnalysisContainer() {
                 <ShotPatternVisualization
                   imageUrl={analysisData.imageUrl}
                   hits={hideHits ? [] : (analysisData.hits || [])}
+                  previewHits={previewHits}
                   ring={analysisData.ring}
                   clusters={analysisData.clusters}
                   onHitsUpdate={handleUpdateHits} // Pass handler for interactive editing
                   onRingUpdate={handleUpdateRing} // Pass handler for interactive editing
                   pixPerCm={pixPerCm} // Pass for scaling
-                  // Consider adding options here: showClusters, showZones, etc.
                 />
               ) : (
                 <Alert variant="default">
@@ -492,22 +508,40 @@ export default function ShotAnalysisContainer() {
             </CardContent>
           </Card>
 
+          {/* AI-Powered Insights Card */}
+          {analysisData?.ai_insights && (
+            <Card className="bg-blue-900/20 border-blue-700">
+              <CardHeader>
+                <div className="flex items-center space-x-2">
+                  <BrainCircuit className="h-5 w-5 text-blue-400" />
+                  <CardTitle className="text-blue-300">AI-baserad Insikt</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm text-gray-300 whitespace-pre-wrap font-mono">
+                  {analysisData.ai_insights}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <Card>
-            <CardHeader><CardTitle>Parametrar & Omanalys</CardTitle></CardHeader>
+            <CardHeader><CardTitle>Justera Detektion & Omanalys</CardTitle></CardHeader>
             <CardContent className="space-y-4">
                <div>
-                  <label htmlFor="sensitivity" className="block text-sm font-medium mb-1">Känslighet (bildanalys)</label>
-                  <input
-                    id="sensitivity"
-                    type="number"
-                    step="0.05"
-                    min="0.05"
-                    max="1"
-                    value={sensitivity}
-                    onChange={(e) => setSensitivity(parseFloat(e.target.value))}
-                    className="w-full p-2 border rounded bg-background"
-                  />
-                   <p className="text-xs text-muted-foreground mt-1">Lägre värde = fler prickar detekteras.</p>
+                  <label htmlFor="minArea" className="block text-sm font-medium mb-1">Min Pellet Area</label>
+                  <input id="minArea" type="range" min="1" max="50" value={minArea} onChange={(e) => setMinArea(parseFloat(e.target.value))} className="w-full" />
+                  <span className="text-xs text-muted-foreground">{minArea.toFixed(1)}</span>
+               </div>
+               <div>
+                  <label htmlFor="maxArea" className="block text-sm font-medium mb-1">Max Pellet Area</label>
+                  <input id="maxArea" type="range" min="50" max="500" value={maxArea} onChange={(e) => setMaxArea(parseFloat(e.target.value))} className="w-full" />
+                  <span className="text-xs text-muted-foreground">{maxArea.toFixed(1)}</span>
+               </div>
+               <div>
+                  <label htmlFor="minCircularity" className="block text-sm font-medium mb-1">Min Circularity</label>
+                  <input id="minCircularity" type="range" min="0.1" max="1.0" step="0.05" value={minCircularity} onChange={(e) => setMinCircularity(parseFloat(e.target.value))} className="w-full" />
+                  <span className="text-xs text-muted-foreground">{minCircularity.toFixed(2)} (1.0 is a perfect circle)</span>
                </div>
                 <div>
                   <label htmlFor="pixPerCm" className="block text-sm font-medium mb-1">Pixlar per cm (skala)</label>
@@ -524,7 +558,7 @@ export default function ShotAnalysisContainer() {
                </div>
               <Button onClick={handleReAnalyze} className="w-full" disabled={loading}>
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Omanalysera Träffbild
+                Spara & Omanalysera Träffbild
               </Button>
             </CardContent>
           </Card>

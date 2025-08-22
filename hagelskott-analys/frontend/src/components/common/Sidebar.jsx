@@ -13,7 +13,8 @@ import {
   Zap,
   Users,
   Home,
-  PlusCircle
+  PlusCircle,
+  GitCompare
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -57,6 +58,7 @@ export default function Sidebar({
 
   const analysisItems = [
     { name: t.navigation?.patternAnalysis || "Pattern Analysis", path: "/analysis", icon: BarChart2 },
+    { name: t.navigation?.patternComparison || "Compare Patterns", path: "/compare", icon: GitCompare },
     { name: t.navigation?.penetrationAnalysis || "Penetration Test", path: "/penetration-test", icon: Target },
     { name: t.navigation?.recoilAnalysis || "Recoil Analysis", path: "/analysis/recoil", icon: Zap }
   ];

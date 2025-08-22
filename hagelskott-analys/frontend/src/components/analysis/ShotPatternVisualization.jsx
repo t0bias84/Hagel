@@ -21,15 +21,15 @@ import {
  */
 export default function ShotPatternVisualization({
   imageUrl,
-  analysisData,
-  showAdvancedStats=false,
-  onHitsChange,
-  onRingChange,
+  hits = [],
+  previewHits = [],
+  ring = {},
+  clusters = [],
+  onHitsUpdate,
+  onRingUpdate,
+  pixPerCm,
   className=""
 }) {
-  const safeData= analysisData||{};
-  const hits= safeData.hits||[];
-  const ring= safeData.ring||{};
   const containerRef= useRef(null);
 
   const [scale, setScale]= useState(1);
@@ -49,14 +49,8 @@ export default function ShotPatternVisualization({
 
   const [hoveredHit, setHoveredHit]= useState(null);
 
-  let aspectRatio="1/1";
-  if (safeData.metadata?.image_dimensions?.width && safeData.metadata?.image_dimensions?.height){
-    const w= safeData.metadata.image_dimensions.width;
-    const h= safeData.metadata.image_dimensions.height;
-    if (w>0 && h>0){
-      aspectRatio= `${w} / ${h}`;
-    }
-  }
+  // Aspect ratio can be passed as a prop if available, otherwise default
+  const aspectRatio="1/1";
 
   const handleWheel= useCallback((e)=>{
     e.preventDefault();
@@ -315,15 +309,25 @@ export default function ShotPatternVisualization({
           {(ring || manualRingMode) && Number.isFinite(tempRing.centerX) && (
             <RingOverlay
               ring={manualRingMode? tempRing: ring}
-              showAdvanced={showAdvancedStats}
             />
           )}
           {hits.map((hit, idx)=>(
             <HitMarker
-              key={idx}
+              key={`hit-${idx}`}
               hit={hit}
               onHover={setHoveredHit}
               onLeave={()=> setHoveredHit(null)}
+            />
+          ))}
+          {previewHits.map((hit, idx) => (
+            <div
+              key={`preview-${idx}`}
+              className="absolute bg-yellow-500 w-2 h-2 rounded-full opacity-70"
+              style={{
+                left: `${hit.x}%`,
+                top: `${hit.y}%`,
+                transform: "translate(-50%, -50%)",
+              }}
             />
           ))}
         </div>
@@ -401,7 +405,7 @@ function HitMarker({ hit, onHover, onLeave }){
   );
 }
 
-function RingOverlay({ ring, showAdvanced=false }){
+function RingOverlay({ ring }){
   if (
     !ring ||
     !Number.isFinite(ring.centerX) ||
@@ -423,22 +427,6 @@ function RingOverlay({ ring, showAdvanced=false }){
       className="absolute border-2 border-dashed rounded-full pointer-events-none"
       style={style}
     >
-      {showAdvanced && (
-        <div
-          className="absolute text-xs bg-white text-black py-1 px-2 rounded shadow"
-          style={{
-            top:"100%",
-            left:"50%",
-            transform:"translate(-50%,0)",
-            marginTop:4
-          }}
-        >
-          <p>
-            Center: {ring.centerX.toFixed(1)}%, {ring.centerY.toFixed(1)}%
-          </p>
-          <p>Radius: {ring.radius_px.toFixed(1)}%</p>
-        </div>
-      )}
     </div>
   );
 }

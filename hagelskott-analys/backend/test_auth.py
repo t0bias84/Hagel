@@ -1,6 +1,7 @@
 # test_auth.py
 import asyncio
 import httpx
+import pytest
 from motor.motor_asyncio import AsyncIOMotorClient
 from passlib.context import CryptContext
 
@@ -15,6 +16,7 @@ TEST_PASSWORD = "test_password"
 
 
 # ------------------- Test 1: Databasanslutning -------------------
+@pytest.mark.anyio
 async def test_database_connection():
     """
     Testar att en MongoDB-databas kan kontaktas med Motor.
@@ -33,6 +35,7 @@ async def test_database_connection():
 
 
 # ------------------- Test 2: Finns test_user i databasen? -------------------
+@pytest.mark.anyio
 async def test_user_exists(db):
     """
     Kollar om en testanvändare (test_user) finns i users-kollektionen.
@@ -60,6 +63,7 @@ async def test_user_exists(db):
 
 
 # ------------------- Test 3: Verifiera lösenordshash -------------------
+@pytest.mark.anyio
 async def test_password_verification(db, user):
     """
     Testar om det lagrade lösenordet för test_user stämmer överens med
@@ -84,6 +88,7 @@ async def test_password_verification(db, user):
 
 
 # ------------------- Test 4: Testa /api/auth/login -------------------
+@pytest.mark.anyio
 async def test_login_api():
     """
     Testar inloggnings-API:t på http://localhost:8000/api/auth/login

@@ -5,7 +5,8 @@ from fastapi import (
     HTTPException,
     Query,
     Depends,
-    Body
+    Body,
+    BackgroundTasks
 )
 from fastapi.responses import JSONResponse
 from typing import List, Optional, Dict, Any
@@ -21,6 +22,7 @@ from app.api.routes.auth import get_current_active_user, UserInDB
 # Egna imports
 from app.services.pattern_analysis import PatternAnalyzer
 from app.services.image_processing import ImageProcessor
+from app.services.ai_service import ai_service
 from app.db.mongodb import db
 # OBS: Importera RÄTT "AnalysisFilter" från schemas/analysis.py, 
 # där du har ammunition_type, gun_manufacturer, etc.
@@ -49,6 +51,27 @@ def _cast_floats(obj):
     return obj
 
 
+async def run_ai_analysis_and_update(shot_id: str, analysis_results: Dict):
+    """
+    Background task to run AI analysis and update the document in the DB.
+    """
+    logger.info(f"Starting background AI analysis for shot_id: {shot_id}")
+    try:
+        insights = ai_service.generate_analysis_insights(analysis_results)
+        if insights:
+            db_conn = await db.get_database()
+            shots_coll = db_conn["shots"]
+            await shots_coll.update_one(
+                {"_id": ObjectId(shot_id)},
+                {"$set": {"ai_insights": insights, "updated_at": datetime.utcnow()}}
+            )
+            logger.info(f"Successfully saved AI insights for shot_id: {shot_id}")
+        else:
+            logger.warning(f"AI service returned no insights for shot_id: {shot_id}")
+    except Exception as e:
+        logger.error(f"Background AI analysis failed for shot_id: {shot_id}: {e}", exc_info=True)
+
+
 class ExtendedShotMetadata(ShotMetadata):
     """
     Extra metadata (tidigare använt):
@@ -63,8 +86,10 @@ class ExtendedShotMetadata(ShotMetadata):
 
 @router.post("/upload", response_model=ShotAnalysisResult)
 async def upload_shot_image(
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
-    metadata: ExtendedShotMetadata = Depends()
+    metadata: ExtendedShotMetadata = Depends(),
+    user: UserInDB = Depends(get_current_active_user)
 ):
     """
     Ladda upp en hagelskottsbild + metadata.
@@ -97,9 +122,9 @@ async def upload_shot_image(
         # 3) Analysera i PatternAnalyzer
         analyzer = PatternAnalyzer()
         processed = ImageProcessor().preprocess_image(image)
+        # Använder default-värden för min_area, etc. för första analysen
         analysis_results = analyzer.analyze_shot_pattern(
             processed,
-            sensitivity=0.5,   # default
             pix_per_cm=1.0
         )
         analysis_results = _cast_floats(analysis_results)
@@ -108,6 +133,8 @@ async def upload_shot_image(
         doc = {
             "filename": file.filename,
             "timestamp": datetime.utcnow(),
+            "user_id": str(user.id),
+            "username": user.username,
             "metadata": metadata.dict(),
             "analysis_results": analysis_results,
             "image_dimensions": {
@@ -120,6 +147,10 @@ async def upload_shot_image(
         db_conn = await db.get_database()
         shots_coll = db_conn["shots"]
         insert_res = await shots_coll.insert_one(doc)
+        shot_id = str(insert_res.inserted_id)
+
+        # Start AI analysis in the background
+        background_tasks.add_task(run_ai_analysis_and_update, shot_id, analysis_results)
 
         return JSONResponse(
             status_code=200,
@@ -222,6 +253,8 @@ async def get_all_results(
     skip: int = Query(0, ge=0),
     sort_by: str = Query("timestamp", regex="^(timestamp|hit_count|spread)$"),
     sort_order: int = Query(-1, ge=-1, le=1),
+    my_shots: bool = Query(False),
+    user: UserInDB = Depends(get_current_active_user),
     filter_params: AnalysisFilter = Depends()
 ):
     """
@@ -236,6 +269,9 @@ async def get_all_results(
         db_conn = await db.get_database()
         shots_coll = db_conn["shots"]
         q: Dict[str, Any] = {}
+
+        if my_shots:
+            q["user_id"] = str(user.id)
 
         # Datumfilter
         if filter_params.start_date or filter_params.end_date:
@@ -502,16 +538,62 @@ async def update_ring(shot_id: str, ring_data: RingUpdateModel):
         raise HTTPException(500, f"Kunde inte uppdatera ring => {e}")
 
 
+# -------------------------------- POST /preview_hits --------------------------------
+
+class PreviewHitsRequest(BaseModel):
+    min_area: float
+    max_area: float
+    min_circularity: float
+
+@router.post("/results/{shot_id}/preview_hits", response_model=List[Dict[str, float]])
+async def preview_hits(shot_id: str, body: PreviewHitsRequest):
+    """
+    Previews detected hits with given parameters without performing a full analysis.
+    """
+    try:
+        db_conn = await db.get_database()
+        shots_coll = db_conn["shots"]
+        doc = await shots_coll.find_one({"_id": ObjectId(shot_id)})
+
+        if not doc:
+            raise HTTPException(404, "Analysis not found.")
+
+        image_path = doc.get("image_path")
+        if not image_path:
+            raise HTTPException(400, "Image path not found for this analysis.")
+
+        image = cv2.imread(image_path)
+        if image is None:
+            raise HTTPException(400, f"Could not read image: {image_path}")
+
+        analyzer = PatternAnalyzer()
+        hits = analyzer.preview_hits(
+            image,
+            min_area=body.min_area,
+            max_area=body.max_area,
+            min_circularity=body.min_circularity,
+        )
+
+        # Convert Point objects to dictionaries for JSON response
+        return [{"x": p.x, "y": p.y} for p in hits]
+
+    except Exception as e:
+        logger.error(f"Error in preview_hits: {e}", exc_info=True)
+        raise HTTPException(500, f"Could not preview hits: {e}")
+
+
 # -------------------------------- PATCH /reanalyze --------------------------------
 
 class ReAnalyzeModel(BaseModel):
-    sensitivity: float = 0.5
     pixPerCm: float = 1.0
+    min_area: float
+    max_area: float
+    min_circularity: float
 
 @router.patch("/results/{shot_id}/reanalyze")
 async def reanalyze_shot(shot_id: str, body: ReAnalyzeModel):
     """
-    Ladda doc->image_path => re-run PatternAnalyzer med ny 'sensitivity' + 'pixPerCm'.
+    Ladda doc->image_path => re-run PatternAnalyzer med nya granulära parametrar.
     Spara nya 'analysis_results'.
     """
     try:
@@ -536,8 +618,10 @@ async def reanalyze_shot(shot_id: str, body: ReAnalyzeModel):
 
         new_res = analyzer.analyze_shot_pattern(
             processed,
-            sensitivity=body.sensitivity,
-            pix_per_cm=body.pixPerCm
+            pix_per_cm=body.pixPerCm,
+            min_area=body.min_area,
+            max_area=body.max_area,
+            min_circularity=body.min_circularity
         )
         new_res = _cast_floats(new_res)
 

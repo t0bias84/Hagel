@@ -12,6 +12,7 @@ export const sv = {
     logout: "Logga ut",
     createLoad: "Skapa ny laddning",
     patternAnalysis: "Mönsteranalys",
+    patternComparison: "Jämför Mönster",
     penetrationAnalysis: "Penetrationstest",
     recoilAnalysis: "Rekylanalys",
     viewLoads: "Visa laddningar"
