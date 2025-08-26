@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Menu, X, Moon, Sun, LogOut, Settings, Bell } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import NotificationsDropdown from "./NotificationsDropdown";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { en } from "@/translations/en";
@@ -64,12 +65,7 @@ const ModernLayout = ({ children }) => {
             >
               {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
-            <button
-              onClick={() => setNotificationsOpen(!notificationsOpen)}
-              className="p-2 rounded-lg text-white hover:bg-dark-700 transition-colors duration-200"
-            >
-              <Bell className="w-5 h-5" />
-            </button>
+            <NotificationsDropdown />
           </div>
         </div>
       </header>

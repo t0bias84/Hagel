@@ -18,6 +18,7 @@ import math  # <--- för exp, log etc.
 from datetime import datetime
 
 from app.db.mongodb import db
+from app.services.notification_service import notify_new_comment_on_load, notify_new_vote_on_load
 from app.api.schemas.load_schemas import (
     LoadCreate,
     LoadUpdate,
@@ -559,6 +560,9 @@ async def vote_on_load(
             "createdAt": datetime.utcnow()
         })
 
+        # Skicka notis till ägaren
+        await notify_new_vote_on_load(load_id, current_user.username, vote_type)
+
         # Räkna röster
         upvotes = await votes_coll.count_documents({
             "loadId": load_id,
@@ -646,6 +650,9 @@ async def add_comment(
 
         result = await comments_coll.insert_one(comment)
         comment["_id"] = str(result.inserted_id)
+
+        # Skicka notis till ägaren
+        await notify_new_comment_on_load(load_id, current_user.username)
 
         return comment
     except Exception as e:
