@@ -29,10 +29,49 @@ from app.api.schemas.analysis import (
     ShotMetadata,
     AnalysisFilter,   # se till att denna har ammunition_type, gun_manufacturer, etc.
 )
+from app.services.analysis_service import analysis_service as analysis_service_main
+from app.core.config import settings
+import json
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+@router.post("/analyze")
+async def analyze_shot_pattern(
+    file: UploadFile = File(...),
+    metadata: str = Form(...),
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    Exempel: tar emot en bild + metadata,
+    anropar analysis_service -> analysera.
+    """
+    try:
+        metadata_dict = json.loads(metadata)
+        if file.content_type not in settings.ALLOWED_IMAGE_TYPES:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Fel filtyp. Endast {', '.join(settings.ALLOWED_IMAGE_TYPES)} är tillåtna."
+            )
+
+        result = await analysis_service_main.analyze_shot_image(
+            file=file,
+            user_id=current_user.username,
+            metadata=metadata_dict
+        )
+
+        return {
+            "pattern_id": str(result["_id"]),
+            "results": result["analysis_results"],
+            "metadata": result["metadata"],
+            "image_url": result.get("image_url")
+        }
+
+    except Exception as e:
+        logger.error(f"Analysis error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 def _cast_floats(obj):

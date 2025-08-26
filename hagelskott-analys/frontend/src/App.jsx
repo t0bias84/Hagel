@@ -19,32 +19,10 @@ import { Loader2 } from "lucide-react";
 import ErrorBoundary from "./components/common/ErrorBoundary";
 import Sidebar from "./components/common/Sidebar";
 import Layout from "./components/common/Layout";
-import ComponentsPage from "./pages/ComponentsPage";
-
-// Forum
-import NewThread from "./pages/forum/NewThread";
-import CategoryView from "./pages/CategoryView";
-import ThreadView from "./pages/ThreadView";
-
-// Loads
-import LoadTypeSelection from "./components/LoadCreation/LoadTypeSelection";
-import ShotgunLoadCreation from "./components/LoadCreation/ShotgunLoadCreation";
-import BulletLoadCreation from "./components/LoadCreation/BulletLoadCreation";
-import EditLoadPage from "./components/LoadCreation/EditLoadPage";
-import LoadListPage from "./components/LoadCreation/LoadListPage";
-import LoadDetailPage from "./components/LoadCreation/LoadDetailPage";
-
-// Quiz-sidor (direktimport)
-import QuizStartPage from "./pages/QuizStartPage";
-import QuizPlayPage from "./pages/QuizPlayPage";
-import QuizResultPage from "./pages/QuizResultPage";
 
 // Language context och Auth context
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-
-// === Import av QUIZ-sidor direkt ===
-// (Redan gjort ovan)
 
 // Lazy-laddade sidor
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -62,15 +40,22 @@ const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 const RecoilAnalysisPage = lazy(() => import("./pages/RecoilAnalysisPage"));
 const RecoilAnalysisSelectionPage = lazy(() => import("./pages/RecoilAnalysisSelectionPage"));
-
-// === Importera vår nya ComponentEditPage för att kunna redigera komponenter ===
-import ComponentEditPage from "./pages/ComponentEditPage";
-
-// === NYTT: Lazy-ladda PenetrationTestPage (som du själv skapar) ===
+const ComponentsPage = lazy(() => import("./pages/ComponentsPage"));
+const NewThread = lazy(() => import("./pages/forum/NewThread"));
+const CategoryView = lazy(() => import("./pages/CategoryView"));
+const ThreadView = lazy(() => import("./pages/ThreadView"));
+const LoadTypeSelection = lazy(() => import("./components/LoadCreation/LoadTypeSelection"));
+const ShotgunLoadCreation = lazy(() => import("./components/LoadCreation/ShotgunLoadCreation"));
+const BulletLoadCreation = lazy(() => import("./components/LoadCreation/BulletLoadCreation"));
+const EditLoadPage = lazy(() => import("./components/LoadCreation/EditLoadPage"));
+const LoadListPage = lazy(() => import("./components/LoadCreation/LoadListPage"));
+const LoadDetailPage = lazy(() => import("./components/LoadCreation/LoadDetailPage"));
+const QuizStartPage = lazy(() => import("./pages/QuizStartPage"));
+const QuizPlayPage = lazy(() => import("./pages/QuizPlayPage"));
+const QuizResultPage = lazy(() => import("./pages/QuizResultPage"));
+const ComponentEditPage = lazy(() => import("./pages/ComponentEditPage"));
 const PenetrationTestPage = lazy(() => import("./pages/PenetrationTestPage/PenetrationTestPage"));
-
-// Admin routes
-import UserManagement from "./components/admin/UserManagement";
+const UserManagement = lazy(() => import("./components/admin/UserManagement"));
 
 // Loading spinner component
 const LoadingSpinner = () => (
